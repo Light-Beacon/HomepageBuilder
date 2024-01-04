@@ -9,8 +9,11 @@ class Library:
         self.card_mapping = {}  # 卡片索引
         self.libs_mapping = {}  # 子库索引
         self.sub_libraries = {} # 子库
+        self.cards = {}
         self.location = os.path.dirname(data['path'])
-        self.cards = ScanDireRead(self.location,r'^(?!library\.yaml$).*i')  # 库所拥有的卡片
+        for pair in ScanDireRead(self.location,r'^(?!library\.yaml$).*i'):  # 库所拥有的卡片
+            filename, ext = os.path.splitext(pair[0])
+            self.cards.update({filename:{'exten':ext,'data':pair[1]}})
         self.add_sub_libraries(EnumDire(self.location,'library.yaml'))  # 遍历添加子库
 
     def decorateCard(self,card):
