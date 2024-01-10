@@ -1,6 +1,7 @@
 import yaml
 import os
 import re
+import importlib.util
 
 def readString(filepath:str):
     # 读取字符串文件
@@ -15,9 +16,18 @@ def readYaml(filepath):
         data = yaml.load(f,Loader=yaml.FullLoader)
         data.update('path',filepath)
         return data
-    
+
+def readPyScript(filepath):
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f'{filepath} not exist!')
+    spec = importlib.util.spec_from_file_location(filepath)
+    script_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(script_module)
+    return script_module
+
 read_func_mapping = {
     'yml':readYaml,
+    'py':readPyScript
 }
 
 def ScanDire(direpath:str, regex:str, asraw:bool = False):
@@ -47,3 +57,9 @@ def ScanSubDire(direpath:str, regex:str, asraw:bool = False):
     for dire in os.scandir(direpath):
         output.append(ScanDire(dire,regex,asraw))
     return output
+
+def CreateDict(file_tuple_list:list,prefix:str):
+    result = {}
+    for tuple in file_tuple_list:
+        result.update({(prefix+tuple[1]):tuple[0]})
+    return result
