@@ -1,9 +1,9 @@
-from .yaml import ScanDireReadYaml
+from .FileIO import ScanDireReadYaml
 class TemplateManager:
-     def __init__(self,elements,presenters):
+    def __init__(self,elements,scripts):
         self.templates = {}
         self.elements = elements
-        self.presenters = presenters
+        self.scripts= scripts
         load_template('..\\Templates')
         # TODO
 

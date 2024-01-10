@@ -1,7 +1,7 @@
-from .yaml import ReadYaml, ScanDireReadYaml
+from .FileIO import ReadYaml, ScanDireReadYaml
 from .Library import Library
-from .code_fomatter import format_code
-from .templates_manager import TemplateManager
+from .Code_Formatter import format_code
+from .Templates_Manager import TemplateManager
 import os
 
 class Project:
