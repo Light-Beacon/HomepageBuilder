@@ -1,4 +1,4 @@
-from .yaml import EnumDire, ScanDireRead
+from .FileIO import ScanDire,ScanSubDire
 import os
 
 class Library:
@@ -11,10 +11,10 @@ class Library:
         self.sub_libraries = {} # 子库
         self.cards = {}
         self.location = os.path.dirname(data['path'])
-        for pair in ScanDireRead(self.location,r'^(?!library\.yaml$).*i'):  # 库所拥有的卡片
-            filename, ext = os.path.splitext(pair[0])
-            self.cards.update({filename:{'exten':ext,'data':pair[1]}})
-        self.add_sub_libraries(EnumDire(self.location,'library.yaml'))  # 遍历添加子库
+        for pair in ScanDire(self.location,r'^(?!library\.yaml$).*i'):  # 库所拥有的卡片
+            data, filename, exten = pair
+            self.cards.update({'data':data,'file_name':filename,'file_exten':exten})
+        self.add_sub_libraries(ScanSubDire(self.location,'library.yaml'))  # 遍历添加子库
 
     def decorateCard(self,card):
         # 用 fill 和 cover 修饰卡片
@@ -23,16 +23,7 @@ class Library:
         cloned_fill.update(card)
         return cloned_fill
     
-    def getCard(self,card_ref,is_original):
-        target = __getCard_decoless(card_ref,is_original)
-        if is_original:
-            return target
-        else:
-            return self.decorateCard(target)
-
     def __getCard_decoless(self,card_ref,is_original):
-        previous_cover.update(self.cover)
-        previous_fill.update(self.fill)
         if ':' in card_ref:
             splits = card_ref.split(':',2)
             if splits[0] == self.name:
@@ -40,10 +31,17 @@ class Library:
             else:
                 return self.getCardFromLibMapping(splits[0],splits[1],is_original)
         return self.getCardFromCardMapping(card_ref,is_original)
+    
+    def getCard(self,card_ref,is_original):
+        target = self.__getCard_decoless(card_ref,is_original)
+        if is_original:
+            return target
+        else:
+            return self.decorateCard(target)
 
     def getCardFromCardMapping(self,card_ref,is_original):
         if card_ref in self.cards.keys():
-            return cards[card_ref].copy()
+            return self.cards[card_ref].copy()
         elif card_ref in self.card_mapping:
             return self.card_mapping[card_ref].getCard(card_ref,is_original)
         else:
