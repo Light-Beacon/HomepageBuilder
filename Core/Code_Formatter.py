@@ -1,7 +1,7 @@
 import re
 
 def format_code(code:str,card,scripts):
-    # 格式化代码
+    '''格式化代码'''
     pattern = r'\{([^}]+)\}'
     matches = re.findall(pattern, code)
     for match in matches:

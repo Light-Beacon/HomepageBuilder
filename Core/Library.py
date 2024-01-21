@@ -1,16 +1,18 @@
 from .FileIO import ScanDire,ScanSubDire
+from .Debug import Log
 import os
 
 class Library:
     def __init__(self,data):
         self.name= data['name']
-        self.fill = data['fill']
-        self.cover = data['cover']
+        Log(f'[Library] Loading {self.name}')
+        self.fill = data.get('fill')
+        self.cover = data.get('cover')
         self.card_mapping = {}  # 卡片索引
         self.libs_mapping = {}  # 子库索引
         self.sub_libraries = {} # 子库
         self.cards = {}
-        self.location = os.path.dirname(data['path'])
+        self.location = os.path.dirname(data['file_path'])
         for pair in ScanDire(self.location,r'^(?!library\.yaml$).*i'):  # 库所拥有的卡片
             data, filename, exten = pair
             self.cards.update({'data':data,'file_name':filename,'file_exten':exten})
@@ -70,9 +72,9 @@ class Library:
                 self.libs_mapping.update(libname,sublib)
             # 将该子库加入父库的子库索引
             self.libs_mapping.update(sublib.name,sublib)
-        if yamldata is list:
-            for data in yaml:
-                add_sub_library(data)
+        if type(yamldata) is list:
+            for data in yamldata:
+                add_sub_library(self,data)
         else:
-            add_sub_library(data)
+            add_sub_library(self,yamldata)
         # DEV NOTICE 如果映射的内存占用太大了就将每一个卡片和每一个子库的路径压成栈，交给根库来管理
