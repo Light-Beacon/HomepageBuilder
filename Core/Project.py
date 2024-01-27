@@ -22,21 +22,21 @@ class Project:
         self.pages = {}
         self.TemplateManager = TemplateManager(self.resources)
         for pair in ScanDire(f'{self.base_path}\\Pages',r'.*\.yml$'):
-            print(pair)
-            page = pair[0]
+            page:dict = pair[0]
             self.pages.update({ page['name']:page })
-            for alias in page['alias']:
-                self.pages.update({ alias:page })
+            if 'alias' in page:
+                for alias in page.get('alias'):
+                    self.pages.update({ alias:page })
         Log(f'[Project] Loaded pack completely!')
     
     def get_page_xaml(self,page_alias):
-        if page_alias not in self.pages.keys():
+        if page_alias not in self.pages:
             # TODO PAGE NOT FOUND EXCEPTION
             pass
         xaml = ''
         for card_ref in self.pages[page_alias]['cards']:
-            card = self.base_library.getCard(card_ref)
+            card = self.base_library.getCard(card_ref,False)
             card_xaml = self.TemplateManager.build(card)
-            card_xaml = format_code(card_xaml,card,self.scripts)
+            card_xaml = format_code(card_xaml,card,self.resources.scripts)
             xaml += card_xaml
         return xaml

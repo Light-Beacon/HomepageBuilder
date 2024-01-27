@@ -1,5 +1,7 @@
 import re
+from .scriptRunner import runScript
 
+    
 def format_code(code:str,card,scripts):
     '''格式化代码'''
     pattern = r'\{([^}]+)\}'
@@ -8,7 +10,7 @@ def format_code(code:str,card,scripts):
         qurey_tuple = match.split('|')
         attr_name = qurey_tuple[0]
         if attr_name.startswith('$'):
-            replacement = scripts[qurey_tuple[0][1:]](card,qurey_tuple)
+            replacement = runScript(scripts[qurey_tuple[0][1:]],card,qurey_tuple)
         elif attr_name in card:
             replacement = card[attr_name]
         else:

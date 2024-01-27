@@ -1,5 +1,6 @@
 components:
  - $RawPresenter
+base: void
 filter:
   file_exten:
     - xaml

@@ -3,20 +3,24 @@ from .Debug import Log
 import os
 
 class Library:
-    def __init__(self,data):
+    def __init__(self,data:dict):
         self.name= data['name']
         Log(f'[Library] Loading {self.name}')
-        self.fill = data.get('fill')
-        self.cover = data.get('cover')
+        self.fill = data.get('fill',{})
+        self.cover = data.get('cover',{})
         self.card_mapping = {}  # 卡片索引
         self.libs_mapping = {}  # 子库索引
         self.sub_libraries = {} # 子库
         self.cards = {}
         self.location = os.path.dirname(data['file_path'])
-        for pair in ScanDire(self.location,r'^(?!library\.yaml$).*i'):  # 库所拥有的卡片
+        for pair in ScanDire(self.location,r'^(?!^library.yml$).*$'):  # 库所拥有的卡片
             data, filename, exten = pair
-            self.cards.update({'data':data,'file_name':filename,'file_exten':exten})
-        self.add_sub_libraries(ScanSubDire(self.location,'library.yaml'))  # 遍历添加子库
+            if type(data) is dict and 'name' in data:
+                name = data['name']
+            else:
+                name = filename
+            self.cards.update({name:{'data':data,'file_name':filename,'file_exten':exten}})
+        self.add_sub_libraries(ScanSubDire(self.location,'library.yml'))  # 遍历添加子库
 
     def decorateCard(self,card):
         # 用 fill 和 cover 修饰卡片
@@ -26,6 +30,8 @@ class Library:
         return cloned_fill
     
     def __getCard_decoless(self,card_ref,is_original):
+        if card_ref in self.cards:
+            return self.cards[card_ref]
         if ':' in card_ref:
             splits = card_ref.split(':',2)
             if splits[0] == self.name:

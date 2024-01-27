@@ -2,6 +2,7 @@ import yaml
 import os
 import re
 import importlib.util
+from typing import List,Tuple
 from .Debug import Log
 
 def readString(filepath:str):
@@ -18,18 +19,9 @@ def readYaml(filepath):
         data.update({'file_path':filepath})
         return data
 
-def readPyScript(filepath):
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f'{filepath} not exist!')
-    spec = importlib.util.spec_from_file_location(filepath)
-    script_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(script_module)
-    return script_module
-
 read_func_mapping = {
     'yml':readYaml,
     'yaml':readYaml,
-    'py':readPyScript
 }
 
 def TryScanDire(direpath:str, regex:str, asraw:bool = False):
@@ -38,24 +30,32 @@ def TryScanDire(direpath:str, regex:str, asraw:bool = False):
     except FileNotFoundError:
         return []
 
+def getAllFileInDire(direpath:str, regex:str):
+    output: List[str] = []
+    if not os.path.exists(direpath):
+        raise FileNotFoundError(f'{direpath} not exist!')
+    for f in os.listdir(direpath):
+        if re.match(regex,f):
+            output.append(f)
+    return output
+
 def ScanDire(direpath:str, regex:str, asraw:bool = False):
     ''' 返回所有目录下所有文件名符合正则表达式的文件，以元组（读取出的信息，文件名，文件名后缀）的列表输出 '''
-    output = []
+    output:List[Tuple[object,str,str]] = []
     if not os.path.exists(direpath):
         raise FileNotFoundError(f'{direpath} not exist!')
     Log(f'[FileIO] ScanDire {direpath}')
-    for f in os.listdir(direpath):
-        if re.match(regex,f):
-            filename, exten = os.path.splitext(f)
-            f = f'{direpath}\\{f}'
-            exten = exten[1:]
-            try:
-                if asraw or exten not in read_func_mapping:
-                    output.append((readString(f),filename,exten))
-                else:
-                    output.append((read_func_mapping[exten](f),filename,exten))
-            except FileNotFoundError:
-                Log(f'[FileIO] Fail to load {f}!')            
+    for f in getAllFileInDire(direpath,regex):
+        filename, exten = os.path.splitext(f)
+        f = f'{direpath}\\{f}'
+        exten = exten[1:]
+        try:
+            if asraw or exten not in read_func_mapping:
+                output.append((readString(f),filename,exten))
+            else:
+                output.append((read_func_mapping[exten](f),filename,exten))
+        except FileNotFoundError:
+            Log(f'[FileIO] Fail to load {f}!')            
     return output
 
 def ScanSubDire(direpath:str, regex:str, asraw:bool = False):
