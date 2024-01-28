@@ -2,6 +2,7 @@ name: testlibrary
 fill:
   fillfrom: mainlib
   templates:
+    - RawInCard
     - ExampleTemplate
     - Raw
 cover:

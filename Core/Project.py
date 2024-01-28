@@ -37,6 +37,6 @@ class Project:
         for card_ref in self.pages[page_alias]['cards']:
             card = self.base_library.getCard(card_ref,False)
             card_xaml = self.TemplateManager.build(card)
-            card_xaml = format_code(card_xaml,card,self.resources.scripts)
+            #card_xaml = format_code(card_xaml,card,self.resources.scripts)
             xaml += card_xaml
         return xaml

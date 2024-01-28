@@ -1,6 +1,6 @@
 from .Code_Formatter import format_code
 from .Resource import Resource
-from .scriptRunner import runScript
+from .Code_Formatter import runScript
 
 def filter_match(template,card):
     '''检测卡片是否符合模版筛选规则'''
@@ -19,22 +19,17 @@ class TemplateManager:
         self.resources = resources
         self.templates = resources.templates
 
-    def build_with_template(self,card,template_name,child_code) -> str:
+    def build_with_template(self,card,template_name,children_code) -> str:
         if template_name == None or template_name == 'void':
-            return child_code
+            return children_code
         target_template = self.templates[template_name]
         code = ''
         for cpn in target_template['components']:
             if cpn in self.resources.components:
-                code += format_code(self.resources.components[cpn],card,self.resources)
+                code += format_code(self.resources.components[cpn],card,self.resources.scripts,children_code)
             elif cpn[0] == '$':
                 args = cpn[1:].split('|')
-                if args[0] in self.resources.scripts:
-                    code += runScript(self.resources.scripts[args[0]],card,args)
-                elif cpn.lower() == 'ChildrenPresenter':
-                    code += child_code
-                else:
-                    pass # TODO script NOT FOUND
+                code += runScript(args[0],self.resources.scripts,card,args,children_code)
             else:
                 pass # TODO component NOT FOUND
         return self.build_with_template(card,target_template.get('base'),code)

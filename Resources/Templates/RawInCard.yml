@@ -1,0 +1,6 @@
+components:
+ - $RawPresenter
+base: CardBase
+filter:
+  file_exten:
+    - xaml
