@@ -1,4 +1,8 @@
 name: testlibrary
 fill:
+  fillfrom: mainlib
   templates:
+    - ExampleTemplate
     - Raw
+cover:
+  coverfrom: mainlib

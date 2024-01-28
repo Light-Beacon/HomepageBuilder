@@ -66,21 +66,23 @@ class Library:
     def add_sub_libraries(self,yamldata):
         def add_sub_library(self,yamldata):
             sublib = Library(yamldata)
-            self.sub_libraries.update(sublib.name,sublib)
+            self.sub_libraries.update({sublib.name:sublib})
             # 将子库的卡片索引加入父库并映射到该子库
             for cardname in sublib.card_mapping.keys():
-                self.card_mapping.update(cardname,sublib)
+                self.card_mapping.update({cardname:sublib})
             # 将子库的所有卡片加入父库并映射到该子库
             for cardname in sublib.cards.keys():
-                self.card_mapping.update(cardname,sublib)
+                self.card_mapping.update({cardname:sublib})
             # 将子库的子库引加入父库并映射到该子库
             for libname in sublib.libs_mapping.keys():
-                self.libs_mapping.update(libname,sublib)
+                self.libs_mapping.update({libname:sublib})
             # 将该子库加入父库的子库索引
-            self.libs_mapping.update(sublib.name,sublib)
+            self.libs_mapping.update({sublib.name:sublib})
         if type(yamldata) is list:
             for data in yamldata:
-                add_sub_library(self,data)
+                self.add_sub_libraries(data)
+        elif type(yamldata) is tuple:
+            add_sub_library(self,yamldata[0])
         else:
             add_sub_library(self,yamldata)
         # DEV NOTICE 如果映射的内存占用太大了就将每一个卡片和每一个子库的路径压成栈，交给根库来管理

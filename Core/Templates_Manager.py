@@ -20,7 +20,7 @@ class TemplateManager:
         self.templates = resources.templates
 
     def build_with_template(self,card,template_name,child_code) -> str:
-        if template_name == 'void':
+        if template_name == None or template_name == 'void':
             return child_code
         target_template = self.templates[template_name]
         code = ''
@@ -37,7 +37,7 @@ class TemplateManager:
                     pass # TODO script NOT FOUND
             else:
                 pass # TODO component NOT FOUND
-        return self.build_with_template(card,target_template['base'],code)
+        return self.build_with_template(card,target_template.get('base'),code)
     
     def build(self,card):
         for template in card['templates']:

@@ -35,6 +35,8 @@ def getAllFileInDire(direpath:str, regex:str):
     if not os.path.exists(direpath):
         raise FileNotFoundError(f'{direpath} not exist!')
     for f in os.listdir(direpath):
+        if os.path.isdir(f'{direpath}\\{f}'):
+            continue
         if re.match(regex,f):
             output.append(f)
     return output
@@ -61,12 +63,12 @@ def ScanDire(direpath:str, regex:str, asraw:bool = False):
 def ScanSubDire(direpath:str, regex:str, asraw:bool = False):
     '''遍历文件夹下所有文件夹(不递归打开), 读取其中符合正则表达式的文件, 以 yaml 格式读取各个文件, 最后以元组（读取出的信息，文件名，文件名后缀）的列表形式输出''' 
     Log(f'[FileIO] ScanSubDire {direpath}')
-    output = []
+    output:List = []
     if not os.path.exists(direpath):
         raise FileNotFoundError(f'{direpath} not exist!')
     for entry in os.scandir(direpath):
         if entry.is_dir():
-            output.append(ScanDire(entry.path,regex,asraw))
+            output += ScanDire(entry.path,regex,asraw)
     return output
 
 def CreateDict(file_tuple_list:list,prefix:str):
