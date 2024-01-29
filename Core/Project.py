@@ -35,7 +35,12 @@ class Project:
             pass
         xaml = ''
         for card_ref in self.pages[page_alias]['cards']:
-            card = self.base_library.getCard(card_ref,False)
+            card_ref = card_ref.replace(' ','').split('|')
+            card = self.base_library.getCard(card_ref[0],False)
+            if len(card_ref) > 1:
+                for arg in card_ref[1:]:
+                    cardarg = arg.split('=')
+                    card[cardarg[0]] = cardarg[1]
             card_xaml = self.TemplateManager.build(card)
             #card_xaml = format_code(card_xaml,card,self.resources.scripts)
             xaml += card_xaml
