@@ -26,10 +26,10 @@ class TemplateManager:
         code = ''
         for cpn in target_template['components']:
             if cpn in self.resources.components:
-                code += format_code(self.resources.components[cpn],card,self.resources.scripts,children_code)
+                code += format_code(self.resources.components[cpn],card,self.resources,children_code)
             elif cpn[0] == '$':
                 args = cpn[1:].split('|')
-                code += runScript(args[0],self.resources.scripts,card,args,children_code)
+                code += runScript(args[0],self.resources,card,args,children_code)
             else:
                 pass # TODO component NOT FOUND
         return self.build_with_template(card,target_template.get('base'),code)

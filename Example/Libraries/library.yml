@@ -2,6 +2,7 @@ name: testlibrary
 fill:
   fillfrom: mainlib
   templates:
+    - MarkdownCard
     - RawInCard
     - ExampleTemplate
     - Raw

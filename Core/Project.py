@@ -1,32 +1,44 @@
-from .FileIO import readYaml,ScanDire
+from .FileIO import readYaml,ScanDire,ScanSubDire
 from .Library import Library
-from .Code_Formatter import format_code
 from .Resource import Resource
 from .Templates_Manager import TemplateManager
 from .Debug import Log
 import os
 
 class Project:
-    def __init__(self,path):
-        envpath = os.path.dirname(os.path.dirname(__file__))
-        Log(f'[Project] Loading basic resources')
-        self.resources = Resource()
-        self.resources.loadResources(f'{envpath}\\Resources','')
+    def load_plugins(self,plugin_path):
+        for data,name,exten in ScanSubDire(plugin_path,'pack\.yml'):
+            dire = os.path.dirname(data['file_path'])
+            self.resources.loadResources(f'{dire}\\Resources','')
+            
+    def import_pack(self,path):
         Log(f'[Project] Start to import pack {path}')
-        data = readYaml(path)
-        self.version = data['version']
+        pack_info = readYaml(path)
+        self.version = pack_info['version']
         Log(f'[Project] Pack version: {self.version}')
         self.base_path = os.path.dirname(path)
+        Log(f'[Project] Loading cards')
         self.base_library = Library(readYaml(f"{self.base_path}\\Libraries\\library.yml"))
+        Log(f'[Project] Importing resources')
         self.resources.loadResources(f'{self.base_path}\\Resources','')
-        self.pages = {}
-        self.TemplateManager = TemplateManager(self.resources)
+        Log(f'[Project] Loading pages')
         for pair in ScanDire(f'{self.base_path}\\Pages',r'.*\.yml$'):
             page:dict = pair[0]
             self.pages.update({ page['name']:page })
             if 'alias' in page:
                 for alias in page.get('alias'):
                     self.pages.update({ alias:page })
+        
+    def __init__(self,path):
+        envpath = os.path.dirname(os.path.dirname(__file__))
+        self.resources = Resource()
+        Log(f'[Project] Loading basic resources')
+        self.resources.loadResources(f'{envpath}\\Resources','')
+        Log(f'[Project] Loading plugins')
+        self.load_plugins(f'{envpath}\\Plugin')
+        self.pages = {}
+        self.import_pack(path)
+        self.TemplateManager = TemplateManager(self.resources)
         Log(f'[Project] Loaded pack completely!')
     
     def get_page_xaml(self,page_alias):

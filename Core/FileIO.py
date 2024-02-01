@@ -10,12 +10,14 @@ def readString(filepath:str):
     with open(filepath, "r+") as file:
         return file.read()
     
-def readYaml(filepath):
+def readYaml(filepath) -> dict:
     ''' 读取 YAML 文件 '''
     if not os.path.exists(filepath):
         raise FileNotFoundError(f'{filepath} not exist!')
     with open(filepath,encoding='utf-8') as f:
         data = yaml.load(f,Loader=yaml.FullLoader)
+        if data is None:
+            data = {} 
         data.update({'file_path':filepath})
         return data
 
@@ -46,7 +48,7 @@ def ScanDire(direpath:str, regex:str, asraw:bool = False):
     output:List[Tuple[object,str,str]] = []
     if not os.path.exists(direpath):
         raise FileNotFoundError(f'{direpath} not exist!')
-    Log(f'[FileIO] ScanDire {direpath}')
+    # Log(f'[FileIO] ScanDire {direpath}')
     for f in getAllFileInDire(direpath,regex):
         filename, exten = os.path.splitext(f)
         f = f'{direpath}\\{f}'
@@ -62,7 +64,7 @@ def ScanDire(direpath:str, regex:str, asraw:bool = False):
 
 def ScanSubDire(direpath:str, regex:str, asraw:bool = False):
     '''遍历文件夹下所有文件夹(不递归打开), 读取其中符合正则表达式的文件, 以 yaml 格式读取各个文件, 最后以元组（读取出的信息，文件名，文件名后缀）的列表形式输出''' 
-    Log(f'[FileIO] ScanSubDire {direpath}')
+    # Log(f'[FileIO] ScanSubDire {direpath}')
     output:List = []
     if not os.path.exists(direpath):
         raise FileNotFoundError(f'{direpath} not exist!')

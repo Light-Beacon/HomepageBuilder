@@ -1,0 +1,1 @@
+<Hyperlink Style="{StaticResource ILL}" xml:space="preserve" NavigateUri="${link}">${content}</Hyperlink>

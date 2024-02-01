@@ -1,0 +1,1 @@
+<TextBlock Style="{StaticResource H${level}}">${content}</TextBlock>

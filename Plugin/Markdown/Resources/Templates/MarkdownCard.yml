@@ -1,0 +1,7 @@
+components:
+ - $MarkdownPresenter
+base: CardBase
+filter:
+  file_exten:
+    - md
+    - markdown
