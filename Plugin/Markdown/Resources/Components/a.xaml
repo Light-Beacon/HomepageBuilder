@@ -1,1 +1,1 @@
-<Hyperlink Style="{StaticResource ILL}" xml:space="preserve" NavigateUri="${link}">${content}</Hyperlink>
+<local:MyTextButton Margin="2" EventType="打开网页" EventData="${link}" ToolTip="点击打开新闻主页官网">${content}</local:MyTextButton>
