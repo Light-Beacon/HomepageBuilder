@@ -1,2 +1,1 @@
-<Ellipse />
-<TextBlock Style="{StaticResource LI}">${content}</TextBlock>
+<LineBreak/><Ellipse/>${content}

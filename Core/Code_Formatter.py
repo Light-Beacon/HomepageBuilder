@@ -1,5 +1,6 @@
 import re
 from typing import Any, Callable, Dict
+from .Debug import LogWarning
 
 def format_code(code:str,card,resources,children_code):
     '''格式化代码'''
@@ -11,7 +12,7 @@ def format_code(code:str,card,resources,children_code):
         if attr_name.startswith('$'):
             replacement = runScript(qurey_tuple[0][1:],resources,card,qurey_tuple,children_code)
         elif attr_name in card:
-            replacement = card[attr_name]
+            replacement = str(card[attr_name])
         else:
             continue
         code = code.replace(f'${{{match}}}',replacement,1)
@@ -25,8 +26,8 @@ def runScript(script_name:str,resources,card,args,children_code):
         return children_code
     script_code = scripts.get(script_name)
     if script_code is None:
-        # TODO: Script Not Found
-        pass
+        LogWarning(f'[Formatter] 尝试调用不存在的脚本: {script_name}')
+        return ''
     exec(script_code,globals())
     result = str(script(card,args,resources))
     result = format_code(result,card,resources,children_code)

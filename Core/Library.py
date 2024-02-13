@@ -1,11 +1,11 @@
 from .FileIO import ScanDire,ScanSubDire
-from .Debug import Log
+from .Debug import LogInfo,LogError
 import os
 
 class Library:
     def __init__(self,data:dict):
         self.name= data['name']
-        Log(f'[Library] Loading {self.name}')
+        LogInfo(f'[Library] Loading {self.name}')
         self.fill = data.get('fill',{})
         self.cover = data.get('cover',{})
         self.card_mapping = {}  # 卡片索引
@@ -53,15 +53,15 @@ class Library:
         elif card_ref in self.card_mapping:
             return self.card_mapping[card_ref].getCard(card_ref,is_original)
         else:
-            # TODO EXPCEPTION CARD NOT FOUND
-            pass
+            raise KeyError(LogError(f'[Library] Cannot find card "{card_ref}"'))
 
     def getCardFromLibMapping(self,lib_name,card_ref,is_original):
+        if lib_name is 'T':
+            return {'templates':[card_ref]}
         if lib_name in self.libs_mapping.keys():
             return self.libs_mapping[lib_name].getCard(card_ref,is_original)
         else:
-            # TODO EXCTPTION LIB NOT FOUND
-            pass
+            raise KeyError(LogError(f'[Library] Cannot find library "{card_ref}"'))
 
     def add_sub_libraries(self,yamldata):
         def add_sub_library(self,yamldata):

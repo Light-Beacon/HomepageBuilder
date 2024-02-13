@@ -1,3 +1,1 @@
-<StackPanel Style="{StaticResource UL}">
-${content}
-</StackPanel>
+<TextBlock Style="{StaticResource UL}">${content}</TextBlock>
