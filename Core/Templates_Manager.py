@@ -1,6 +1,7 @@
 from .Code_Formatter import format_code
 from .Resource import Resource
 from .Code_Formatter import runScript
+from queue import *
 
 def filter_match(template,card):
     '''检测卡片是否符合模版筛选规则'''
@@ -21,11 +22,25 @@ class TemplateManager:
         self.resources = resources
         self.templates = resources.templates
 
+    def expend_card_placeholders(self,card:dict,children_code):
+        q = Queue()
+        for key in card:
+            q.put(key)
+        while not q.empty():
+            key = q.get()
+            try:
+                card[key] = format_code(str(card[key]),card,self.resources,children_code)
+            except KeyError:
+                q.put(key)
+                continue
+        return card
+        
     def build_with_template(self,card,template_name,children_code) -> str:
         if template_name == None or template_name == 'void':
             return children_code
         target_template = self.templates[template_name]
         code = ''
+        card = self.expend_card_placeholders(card,children_code)
         for cpn in target_template['components']:
             if cpn in self.resources.components:
                 code += format_code(self.resources.components[cpn],card,self.resources,children_code)

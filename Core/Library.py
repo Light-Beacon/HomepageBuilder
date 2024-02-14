@@ -1,5 +1,6 @@
 from .FileIO import ScanDire,ScanSubDire
 from .Debug import LogInfo,LogError
+from .Code_Formatter import format_code
 import os
 
 class Library:
