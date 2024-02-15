@@ -94,6 +94,7 @@ def PrintXaml(code:str):
             is_in_element = False
             print_newlineless(clear)
         print_newlineless(c)
+    print('')
 
 clear = '\033[0m'  
 black = '\033[30m'

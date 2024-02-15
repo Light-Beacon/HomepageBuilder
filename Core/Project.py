@@ -2,7 +2,7 @@ from .FileIO import readYaml,ScanDire,ScanSubDire
 from .Library import Library
 from .Resource import Resource
 from .Templates_Manager import TemplateManager
-from .Debug import LogInfo,LogError
+from .Debug import LogInfo, LogError, LogWarning
 import os
 
 sep = os.path.sep
@@ -25,12 +25,8 @@ class Project:
         LogInfo(f'[Project] Importing resources')
         self.resources.loadResources(f'{self.base_path}{sep}Resources','')
         LogInfo(f'[Project] Loading pages')
-        for pair in ScanDire(f'{self.base_path}{sep}Pages',r'.*\.yml$'):
-            page:dict = pair[0]
-            self.pages.update({ page['name']:page })
-            if 'alias' in page:
-                for alias in page.get('alias'):
-                    self.pages.update({alias:page})
+        for t in ScanDire(f'{self.base_path}{sep}Pages',r'.*'):
+            self.import_page(t)
         
     def __init__(self,path):
         LogInfo(f'[Project] Initing ...')
@@ -45,13 +41,30 @@ class Project:
         self.TemplateManager = TemplateManager(self.resources)
         LogInfo(f'[Project] Pack loaded successful!')
     
+    def import_page(self,page_tuple):
+        page, file_name, file_exten = page_tuple
+        if file_exten == 'yml':
+            if 'name' in page:
+                self.pages.update({ page['name']:page })
+            self.pages.update({file_name:page})
+            if 'alias' in page:
+                for alias in page.get('alias'):
+                    self.pages.update({alias:page})
+        elif file_exten == 'xaml':
+            self.pages.update({file_name:{'xaml':page}})
+        else:
+            LogWarning(f'[Project] Page file not supported: {file_name}.{file_exten}')
+
     def get_page_xaml(self,page_alias):
         '''获取 xaml 代码'''
         LogInfo(f'[Project] Getting codes of page: {page_alias}')
         if page_alias not in self.pages:
             raise KeyError(LogError(f'[Project] Cannot find page named "{page_alias}"'))
         xaml = ''
-        for card_ref in self.pages[page_alias]['cards']:
+        page = self.pages[page_alias]
+        if 'xaml' in page:
+            return page['xaml']
+        for card_ref in page['cards']:
             card_ref = card_ref.replace(' ','').split('|')
             LogInfo(f'[Project] Get card: {card_ref}')
             card = self.base_library.getCard(card_ref[0],False)
