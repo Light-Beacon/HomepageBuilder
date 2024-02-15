@@ -2,7 +2,7 @@ from .FileIO import CreateDict,TryScanDire,ScanSubDire
 from .Debug import LogInfo
 class Resource:
     def loadResources(self,path:str,prefix:str):
-        LogInfo(f'[Resource] Load resource directory: {path}')
+        LogInfo(f'[Resource] Loading resource pack: {path}')
         self.animations.update(CreateDict(TryScanDire(f'{path}\\Animations',r'.*\.xaml$'),prefix))
         self.components.update(CreateDict(TryScanDire(f'{path}\\Card_Components',r'.*\.xaml$'),prefix))
         self.components.update(CreateDict(TryScanDire(f'{path}\\Components',r'.*\.xaml$'),prefix))

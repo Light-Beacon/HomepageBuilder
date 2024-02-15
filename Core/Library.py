@@ -6,7 +6,7 @@ import os
 class Library:
     def __init__(self,data:dict):
         self.name= data['name']
-        LogInfo(f'[Library] Loading {self.name}')
+        LogInfo(f'[Library] Loading library: {self.name}')
         self.fill = data.get('fill',{})
         self.cover = data.get('cover',{})
         self.card_mapping = {}  # 卡片索引
@@ -14,14 +14,14 @@ class Library:
         self.sub_libraries = {} # 子库
         self.cards = {}
         self.location = os.path.dirname(data['file_path'])
-        for pair in ScanDire(self.location,r'^(?!^library.yml$).*$'):  # 库所拥有的卡片
+        for pair in ScanDire(self.location,r'^(?!^__LIBRARY__.yml$).*$'):  # 库所拥有的卡片
             data, filename, exten = pair
             if type(data) is dict and 'name' in data:
                 name = data['name']
             else:
                 name = filename
             self.cards.update({name:{'data':data,'file_name':filename,'file_exten':exten}})
-        self.add_sub_libraries(ScanSubDire(self.location,'library.yml'))  # 遍历添加子库
+        self.add_sub_libraries(ScanSubDire(self.location,'__LIBRARY__.yml'))  # 遍历添加子库
 
     def decorateCard(self,card):
         # 用 fill 和 cover 修饰卡片
@@ -57,7 +57,7 @@ class Library:
             raise KeyError(LogError(f'[Library] Cannot find card "{card_ref}"'))
 
     def getCardFromLibMapping(self,lib_name,card_ref,is_original):
-        if lib_name is 'T':
+        if lib_name == 'T':
             return {'templates':[card_ref]}
         if lib_name in self.libs_mapping.keys():
             return self.libs_mapping[lib_name].getCard(card_ref,is_original)
