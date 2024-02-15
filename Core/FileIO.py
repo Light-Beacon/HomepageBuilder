@@ -47,7 +47,7 @@ def getAllFileInDire(direpath:str, regex:str):
     if not os.path.exists(direpath):
         raise FileNotFoundError(f'{direpath} not exist!')
     for f in os.listdir(direpath):
-        if os.path.isdir(f'{direpath}\\{f}'):
+        if os.path.isdir(f'{direpath}{os.path.sep}{f}'):
             continue
         if re.match(regex,f):
             output.append(f)
@@ -61,7 +61,7 @@ def ScanDire(direpath:str, regex:str, asraw:bool = False):
     # Log(f'[FileIO] ScanDire {direpath}')
     for f in getAllFileInDire(direpath,regex):
         filename, exten = os.path.splitext(f)
-        f = f'{direpath}\\{f}'
+        f = f'{direpath}{os.path.sep}{f}'
         exten = exten[1:]
         try:
             if asraw or exten not in read_func_mapping:

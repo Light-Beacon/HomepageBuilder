@@ -7,7 +7,7 @@ def filter_match(template,card):
     '''检测卡片是否符合模版筛选规则'''
     if 'filter' not in template:
         return True
-    if template['filter'] is 'never':
+    if template['filter'] == 'never':
         return False
     for keyword in template['filter']:
         for match in template['filter'][keyword]:

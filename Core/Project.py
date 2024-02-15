@@ -5,12 +5,13 @@ from .Templates_Manager import TemplateManager
 from .Debug import LogInfo,LogError
 import os
 
+sep = os.path.sep
 class Project:
     def load_plugins(self,plugin_path):
         '''加载插件'''
         for data,name,exten in ScanSubDire(plugin_path,'pack\.yml'):
             dire = os.path.dirname(data['file_path'])
-            self.resources.loadResources(f'{dire}\\Resources','')
+            self.resources.loadResources(f'{dire}{sep}Resources','')
             
     def import_pack(self,path):
         '''导入资源包'''
@@ -20,11 +21,11 @@ class Project:
         LogInfo(f'[Project] Pack version: {self.version}')
         self.base_path = os.path.dirname(path)
         LogInfo(f'[Project] Loading cards')
-        self.base_library = Library(readYaml(f"{self.base_path}\\Libraries\\__LIBRARY__.yml"))
+        self.base_library = Library(readYaml(f"{self.base_path}{sep}Libraries{sep}__LIBRARY__.yml"))
         LogInfo(f'[Project] Importing resources')
-        self.resources.loadResources(f'{self.base_path}\\Resources','')
+        self.resources.loadResources(f'{self.base_path}{sep}Resources','')
         LogInfo(f'[Project] Loading pages')
-        for pair in ScanDire(f'{self.base_path}\\Pages',r'.*\.yml$'):
+        for pair in ScanDire(f'{self.base_path}{sep}Pages',r'.*\.yml$'):
             page:dict = pair[0]
             self.pages.update({ page['name']:page })
             if 'alias' in page:
@@ -36,9 +37,9 @@ class Project:
         envpath = os.path.dirname(os.path.dirname(__file__))
         self.resources = Resource()
         LogInfo(f'[Project] Loading basic resources')
-        self.resources.loadResources(f'{envpath}\\Resources','')
+        self.resources.loadResources(f'{envpath}{sep}Resources','')
         LogInfo(f'[Project] Loading plugins')
-        self.load_plugins(f'{envpath}\\Plugin')
+        self.load_plugins(f'{envpath}{sep}Plugin')
         self.pages = {}
         self.import_pack(path)
         self.TemplateManager = TemplateManager(self.resources)
