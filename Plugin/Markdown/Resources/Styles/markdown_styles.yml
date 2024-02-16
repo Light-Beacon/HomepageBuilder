@@ -15,7 +15,7 @@ Styles:
       Margin: -13,0,8,1
 
  - Target: TextBlock
-   Setters: &TextBase
+   Setters:
       TextWrapping: Wrap
       HorizontalAlignment: Left
       FontSize: 14
@@ -45,8 +45,7 @@ Styles:
    Target: TextBlock
    Setters:
       FontSize: 24
-      Padding: 15,5
-      Margin: -10,10,0,5
+      Margin: 5,10,0,5
       FontWeight: Bold
       Foreground: *Color3
 
@@ -54,8 +53,7 @@ Styles:
    Target: TextBlock
    Setters:
       FontSize: 20
-      Padding: 15,5
-      Margin: -10,3,0,5
+      Margin: 5,5,0,5
       FontWeight: Bold
       Foreground: *Color4
 
@@ -63,7 +61,6 @@ Styles:
    Target: TextBlock
    Setters:
       FontSize: 16
-      Padding: 30,0
-      Margin: -10,0,0,5
+      Margin: 5,3,0,5
       FontWeight: Bold
       Foreground: *Color4
