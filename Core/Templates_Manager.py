@@ -1,6 +1,7 @@
 from .Code_Formatter import format_code
 from .Resource import Resource
 from .Code_Formatter import runScript
+from .Debug import LogWarning
 from queue import *
 
 def filter_match(template,card):
@@ -24,14 +25,20 @@ class TemplateManager:
 
     def expend_card_placeholders(self,card:dict,children_code):
         q = Queue()
+        tries = 0
         for key in card:
             q.put(key)
         while not q.empty():
+            if tries > q.qsize():
+                LogWarning(f"[TemplateManager] 检测到卡片中 {'、'.join(q.queue)} 属性无法被展开，跳过")
+                break
             key = q.get()
             try:
                 card[key] = format_code(str(card[key]),card,self.resources,children_code)
+                tries = 0
             except KeyError:
                 q.put(key)
+                tries += 1
                 continue
         return card
         
