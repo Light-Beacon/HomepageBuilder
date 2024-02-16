@@ -1,3 +1,5 @@
-<local:MyCard Title="${title}" CanSwap="${canswap}" IsSwaped="${isswaped}">
-${$ChildrenPresenter}
+<local:MyCard Title="${title}" CanSwap="${canswap}" IsSwaped="${isswaped}" Style="{StaticResource Card}" >
+    <StackPanel Style="{StaticResource ContentStack}">
+        ${$ChildrenPresenter}
+    </StackPanel>
 </local:MyCard>

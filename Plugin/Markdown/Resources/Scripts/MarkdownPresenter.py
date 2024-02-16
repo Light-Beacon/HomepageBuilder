@@ -35,10 +35,22 @@ def tag2xaml(tag,res):
     if tag.contents:
         for child in tag.contents:
             if isinstance(child,str):
-                content += child
+                # FIX NEWLINE ERROR
+                if child == '\n':
+                    continue
+                content += replace_esc_char(child)
+                if tag.name == 'li':
+                    content += '<LineBreak/>'
             else:
                 content += tag2xaml(child,res)
-    replacement = replace(name,attrs,content,res)
+                if tag.name == 'li' and child.name == 'ul':
+                    content += '<LineBreak/>'
+    if tag.name == 'ul':
+        content = content.split('<LineBreak/>')
+        while len(content[-1]) == 0:
+            content = content[:-1]
+        content = '<LineBreak/>'.join(content)
+    replacement:str = replace(name,attrs,content,res)
     if replacement is None:
         return str(tag)
     return replacement
@@ -58,44 +70,45 @@ def replace_esc_char(string:str):
 def convert(md,res):
     md = replace_esc_char(md)
     html = markdown.markdown(md)
-    return html2xaml(html,res)
-    
+    xaml = html2xaml(html,res)
+    return xaml
+
 def script(card,args,res):
     return convert(card['data'],res)
 
 esc_chars = {
-    '<':'&lt',
-	'>':'&gt',
-	'"':'&quot',
-	"'":'&apos',
-	'¡':'&iexcl',
-	'¢':'&cent',
-	'£':'&pound',
-	'¤':'&curren',
-	'¥':'&yen',
-	'¦':'&brvbar',
-	'§':'&sect',
-	'¨':'&uml',
-	'©':'&copy',
-	'ª':'&ordf',
-	'«':'&laquo',
-	'¬':'&not',
-	'®':'&reg',
-	'¯':'&macr',
-	'°':'&deg',
-	'±':'&plusmn',
-	'²':'&sup2',
-	'³':'&sup3',
-	'´':'&acute',
-	'µ':'&micro',
-	'¶':'&para',
-	'·':'&middot',
-	'¸':'&cedil',
-	'¹':'&sup1',
-	'º':'&ordm',
-	'»':'&raquo',
-	'¼':'&frac14',
-	'½':'&frac12',
-	'¾':'&frac34',
-	'¿':'&iquest',
+    '<':'&lt;',
+	'>':'&gt;',
+	'"':'&quot;',
+	"'":'&apos;',
+	'¡':'&iexcl;',
+	'¢':'&cent;',
+	'£':'&pound;',
+	'¤':'&curren;',
+	'¥':'&yen;',
+	'¦':'&brvbar;',
+	'§':'&sect;',
+	'¨':'&uml;',
+	'©':'&copy;',
+	'ª':'&ordf;',
+	'«':'&laquo;',
+	'¬':'&not;',
+	'®':'&reg;',
+	'¯':'&macr;',
+	'°':'&deg;',
+	'±':'&plusmn;',
+	'²':'&sup2;',
+	'³':'&sup3;',
+	'´':'&acute;',
+	'µ':'&micro;',
+	'¶':'&para;',
+	'·':'&middot;',
+	'¸':'&cedil;',
+	'¹':'&sup1;',
+	'º':'&ordm;',
+	'»':'&raquo;',
+	'¼':'&frac14;',
+	'½':'&frac12;',
+	'¾':'&frac34;',
+	'¿':'&iquest;',
 }

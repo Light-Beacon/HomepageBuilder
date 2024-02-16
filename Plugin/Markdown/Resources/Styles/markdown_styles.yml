@@ -10,12 +10,12 @@ Styles:
    Setters:
       Fill: *Color3
       HorizontalAlignment: Left
-      Height: 8
-      Width: 8
-      Margin: 0,0,10,0
+      Height: 7
+      Width: 7
+      Margin: -13,0,8,1
 
  - Target: TextBlock
-   Setters:
+   Setters: &TextBase
       TextWrapping: Wrap
       HorizontalAlignment: Left
       FontSize: 14
@@ -30,7 +30,10 @@ Styles:
  - Key: UL
    Target: TextBlock
    Setters:
-      Margin: 10,0,0,0
+      Margin: 25,2,0,2
+      TextWrapping: Wrap
+      LineHeight: 16
+      FontSize: 14
 
  - Key: H1
    Target: TextBlock
@@ -43,7 +46,7 @@ Styles:
    Setters:
       FontSize: 24
       Padding: 15,5
-      Margin: 5,15,5,10
+      Margin: -10,10,0,5
       FontWeight: Bold
       Foreground: *Color3
 
@@ -52,7 +55,7 @@ Styles:
    Setters:
       FontSize: 20
       Padding: 15,5
-      Margin: 5,0,10,10
+      Margin: -10,3,0,5
       FontWeight: Bold
       Foreground: *Color4
 
@@ -61,6 +64,6 @@ Styles:
    Setters:
       FontSize: 16
       Padding: 30,0
-      Margin: 5,0,10,10
+      Margin: -10,0,0,5
       FontWeight: Bold
       Foreground: *Color4
