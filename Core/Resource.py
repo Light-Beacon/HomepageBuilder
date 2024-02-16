@@ -13,6 +13,7 @@ class Resource:
         self.page_templates.update(CreateDict(TryScanDire(f'{path}{sep}Page_Templates',r'.*\.xaml$'),prefix))
         self.scripts.update(CreateDict(TryScanDire(f'{path}{sep}Scripts',r'.*\.py$'),prefix))
         self.styles.update(CreateDict(TryScanDire(f'{path}{sep}Styles',r'.*\.xaml$'),prefix))
+        self.styles.update(CreateDict(TryScanDire(f'{path}{sep}Styles',r'.*\.yml$'),prefix))
         
     def __init__(self):
         self.animations = {}

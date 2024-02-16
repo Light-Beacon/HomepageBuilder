@@ -3,7 +3,7 @@ import json
 import os
 import re
 import importlib.util
-from typing import List,Tuple
+from typing import List,Tuple,Dict
 from .Debug import LogInfo
 
 def readString(filepath:str):
@@ -61,6 +61,9 @@ def ScanDire(direpath:str, regex:str, asraw:bool = False):
     # Log(f'[FileIO] ScanDire {direpath}')
     for f in getAllFileInDire(direpath,regex):
         filename, exten = os.path.splitext(f)
+        # 为 # 开头的文件不读取
+        if filename.startswith('#'):
+            continue
         f = f'{direpath}{os.path.sep}{f}'
         exten = exten[1:]
         try:
@@ -72,7 +75,8 @@ def ScanDire(direpath:str, regex:str, asraw:bool = False):
             LogInfo(f'[FileIO] Fail to load {f}!')            
     return output
 
-def ScanSubDire(direpath:str, regex:str, asraw:bool = False):
+def ScanSubDire(direpath:str, regex:str, 
+                asraw:bool = False) -> List[Tuple[object,str,str]]:
     '''遍历文件夹下所有文件夹(不递归打开), 读取其中符合正则表达式的文件, 以 yaml 格式读取各个文件, 最后以元组（读取出的信息，文件名，文件名后缀）的列表形式输出''' 
     # Log(f'[FileIO] ScanSubDire {direpath}')
     output:List = []
@@ -83,8 +87,10 @@ def ScanSubDire(direpath:str, regex:str, asraw:bool = False):
             output += ScanDire(entry.path,regex,asraw)
     return output
 
-def CreateDict(file_tuple_list:list,prefix:str):
+def CreateDict(file_tuple_list:List[Tuple[object,str,str]],
+               prefix:str) -> Dict[str,object]:
     result = {}
     for tuple in file_tuple_list:
-        result.update({(prefix+tuple[1]):tuple[0]})
+        data,name,ext = tuple
+        result.update({(prefix+name):data})
     return result

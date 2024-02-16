@@ -1,6 +1,7 @@
 from .FileIO import readYaml,ScanDire,ScanSubDire
 from .Library import Library
 from .Resource import Resource
+from .Styles import getStyleCode
 from .Templates_Manager import TemplateManager
 from .Debug import LogInfo, LogError, LogWarning
 import os
@@ -60,7 +61,7 @@ class Project:
         LogInfo(f'[Project] Getting codes of page: {page_alias}')
         if page_alias not in self.pages:
             raise KeyError(LogError(f'[Project] Cannot find page named "{page_alias}"'))
-        xaml = ''
+        content_xaml = ''
         page = self.pages[page_alias]
         if 'xaml' in page:
             return page['xaml']
@@ -74,5 +75,9 @@ class Project:
                     card[argname] = argvalue
             card_xaml = self.TemplateManager.build(card)
             #card_xaml = format_code(card_xaml,card,self.resources.scripts)
-            xaml += card_xaml
-        return xaml
+            content_xaml += card_xaml
+        page_xaml = self.resources.page_templates['Defult']
+        page_xaml = page_xaml.replace('${animations}','') # TODO
+        page_xaml = page_xaml.replace('${styles}',getStyleCode(self.resources.styles))
+        page_xaml = page_xaml.replace('${content}',content_xaml)
+        return page_xaml 
