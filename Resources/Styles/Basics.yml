@@ -2,8 +2,8 @@ Styles:
  - Key: ContentStack
    Target: StackPanel
    Setters:
-      Margin: 40,40,30,30
+      Margin: 30,40,30,30
  - Key: Card
    Target: local:MyCard
    Setters:
-      Margin: 0,8
+      Margin: 0,5

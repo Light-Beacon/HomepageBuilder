@@ -1,6 +1,8 @@
 components:
  - $MarkdownPresenter
 base: CardBase
+fill:
+  title: ${@GetMdH1}
 filter:
   file_exten:
     - md

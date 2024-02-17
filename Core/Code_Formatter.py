@@ -13,7 +13,7 @@ def format_code(code:str,card,resources,children_code,stack:list = []):
         if attr_name in stack:
             LogWarning(f'[Formatter] 检测到循环调用: {stack}')
             return code
-        if attr_name.startswith('$'):
+        if attr_name.startswith('$') or attr_name.startswith('@'):
             replacement = runScript(qurey_tuple[0][1:],resources,card,qurey_tuple,children_code)
         elif attr_name in card:
             replacement = str(card[attr_name])
@@ -40,28 +40,3 @@ def runScript(script_name:str,resources,card,args,children_code):
     result = str(script(card,args,resources))
     result = format_code(result,card,resources,children_code)
     return result
-
-def tag2xaml(tag,res):
-    name = tag.name
-    attrs = tag.attrs
-    content = ''
-    if tag.contents:
-        for child in tag.contents:
-            if isinstance(child,str):
-                # FIX NEWLINE ERROR
-                if child == '\n':
-                    continue
-                content += replace_esc_char(child)
-            else:
-                if tag.name == 'li' and child.name == 'ul':
-                    content += '<LineBreak/>'
-                content += tag2xaml(child,res)
-    if tag.name == 'ul':
-        content = content.split('<LineBreak/>')
-        while len(content[-1]) == 0:
-            content = content[:-1]
-        content = '<LineBreak/>'.join(content)
-    replacement:str = replace(name,attrs,content,res)
-    if replacement is None:
-        return str(tag)
-    return replacement

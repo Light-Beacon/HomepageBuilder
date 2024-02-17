@@ -23,12 +23,20 @@ class Library:
             self.cards.update({name:{'data':data,'file_name':filename,'file_exten':exten}})
         self.add_sub_libraries(ScanSubDire(self.location,'__LIBRARY__.yml'))  # 遍历添加子库
 
-    def decorateCard(self,card):
+    @classmethod
+    def decorateCard(cls,card,fill,cover):
         # 用 fill 和 cover 修饰卡片
-        cloned_fill = self.fill.copy()
-        card.update(self.cover)
+        if fill != None:
+            cloned_fill = fill.copy()
+        else:
+            cloned_fill = {}
+        if cover != None:
+            card.update(cover)
         cloned_fill.update(card)
         return cloned_fill
+    
+    def __decorateCard(self,card):
+        return self.decorateCard(card,self.fill,self.cover)
     
     def __getCard_decoless(self,card_ref,is_original):
         if card_ref in self.cards:
@@ -46,7 +54,7 @@ class Library:
         if is_original:
             return target
         else:
-            return self.decorateCard(target)
+            return self.__decorateCard(target)
 
     def getCardFromCardMapping(self,card_ref,is_original):
         if card_ref in self.cards.keys():

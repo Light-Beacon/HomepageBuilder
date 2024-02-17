@@ -6,6 +6,8 @@ from .Debug import LogWarning
 def get_replacement(name:str,attrs:dict):
     component_name = name
     replace_list = []
+    if name == 'h1':
+        return (None,None)
     if name[0] == 'h' and name[1:].isdigit():
         component_name = 'h'
         replace_list.append(('level',name[1:]))
@@ -17,6 +19,8 @@ def replace(name,attrs,content,res):
     #print(name)
     components:dict[str,str] = res.components
     component_name, replace_list = get_replacement(name,attrs)
+    if component_name == None:
+        return ''
     replace_str = components.get(component_name)
     if replace_str is None:
         LogWarning(f'[Marodown] markdown 中存在尚不支持的元素{name}')
@@ -28,7 +32,30 @@ def replace(name,attrs,content,res):
         replace_str = replace_str.replace(f'${{{k}}}',v)
     return replace_str
     
-
+def tag2xaml(tag,res):
+    name = tag.name
+    attrs = tag.attrs
+    content = ''
+    if tag.contents:
+        for child in tag.contents:
+            if isinstance(child,str):
+                # FIX NEWLINE ERROR
+                content += replace_esc_char(child).replace(
+                    '\n','<LineBreak/>')
+            else:
+                if tag.name == 'li' and child.name == 'ul':
+                    content += '<LineBreak/>'
+                content += tag2xaml(child,res)
+    if tag.name == 'ul':
+        temp = []
+        for line in content.split('<LineBreak/>'):
+            if len(line) != 0:
+                temp.append(line)
+        content = '<LineBreak/>'.join(temp)
+    replacement:str = replace(name,attrs,content,res)
+    if replacement is None:
+        return str(tag)
+    return replacement
 
 def html2xaml(html,res):
     soup = BeautifulSoup(html,'html.parser')

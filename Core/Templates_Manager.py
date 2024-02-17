@@ -2,6 +2,7 @@ from .Code_Formatter import format_code
 from .Resource import Resource
 from .Code_Formatter import runScript
 from .Debug import LogWarning
+from .Library import Library
 from queue import *
 
 def filter_match(template,card):
@@ -46,12 +47,14 @@ class TemplateManager:
         if template_name == None or template_name == 'void':
             return children_code
         target_template = self.templates[template_name]
+        card = Library.decorateCard(card,target_template.get('fill'),
+                                    target_template.get('cover'))
         code = ''
         card = self.expend_card_placeholders(card,children_code)
         for cpn in target_template['components']:
             if cpn in self.resources.components:
                 code += format_code(self.resources.components[cpn],card,self.resources,children_code)
-            elif cpn[0] == '$':
+            elif cpn.startswith('$') or cpn.startswith('@'):
                 args = cpn[1:].split('|')
                 code += runScript(args[0],self.resources,card,args,children_code)
             else:
@@ -65,6 +68,6 @@ class TemplateManager:
             if filter_match(self.resources.templates[template],card):
                 return self.build_with_template(card,template,'')
         else:
-            # TODO NO TEMPLATE MATCHED EXCEPTION
-            raise ValueError('NO TEMPLATE MATCHED EXCEPTION')
+            LogWarning('[TemplateManager] 卡片没有匹配的配置模版，跳过')
+            return ''
         
