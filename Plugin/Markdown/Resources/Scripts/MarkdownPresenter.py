@@ -32,6 +32,7 @@ def replace(name,attrs,content,res):
         replace_str = replace_str.replace(f'${{{k}}}',v)
     return replace_str
     
+FIRSTLINE_SPACES = '    '
 def tag2xaml(tag,res):
     name = tag.name
     attrs = tag.attrs
@@ -39,9 +40,11 @@ def tag2xaml(tag,res):
     if tag.contents:
         for child in tag.contents:
             if isinstance(child,str):
-                # FIX NEWLINE ERROR
-                content += replace_esc_char(child).replace(
-                    '\n','<LineBreak/>')
+                linebreak = '<LineBreak/>'
+                if tag.name == 'p':
+                    content += FIRSTLINE_SPACES
+                #    linebreak += FIRSTLINE_SPACES
+                content += replace_esc_char(child).replace('\n',linebreak)
             else:
                 if tag.name == 'li' and child.name == 'ul':
                     content += '<LineBreak/>'
@@ -49,7 +52,7 @@ def tag2xaml(tag,res):
     if tag.name == 'ul':
         temp = []
         for line in content.split('<LineBreak/>'):
-            if len(line) != 0:
+            if len(line.replace(' ','')) != 0:
                 temp.append(line)
         content = '<LineBreak/>'.join(temp)
     replacement:str = replace(name,attrs,content,res)
