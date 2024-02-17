@@ -1,1 +1,1 @@
-<local:MyTextButton Margin="2" EventType="打开网页" EventData="${link}" ToolTip="点击打开新闻主页官网">${content}</local:MyTextButton>
+<local:MyTextButton Margin="0,0,0,-3.5" EventType="打开网页" EventData="${link}">${content}</local:MyTextButton>
