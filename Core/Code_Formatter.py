@@ -40,3 +40,28 @@ def runScript(script_name:str,resources,card,args,children_code):
     result = str(script(card,args,resources))
     result = format_code(result,card,resources,children_code)
     return result
+
+def tag2xaml(tag,res):
+    name = tag.name
+    attrs = tag.attrs
+    content = ''
+    if tag.contents:
+        for child in tag.contents:
+            if isinstance(child,str):
+                # FIX NEWLINE ERROR
+                if child == '\n':
+                    continue
+                content += replace_esc_char(child)
+            else:
+                if tag.name == 'li' and child.name == 'ul':
+                    content += '<LineBreak/>'
+                content += tag2xaml(child,res)
+    if tag.name == 'ul':
+        content = content.split('<LineBreak/>')
+        while len(content[-1]) == 0:
+            content = content[:-1]
+        content = '<LineBreak/>'.join(content)
+    replacement:str = replace(name,attrs,content,res)
+    if replacement is None:
+        return str(tag)
+    return replacement

@@ -28,32 +28,7 @@ def replace(name,attrs,content,res):
         replace_str = replace_str.replace(f'${{{k}}}',v)
     return replace_str
     
-def tag2xaml(tag,res):
-    name = tag.name
-    attrs = tag.attrs
-    content = ''
-    if tag.contents:
-        for child in tag.contents:
-            if isinstance(child,str):
-                # FIX NEWLINE ERROR
-                if child == '\n':
-                    continue
-                content += replace_esc_char(child)
-                if tag.name == 'li':
-                    content += '<LineBreak/>'
-            else:
-                content += tag2xaml(child,res)
-                if tag.name == 'li' and child.name == 'ul':
-                    content += '<LineBreak/>'
-    if tag.name == 'ul':
-        content = content.split('<LineBreak/>')
-        while len(content[-1]) == 0:
-            content = content[:-1]
-        content = '<LineBreak/>'.join(content)
-    replacement:str = replace(name,attrs,content,res)
-    if replacement is None:
-        return str(tag)
-    return replacement
+
 
 def html2xaml(html,res):
     soup = BeautifulSoup(html,'html.parser')
