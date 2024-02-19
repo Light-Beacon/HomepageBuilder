@@ -3,7 +3,7 @@ from .Library import Library
 from .Resource import Resource
 from .Styles import getStyleCode
 from .Templates_Manager import TemplateManager
-from .Debug import LogInfo, LogError, LogWarning
+from .Debug import LogInfo, LogError, LogWarning, FormatXaml
 import os
 
 sep = os.path.sep
@@ -80,4 +80,4 @@ class Project:
         page_xaml = page_xaml.replace('${animations}','') # TODO
         page_xaml = page_xaml.replace('${styles}',getStyleCode(self.resources.styles))
         page_xaml = page_xaml.replace('${content}',content_xaml)
-        return page_xaml 
+        return page_xaml

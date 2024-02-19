@@ -12,7 +12,7 @@ def get_replacement(name:str,attrs:dict):
         component_name = 'h'
         replace_list.append(('level',name[1:]))
     elif name == 'a':
-        replace_list.append(('link',attrs['href']))
+        replace_list.append(('link',attrs['href'])) 
     return (component_name, replace_list)
 
 def replace(name,attrs,content,res):
@@ -29,7 +29,7 @@ def replace(name,attrs,content,res):
     #print(f'{replace_str} : {content}')
     for k,v in replace_list:
         #print(k+v+' ')
-        replace_str = replace_str.replace(f'${{{k}}}',v)
+        replace_str = replace_str.replace(f'${{{k}}}',replace_esc_char(v))
     return replace_str
     
 FIRSTLINE_SPACES = '    '
@@ -38,11 +38,11 @@ def tag2xaml(tag,res):
     attrs = tag.attrs
     content = ''
     if tag.contents:
+        if tag.name == 'p':
+                    content += FIRSTLINE_SPACES
         for child in tag.contents:
             if isinstance(child,str):
                 linebreak = '<LineBreak/>'
-                if tag.name == 'p':
-                    content += FIRSTLINE_SPACES
                 #    linebreak += FIRSTLINE_SPACES
                 content += replace_esc_char(child).replace('\n',linebreak)
             else:
@@ -116,4 +116,5 @@ esc_chars = {
 	'½':'&frac12;',
 	'¾':'&frac34;',
 	'¿':'&iquest;',
+    '&':'&amp;'
 }

@@ -11,6 +11,10 @@ def LogError(infomation:str):
     print(f'{red}[ERROR]{infomation}')
     return infomation
 
+def LogFatal(infomation:str):
+    print(f'{red}[FATAL]{infomation}')
+    return infomation
+
 tabtext = '    '
 
 def FormatXaml(code:str):
