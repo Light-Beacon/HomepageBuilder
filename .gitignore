@@ -2,3 +2,4 @@
 /.vscode
 __pycache__
 Test.py
+server_config.yml
