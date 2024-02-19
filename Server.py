@@ -10,6 +10,8 @@ app = Flask(__name__)
 def getpage(name:str):
     if name.endswith('/version'):
         return server.getPage('version')
+    while name.endswith('/'):
+        name = name[:-1]
     return server.getPage(name)
 
 class Server: 
