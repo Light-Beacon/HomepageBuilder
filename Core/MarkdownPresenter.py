@@ -55,17 +55,41 @@ def listItem2xaml(tag,res):
                 if isinstance(child,str):
                     content += replace_esc_char(child)
                 else:
-                    content += tag2xaml(child,res)
+                    content += element2xaml_general(child,res)
             else:
                 if in_paragraph:
                     content += '</Paragraph>'
                     in_paragraph = False
-                content += tag2xaml(child,res)
+                content += element2xaml_general(child,res)
         if in_paragraph:
             content += '</Paragraph>'
     return element_frame.replace('${content}',content)
 
-def tag2xaml(tag,res):
+def quote2xaml(tag,res):
+    if tag.name != 'blockquote':
+        raise ValueError()
+    element_frame:str = get_element_frame(tag.name,{},res)
+    content = ''
+    if tag.contents:
+        for child in tag:
+            if isinstance(child,str) or child.name != 'p':
+                continue
+            for grand_child in child:
+                content += element2xaml_general(grand_child,res)
+    return element_frame.replace('${content}',content)
+
+def element2xaml_general(tag,res):
+    if isinstance(tag,str):
+        return replace_esc_char(tag)
+    match tag.name:
+        case 'li':
+            return listItem2xaml(tag,res)
+        case 'blockquote':
+            return quote2xaml(tag,res)
+        case _:
+            return common2xaml(tag,res)
+
+def common2xaml(tag,res):
     name = tag.name
     attrs = tag.attrs
     content = ''
@@ -76,21 +100,14 @@ def tag2xaml(tag,res):
         if name == 'p':
                 content += FIRSTLINE_SPACES
         for child in tag.contents:
-            if isinstance(child,str):
-                content += replace_esc_char(child)
-            else:
-                match child.name:
-                    case 'li':
-                        content += listItem2xaml(child,res)
-                    case _:
-                        content += tag2xaml(child,res)
+            content += element2xaml_general(child,res)
     return element_frame.replace('${content}',content)
 
 def html2xaml(html,res):
     soup = BeautifulSoup(html,'html.parser')
     xaml = ''
     for tag in soup.find_all(recursive=False):
-        xaml += tag2xaml(tag,res)
+        xaml += element2xaml_general(tag,res)
     return xaml
 
 def replace_esc_char(string:str):
