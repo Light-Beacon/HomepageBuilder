@@ -1,6 +1,6 @@
 components:
  - $MarkdownPresenter
-base: CardBase
+base: FlowDocCard
 fill:
   title: ${@GetMdH1}
 filter:

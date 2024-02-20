@@ -1,7 +1,6 @@
 import markdown
 from bs4 import BeautifulSoup
-from . import Templates_Manager
-from .Debug import LogWarning
+from .Debug import LogInfo
 
 def get_replacement(name:str,attrs:dict):
     component_name = name
@@ -15,50 +14,77 @@ def get_replacement(name:str,attrs:dict):
         replace_list.append(('link',attrs['href'])) 
     return (component_name, replace_list)
 
-def replace(name,attrs,content,res):
-    #print(name)
+def get_element_frame(name,attrs,res):
     components:dict[str,str] = res.components
     component_name, replace_list = get_replacement(name,attrs)
-    if component_name == None:
+    if component_name == None: # e.g H1
         return ''
     replace_str = components.get(component_name)
     if replace_str is None:
-        LogWarning(f'[Marodown] markdown 中存在尚不支持的元素{name}')
+        LogInfo(f'[Marodown] markdown 中存在尚不支持的元素{name}')
         return None
-    replace_str = replace_str.replace('${content}',content)
-    #print(f'{replace_str} : {content}')
     for k,v in replace_list:
-        #print(k+v+' ')
         replace_str = replace_str.replace(f'${{{k}}}',replace_esc_char(v))
     return replace_str
     
 FIRSTLINE_SPACES = '    '
+LINE_BREAK = '<LineBreak/>'
+INLINE_ELEMENTS = ['li','p','em','strong','a','code']
+
+def is_inline(tag):
+    if isinstance(tag,str):
+        return True
+    return tag.name in INLINE_ELEMENTS
+
+def listItem2xaml(tag,res): 
+    if tag.name != 'li':
+        raise ValueError()
+    element_frame:str = get_element_frame(tag.name,{},res)
+    if element_frame is None:
+        return str(tag)
+    content = ''
+    in_paragraph = False
+    if tag.contents:
+        for child in tag.contents:
+            if is_inline(child):
+                if child == '\n':
+                    continue
+                if not in_paragraph:
+                    content += '<Paragraph>'
+                    in_paragraph = True
+                if isinstance(child,str):
+                    content += replace_esc_char(child)
+                else:
+                    content += tag2xaml(child,res)
+            else:
+                if in_paragraph:
+                    content += '</Paragraph>'
+                    in_paragraph = False
+                content += tag2xaml(child,res)
+        if in_paragraph:
+            content += '</Paragraph>'
+    return element_frame.replace('${content}',content)
+
 def tag2xaml(tag,res):
     name = tag.name
     attrs = tag.attrs
     content = ''
+    element_frame:str = get_element_frame(name,attrs,res)
+    if element_frame is None:
+        return str(tag)
     if tag.contents:
-        if tag.name == 'p':
-                    content += FIRSTLINE_SPACES
+        if name == 'p':
+                content += FIRSTLINE_SPACES
         for child in tag.contents:
             if isinstance(child,str):
-                linebreak = '<LineBreak/>'
-                #    linebreak += FIRSTLINE_SPACES
-                content += replace_esc_char(child).replace('\n',linebreak)
+                content += replace_esc_char(child)
             else:
-                if tag.name == 'li' and child.name == 'ul':
-                    content += '<LineBreak/>'
-                content += tag2xaml(child,res)
-    if tag.name == 'ul':
-        temp = []
-        for line in content.split('<LineBreak/>'):
-            if len(line.replace(' ','')) != 0:
-                temp.append(line)
-        content = '<LineBreak/>'.join(temp)
-    replacement:str = replace(name,attrs,content,res)
-    if replacement is None:
-        return str(tag)
-    return replacement
+                match child.name:
+                    case 'li':
+                        content += listItem2xaml(child,res)
+                    case _:
+                        content += tag2xaml(child,res)
+    return element_frame.replace('${content}',content)
 
 def html2xaml(html,res):
     soup = BeautifulSoup(html,'html.parser')
@@ -72,14 +98,11 @@ def replace_esc_char(string:str):
         string = string.replace(key,esc_chars[key])
     return string
     
-def convert(md,res):
-    md = replace_esc_char(md)
+def convert(card,res):
+    md = card['data']
     html = markdown.markdown(md)
     xaml = html2xaml(html,res)
     return xaml
-
-def script(card,args,res):
-    return convert(card['data'],res)
 
 esc_chars = {
     '<':'&lt;',

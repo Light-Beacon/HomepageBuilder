@@ -1,0 +1,11 @@
+Styles:
+ - Target: FlowDocumentScrollViewer
+   Setters:
+      IsSelectionEnabled: False
+      VerticalScrollBarVisibility: Hidden
+      Margin: 0
+
+ - Target: FlowDocument
+   Setters:
+      FontFamily: Microsoft YaHei UI
+      

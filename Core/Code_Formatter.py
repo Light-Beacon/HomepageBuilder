@@ -1,6 +1,7 @@
 import re
 from typing import Any, Callable, Dict
 from .Debug import LogWarning, LogDebug
+from .MarkdownPresenter import convert
 
 def format_code(code:str,card,resources,children_code,stack:list = []):
     '''格式化代码'''
@@ -30,8 +31,10 @@ script: Callable[[Dict,Any], str]
 def runScript(script_name:str,resources,card,args,children_code):
     '''获取脚本输出结果'''
     scripts = resources.scripts
-    if(script_name == 'ChildrenPresenter'):
+    if script_name == 'ChildrenPresenter':
         return children_code
+    if script_name == 'MarkdownPresenter':
+        return convert(card,resources)
     script_code = scripts.get(script_name)
     if script_code is None:
         LogWarning(f'[Formatter] 尝试调用不存在的脚本: {script_name}')

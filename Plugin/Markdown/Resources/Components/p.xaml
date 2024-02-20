@@ -1,1 +1,1 @@
-<TextBlock xml:space="preserve" Style="{StaticResource PARAGRA}">${content}</TextBlock>
+<Paragraph>${content}</Paragraph>

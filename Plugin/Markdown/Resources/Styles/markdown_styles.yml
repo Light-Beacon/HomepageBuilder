@@ -6,13 +6,6 @@ Anchors:
   - &Color5 "{DynamicResource ColorBrush5}"
 
 Styles:
- - Target: Ellipse
-   Setters:
-      Fill: *Color3
-      HorizontalAlignment: Left
-      Height: 7
-      Width: 7
-      Margin: -15,0,8,1
 
  - Target: TextBlock
    Setters:
@@ -29,16 +22,19 @@ Styles:
       FontSize: 14
       LineHeight: 16
 
- - Key: UL
-   Target: TextBlock
+ - Target: List
    Setters:
-      Margin: 25,2,0,2
-      TextWrapping: Wrap
-      LineHeight: 18
-      FontSize: 14
+      Foreground: *Color3
+      Margin: 20,0,0,0
+      MarkerStyle: 1
+      Padding: 0
+
+ - Target: ListItem
+   Setters:
+     Foreground: Black
 
  - Key: H2
-   Target: TextBlock
+   Target: Paragraph
    Setters:
       FontSize: 22
       Margin: 0,10,0,5
@@ -46,7 +42,7 @@ Styles:
       Foreground: *Color3
 
  - Key: H3
-   Target: TextBlock
+   Target: Paragraph
    Setters:
       FontSize: 18
       Margin: 0,5,0,5
@@ -54,9 +50,17 @@ Styles:
       Foreground: *Color4
 
  - Key: H4
-   Target: TextBlock
+   Target: Paragraph
    Setters:
       FontSize: 16
       Margin: 0,3,0,5
       FontWeight: Bold
       Foreground: *Color4
+
+ - Key: Quote
+   Target: Border
+   Setters:
+      BorderThickness: 5,0,0,0
+      BorderBrush: *Color4
+      Padding: 10,5
+      Margin: 0,5
