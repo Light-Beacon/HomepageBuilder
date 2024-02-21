@@ -1,0 +1,3 @@
+<StackPanel Style="{StaticResource ContentStack}">
+${$ChildrenPresenter}
+</StackPanel>

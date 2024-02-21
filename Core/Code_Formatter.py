@@ -19,8 +19,11 @@ def format_code(code:str,card,resources,children_code,stack:list = []):
         elif attr_name in card:
             replacement = str(card[attr_name])
         else:
-            LogWarning(f'[Formatter] 访问了不存在的属性: {attr_name}')
-            continue
+            if len(qurey_tuple) >= 1:
+                replacement = qurey_tuple[-1]
+            else:
+                LogWarning(f'[Formatter] 访问了不存在的属性，并且没有设定默认值: {attr_name}')
+                continue
         stack.append(attr_name)
         replacement = format_code(replacement,card,resources,children_code,stack)
         stack.pop()

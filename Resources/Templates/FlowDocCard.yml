@@ -1,3 +1,3 @@
 components:
  - FlowDocumentViewer
-base: CardBase
+base: Card
