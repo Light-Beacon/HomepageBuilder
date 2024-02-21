@@ -14,7 +14,6 @@ def verify_signature(request,secret):
                            msg=body,digestmod=hashlib.sha1)
     expected_signature = "sha1=" + hash_object.hexdigest()
     signature_header = request.headers.get('X-Hub-Signature','')
-    print(signature_header,expected_signature)
     return hmac.compare_digest(expected_signature, signature_header)
     
 def __update(request,project_dir,secret):
