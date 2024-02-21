@@ -1,7 +1,7 @@
 from flask import Flask, request
 from Core.Project import Project, PageNotFoundError
 from Core.FileIO import readYaml
-from Core.Debug import LogFatal,LogError
+from Core.Debug import LogFatal,LogError,LogInfo
 from Server.project_updater import request_update
 import traceback
 import os
@@ -14,6 +14,7 @@ def git_update():
         server.config['github_secret'])
     if status == 200:
         server.cache.clear()
+        LogInfo('[Server] Cache cleared.')
     else:
         LogError(data)
     return data,status
@@ -27,8 +28,8 @@ def index_page():
     
 @app.route("/<path:alias>")
 def getpage(alias:str):
-    if alias.endswith('/version'):
-        return server.getPage('version')
+    if alias.endswith('/version') or alias == 'version':
+        return server.getVersion()
     while alias.endswith('/'):
         alias = alias[:-1]
     try:
@@ -54,12 +55,15 @@ class Server:
             self.project = Project(self.project_path)
             self.defult_page = self.project.defult_page
             self.project_dir = os.path.dirname(self.project_path)
-            githash = subprocess.check_output('git rev-parse HEAD',cwd = self.project_dir, shell=True)
-            githash = githash.decode("utf-8")
-            self.cache['version'] = githash
         except Exception as e:
             LogFatal(e.args)
             exit() 
+    
+    def getVersion(self):
+        if 'version' not in self.cache:
+            githash = subprocess.check_output('git rev-parse HEAD',cwd = self.project_dir, shell=True)
+            githash = githash.decode("utf-8")
+            self.cache['version'] = githash
     
     def getPageJson(self,alias):
         key = alias + '.json'
