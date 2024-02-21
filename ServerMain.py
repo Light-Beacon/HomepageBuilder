@@ -13,6 +13,7 @@ def git_update():
     status,data = request_update(request,server.project_dir,
         server.config['github_secret'])
     if status == 200:
+        server.clear_cache()
         server.cache.clear()
         LogInfo('[Server] Cache cleared.')
     else:
@@ -59,11 +60,16 @@ class Server:
             LogFatal(e.args)
             exit() 
     
+    def clear_cache(self):
+        self.project = Project(self.project_path)
+        self.cache.clear()
+    
     def getVersion(self):
         if 'version' not in self.cache:
             githash = subprocess.check_output('git rev-parse HEAD',cwd = self.project_dir, shell=True)
             githash = githash.decode("utf-8")
             self.cache['version'] = githash
+        return self.cache['version']
     
     def getPageJson(self,alias):
         key = alias + '.json'
