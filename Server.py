@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, jsonify, request
 from Core.Project import Project
 from Core.FileIO import readYaml
 from Core.Debug import LogFatal
+from Server.project_updater import request_update
 import os
 import subprocess
 app = Flask(__name__)
@@ -10,6 +11,10 @@ app = Flask(__name__)
 def getpage(name:str):
     if name.endswith('/version'):
         return server.getPage('version')
+    if name.endswith('/pull'):
+        status,data = request_update(request,server.project_path,
+            server.config['github_secret'])
+        return jsonify({'status':status,'data':data})
     while name.endswith('/'):
         name = name[:-1]
     return server.getPage(name)
