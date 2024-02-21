@@ -1,7 +1,7 @@
 from flask import Flask, request
 from Core.Project import Project
 from Core.FileIO import readYaml
-from Core.Debug import LogFatal,LogWarning
+from Core.Debug import LogFatal,LogError
 from Server.project_updater import request_update
 import os
 import subprocess
@@ -9,15 +9,14 @@ app = Flask(__name__)
 
 @app.route("/pull",methods=['POST'])
 def git_update():
-    status,data = request_update(request,server.project_path,
+    status,data = request_update(request,server.project_dir,
         server.config['github_secret'])
     if status != 200:
-        LogWarning("An Expection occured while updating project: {data}")
+        LogError(data)
     return data,status
 
 @app.route("/<path:name>")
 def getpage(name:str):
-    LogDebug(f'Requst to access {name}')
     if name.endswith('/version'):
         return server.getPage('version')
     while name.endswith('/'):
@@ -33,8 +32,8 @@ class Server:
             self.config = readYaml(self.config_path)
             self.project_path = self.config['project_path']
             self.project = Project(self.project_path)
-            project_dir = os.path.dirname(self.project_path)
-            githash = subprocess.check_output('git rev-parse HEAD',cwd = project_dir, shell=True)
+            self.project_dir = os.path.dirname(self.project_path)
+            githash = subprocess.check_output('git rev-parse HEAD',cwd = self.project_dir, shell=True)
             githash = githash.decode("utf-8")
             self.cache['version'] = githash
         except Exception as e:

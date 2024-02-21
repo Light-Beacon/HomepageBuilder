@@ -1,29 +1,32 @@
 import hmac
+import hashlib
 import subprocess
+import traceback
 GIT_PULL = 'git pull -f'
 
 class GithubAuthError(Exception):
     pass
 
-def encrypt(secret,data):
-    key = secret.encode('UTF-8')
-    obj = hmac.new(key,msg=data,digestmod='sha1')
-    return obj.hexdigest()
-
-def vaild_from_github(request,secret):
-    post_data = request.data
-    token = encrypt(secret,post_data)
-    sig = request.headers.get('X-Hub-Signature','').split('=')[-1]
-    return sig == token
+def verify_signature(request,secret):
+    body = request.data
+    # https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries#python-example
+    hash_object = hmac.new(secret.encode('utf-8'),
+                           msg=body,digestmod=hashlib.sha1)
+    expected_signature = "sha1=" + hash_object.hexdigest()
+    signature_header = request.headers.get('X-Hub-Signature','')
+    print(signature_header,expected_signature)
+    return hmac.compare_digest(expected_signature, signature_header)
     
-def __update(request,project_path,secret):
-    if not vaild_from_github(request,secret):
-        raise GithubAuthError('Auth Failed')
-    result = subprocess.check_output(GIT_PULL,cwd = project_path, shell=True)
+def __update(request,project_dir,secret):
+    if not verify_signature(request,secret):
+        raise GithubAuthError('Auth Failed.')
+    result = subprocess.check_output(GIT_PULL,cwd = project_dir, shell=True)
     return result
 
-def request_update(request,project_path,secret):
+def request_update(request,project_dir,secret):
     try:
-        return (200,__update(request,project_path,secret))
+        return (200,__update(request,project_dir,secret))
+    except GithubAuthError as e:
+        return (401, str(e))
     except Exception as e:
-        return (401,str(e))
+        return (500, f"An Error occured while updating the project:\n {traceback.format_exc()}")
