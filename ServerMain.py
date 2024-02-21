@@ -3,6 +3,7 @@ from Core.Project import Project, PageNotFoundError
 from Core.FileIO import readYaml
 from Core.Debug import LogFatal,LogError
 from Server.project_updater import request_update
+import traceback
 import os
 import subprocess
 app = Flask(__name__)
@@ -39,6 +40,7 @@ def getpage(alias:str):
     except PageNotFoundError:
         return 'No Page Found',404
     except Exception:
+        LogError(traceback.format_exc())
         return 'Inner Error Occured',500
     
 class Server: 
