@@ -1,20 +1,25 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request
 from Core.Project import Project
 from Core.FileIO import readYaml
-from Core.Debug import LogFatal
+from Core.Debug import LogFatal,LogWarning
 from Server.project_updater import request_update
 import os
 import subprocess
 app = Flask(__name__)
 
+@app.route("/pull",methods=['POST'])
+def git_update():
+    status,data = request_update(request,server.project_path,
+        server.config['github_secret'])
+    if status != 200:
+        LogWarning("An Expection occured while updating project: {data}")
+    return data,status
+
 @app.route("/<path:name>")
 def getpage(name:str):
+    LogDebug(f'Requst to access {name}')
     if name.endswith('/version'):
         return server.getPage('version')
-    if name.endswith('/pull'):
-        status,data = request_update(request,server.project_path,
-            server.config['github_secret'])
-        return jsonify({'status':status,'data':data})
     while name.endswith('/'):
         name = name[:-1]
     return server.getPage(name)

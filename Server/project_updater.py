@@ -1,5 +1,5 @@
 import hmac
-
+import subprocess
 GIT_PULL = 'git pull -f'
 
 class GithubAuthError(Exception):
@@ -24,6 +24,6 @@ def __update(request,project_path,secret):
 
 def request_update(request,project_path,secret):
     try:
-        return (200,__update(request,project_path))
+        return (200,__update(request,project_path,secret))
     except Exception as e:
-        return (401,e.args)
+        return (401,str(e))
