@@ -6,6 +6,7 @@ from Server.project_updater import request_update
 import traceback
 import os
 import subprocess
+import gc
 app = Flask(__name__)
 
 @app.route("/pull",methods=['POST'])
@@ -61,6 +62,8 @@ class Server:
             exit() 
     
     def clear_cache(self):
+        del self.project
+        gc.collect()
         self.project = Project(self.project_path)
         self.cache.clear()
     
