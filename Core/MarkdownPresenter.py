@@ -1,4 +1,5 @@
 import markdown
+import re
 from bs4 import BeautifulSoup
 from .Debug import LogInfo
 
@@ -114,9 +115,15 @@ def replace_esc_char(string:str):
     for key in esc_chars:
         string = string.replace(key,esc_chars[key])
     return string
-    
+
+del_pattern = re.compile(r'~~(.*)~~')
+
+def md_del_replace(md:str):
+    return re.sub(del_pattern,r'<del>\1<del/>',md)
+
 def convert(card,res):
     md = card['data']
+    md = md_del_replace(md)
     html = markdown.markdown(md)
     xaml = html2xaml(html,res)
     return xaml
