@@ -30,7 +30,7 @@ def get_element_frame(name,attrs,res):
     
 FIRSTLINE_SPACES = '    '
 LINE_BREAK = '<LineBreak/>'
-INLINE_ELEMENTS = ['li','p','em','strong','a','code']
+INLINE_ELEMENTS = ['li','p','em','strong','a','code','del']
 
 def is_inline(tag):
     if isinstance(tag,str):
@@ -119,7 +119,7 @@ def replace_esc_char(string:str):
 del_pattern = re.compile(r'~~(.*)~~')
 
 def md_del_replace(md:str):
-    return re.sub(del_pattern,r'<del>\1<del/>',md)
+    return re.sub(del_pattern,r'<del>\1</del>',md)
 
 def convert(card,res):
     md = card['data']
