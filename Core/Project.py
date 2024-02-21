@@ -19,6 +19,7 @@ class Project:
         LogInfo(f'[Project] Start to import pack at: {path}')
         pack_info = readYaml(path)
         self.version = pack_info['version']
+        self.defult_page = pack_info.get('defult_page')
         LogInfo(f'[Project] Pack version: {self.version}')
         self.base_path = os.path.dirname(path)
         LogInfo(f'[Project] Loading cards')
@@ -26,8 +27,8 @@ class Project:
         LogInfo(f'[Project] Importing resources')
         self.resources.loadResources(f'{self.base_path}{sep}Resources','')
         LogInfo(f'[Project] Loading pages')
-        for t in ScanDire(f'{self.base_path}{sep}Pages',r'.*'):
-            self.import_page(t)
+        for page in ScanDire(f'{self.base_path}{sep}Pages',r'.*'):
+            self.import_page(page)
         
     def __init__(self,path):
         LogInfo(f'[Project] Initing ...')
@@ -60,7 +61,7 @@ class Project:
         '''获取 xaml 代码'''
         LogInfo(f'[Project] Getting codes of page: {page_alias}')
         if page_alias not in self.pages:
-            raise KeyError(LogError(f'[Project] Cannot find page named "{page_alias}"'))
+            raise PageNotFoundError(LogError(f'[Project] Cannot find page named "{page_alias}"'))
         content_xaml = ''
         page = self.pages[page_alias]
         if 'xaml' in page:
@@ -81,3 +82,12 @@ class Project:
         page_xaml = page_xaml.replace('${styles}',getStyleCode(self.resources.styles))
         page_xaml = page_xaml.replace('${content}',content_xaml)
         return page_xaml
+    
+    def get_page_name(self,page_alias):
+        '''获取页面名'''
+        if page_alias not in self.pages:
+            raise PageNotFoundError(LogError(f'[Project] Cannot find page named "{page_alias}"'))
+        page = self.pages[page_alias]
+        return page.get('name')
+class PageNotFoundError(Exception):
+    pass
