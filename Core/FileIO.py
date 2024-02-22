@@ -9,6 +9,11 @@ def readString(filepath:str):
     # 读取字符串文件
     with open(filepath, "r+") as file:
         return file.read()
+    
+def writeString(filepath:str,data:str):
+    '''写入字符串文件'''
+    with open(filepath, "w") as file:
+        return file.write(data)
 
 def readJson(filepath) -> dict:
     ''' 读取 Json 文件 '''

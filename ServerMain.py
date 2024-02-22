@@ -1,6 +1,6 @@
 from flask import Flask, request
 from Core.Project import Project, PageNotFoundError
-from Core.FileIO import readYaml
+from Core.FileIO import readYaml, readString, writeString
 from Core.Debug import LogFatal,LogError,LogInfo
 from Server.project_updater import request_update
 import traceback
@@ -15,8 +15,6 @@ def git_update():
         server.config['github_secret'])
     if status == 200:
         server.clear_cache()
-        server.cache.clear()
-        LogInfo('[Server] Cache cleared.')
     else:
         LogError(data)
     return data,status
@@ -50,6 +48,7 @@ class Server:
     def __init__(self):
         envpath = os.path.dirname(os.path.dirname(__file__))
         self.config_path = f"{envpath}{os.path.sep}server_config.yml"
+        self.version_cache_path = f"{envpath}{os.path.sep}latest_version.cache"
         self.cache = {}
         try:
             self.config = readYaml(self.config_path)
@@ -57,6 +56,7 @@ class Server:
             self.project = Project(self.project_path)
             self.defult_page = self.project.defult_page
             self.project_dir = os.path.dirname(self.project_path)
+            self.cache['version'] = self.write_latest_version_cache()
         except Exception as e:
             LogFatal(e.args)
             exit() 
@@ -66,12 +66,29 @@ class Server:
         gc.collect()
         self.project = Project(self.project_path)
         self.cache.clear()
+        self.write_latest_version_cache()
+        LogInfo('[Server] Cache cleared.')
+    
+    def get_latest_version_cache(self):
+        return readString(self.version_cache_path)
+    
+    def write_latest_version_cache(self):
+        ''' 将 commit hash 写入缓存并返回其值 '''
+        version_hash = self.get_githash()
+        writeString(self.version_cache_path,version_hash)
+        return version_hash
+    
+    def get_githash(self):
+        githash = subprocess.check_output('git rev-parse HEAD',cwd = self.project_dir, shell=True)
+        return githash.decode("utf-8")
     
     def getVersion(self):
         if 'version' not in self.cache:
-            githash = subprocess.check_output('git rev-parse HEAD',cwd = self.project_dir, shell=True)
-            githash = githash.decode("utf-8")
-            self.cache['version'] = githash
+            self.cache['version'] = self.get_githash()
+        latest_version = self.get_latest_version_cache()
+        if self.cache['version'] != latest_version:
+            self.clear_cache()
+            self.cache['version'] = self.get_githash()
         return self.cache['version']
     
     def getPageJson(self,alias):
