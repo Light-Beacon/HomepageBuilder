@@ -25,8 +25,10 @@ def format_code(code:str,card,resources,children_code,stack:list = []):
                 LogWarning(f'[Formatter] 访问了不存在的属性，并且没有设定默认值: {attr_name}')
                 continue
         stack.append(attr_name)
-        replacement = format_code(replacement,card,resources,children_code,stack)
-        stack.pop()
+        try:
+            replacement = format_code(replacement,card,resources,children_code,stack)
+        finally:
+            stack.pop()
         code = code.replace(f'${{{match}}}',replacement,1)
     return code
 

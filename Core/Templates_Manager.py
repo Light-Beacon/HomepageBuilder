@@ -55,7 +55,8 @@ class TemplateManager:
         card = self.expend_card_placeholders(card,children_code)
         for cpn in target_template['components']:
             if cpn in self.resources.components:
-                code += format_code(self.resources.components[cpn],card,self.resources,children_code)
+                code += format_code(code = self.resources.components[cpn],card = card,
+                                    resources=self.resources,children_code = children_code)
             elif cpn.startswith('$') or cpn.startswith('@'):
                 args = cpn[1:].split('|')
                 code += runScript(args[0],self.resources,card,args,children_code)
