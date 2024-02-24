@@ -14,14 +14,6 @@ Styles:
       FontSize: 14
       Foreground: Black
 
- - Key: PARAGRA
-   Target: TextBlock
-   Setters:
-      TextWrapping: Wrap
-      Margin: 2
-      FontSize: 14
-      LineHeight: 16
-
  - Target: List
    Setters:
       Foreground: *Color3
@@ -32,7 +24,7 @@ Styles:
  - Target: ListItem
    Setters:
      Foreground: Black
-     LineHeight: 24
+     LineHeight: 22
 
  - Key: H2
    Target: Paragraph
