@@ -1,8 +1,9 @@
 <Style TargetType="TextBox" x:Key="InlineCode">
     <Setter Property="FontSize" Value="14" />
     <Setter Property="IsReadOnly" Value="True" />
-    <Setter Property="Margin" Value="2,-3.5" />
+    <Setter Property="Margin" Value="2,-4" />
     <Setter Property="FontFamily" Value="Consolas"/>
+    <Setter Property="Height" Value="18"/>
     <Setter Property="Template">
         <Setter.Value>
             <ControlTemplate TargetType="TextBox">
