@@ -6,7 +6,7 @@ def main():
     parser.add_argument('-o','--open',help='Project path to be loaded')
     parser.add_argument('-w','--write',help='File path to be written')
     parser.add_argument('-p','--page',help='The name of page to be generated')
-    parser.add_argument('--strict',help='Any waring will stop the program')
+    #parser.add_argument('--strict',help='Any waring will stop the program')
     args = parser.parse_args()
     project = None
     page = None
@@ -16,6 +16,8 @@ def main():
         return 0
     if args.page:
         page = args.page
+    else:
+        page = project.defult_page
     if args.write:
         xaml = project.get_page_xaml(page)
         filepath = args.write
