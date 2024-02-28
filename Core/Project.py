@@ -19,7 +19,7 @@ class Project:
         LogInfo(f'[Project] Start to import pack at: {path}')
         pack_info = readYaml(path)
         self.version = pack_info['version']
-        self.defult_page = pack_info.get('defult_page')
+        self.default_page = pack_info.get('default_page')
         LogInfo(f'[Project] Pack version: {self.version}')
         self.base_path = os.path.dirname(path)
         LogInfo(f'[Project] Loading cards')
@@ -77,7 +77,7 @@ class Project:
             card_xaml = self.TemplateManager.build(card)
             #card_xaml = format_code(card_xaml,card,self.resources.scripts)
             content_xaml += card_xaml
-        page_xaml = self.resources.page_templates['Defult']
+        page_xaml = self.resources.page_templates['Default']
         page_xaml = page_xaml.replace('${animations}','') # TODO
         page_xaml = page_xaml.replace('${styles}',getStyleCode(self.resources.styles))
         page_xaml = page_xaml.replace('${content}',content_xaml)

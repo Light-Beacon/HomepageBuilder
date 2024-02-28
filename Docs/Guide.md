@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 * Libraries - 卡片库文件夹 - *用来储存卡片信息*
 * Pages - 页面文件夹 - *用来存储页面信息*
-* Resource - 资源包文件夹
+* Resources - 资源包文件夹
 * Project.yml - 工程的描述文件
 
 我们先找一个文件夹创建这些东西来继续我们的教程
@@ -40,11 +40,11 @@ pip install -r requirements.txt
 目前该文件只有两个有效键值：
 ```YAML
 version: 0.9.0 # 这个工程对应的构建器版本
-defult_page: DefultPage # 默认构建的页面
+default_page: DefaultPage # 默认构建的页面
 ```
 `version` 在当前版本没有任何作用，但必须填写
 
-`defult_page` 告诉构建器在不指定页面名称的情况下默认输出哪个页面的代码
+`default_page` 告诉构建器在不指定页面名称的情况下默认输出哪个页面的代码
 
 现在讲示例代码复制进文件里，或者你也可以按照你的需求更改
 
@@ -71,13 +71,13 @@ fill: # 这些内容在进阶教程会有讲解，现在照做就好。
 
 好了卡片库我们就先改到这里
 ### 创建第一个页面
-我们进入工程文件的 `Pages` 文件夹，创建一个 `DefultPage.yml` 文件，文件内容为：
+我们进入工程文件的 `Pages` 文件夹，创建一个 `DefaultPage.yml` 文件，文件内容为：
 ```
-name: DefultPage # 页面名称，如果你之前在 Project.yml 中改过默认页面请按照实际情况命名
+name: DefaultPage # 页面名称，如果你之前在 Project.yml 中改过默认页面请按照实际情况命名
 cards:
  - HelloWorld # 就是刚才文件的名字
 ```
-这个文件表示 `DefultPage` 这个页面中存在一个名称为 `HelloWorld` 的卡片
+这个文件表示 `DefaultPage` 这个页面中存在一个名称为 `HelloWorld` 的卡片
 ## 构建主页
 现在我们在解压后的目录下运行
 ```bash

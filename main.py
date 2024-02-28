@@ -17,7 +17,7 @@ def main():
     if args.page:
         page = args.page
     else:
-        page = project.defult_page
+        page = project.default_page
     if args.write:
         xaml = project.get_page_xaml(page)
         filepath = args.write
