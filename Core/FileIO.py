@@ -7,7 +7,7 @@ from .Debug import LogInfo
 
 def readString(filepath:str):
     # 读取字符串文件
-    with open(filepath, "r+") as file:
+    with open(filepath, "r+",encoding="utf-8") as file:
         return file.read()
     
 def writeString(filepath:str,data:str):
