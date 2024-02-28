@@ -9,7 +9,7 @@
 2. 下载 Source code 文件（如果不知道下哪个好就下 zip）
 3. 解压下载的文件到想存放的位置下
 #### 通过 Git Clone
-1. 在存放位置处运行 `git clone https://github.com/Light-Beacon/HomepageBuilder.git`
+1. 在存放位置处运行 `git clone https://github.com/Light-Beacon/HomepageBuilder.git .`
 ### 安装依赖
 运行在文件夹以下命令以安装依赖
 ```bash
@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 * Libraries - 卡片库文件夹 - *用来储存卡片信息*
 * Pages - 页面文件夹 - *用来存储页面信息*
-* Resource - 资源包文件夹
+* Resources - 资源包文件夹
 * Project.yml - 工程的描述文件
 
 我们先找一个文件夹创建这些东西来继续我们的教程
@@ -81,8 +81,10 @@ cards:
 ## 构建主页
 现在我们在解压后的目录下运行
 ```bash
-python3 main.py -o <Project.yml的路径> -w <输出文件路径>
+python main.py -o <Project.yml的路径> -w <输出文件路径>
 ```
-*⚠️ 注意： 这个仅仅是当前版本写法 之后会更改*
+
+> [!TIP]
+> 这个仅仅是当前版本写法 之后会更改
 
 闪过一堆东西后你能在输出文件夹看到输出文件，将其改成 `Custom.xaml` 放进 PCL 文件夹就能用了
