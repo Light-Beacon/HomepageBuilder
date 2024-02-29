@@ -1,7 +1,7 @@
 import markdown
 import re
 from bs4 import BeautifulSoup
-from .Debug import LogInfo
+from Core.Debug import LogInfo
 
 def get_replacement(name:str,attrs:dict):
     component_name = name
@@ -127,6 +127,9 @@ def convert(card,res):
     html = markdown.markdown(md)
     xaml = html2xaml(html,res)
     return xaml
+
+def script(card,args,res):
+    return convert(card,res)
 
 esc_chars = {
     '<':'&lt;',

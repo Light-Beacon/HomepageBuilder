@@ -2,6 +2,8 @@ import yaml
 import json
 import os
 import re
+import importlib
+import sys
 from typing import List,Tuple,Dict
 from .Debug import LogInfo
 
@@ -34,10 +36,26 @@ def readYaml(filepath) -> dict:
         data.update({'file_path':filepath})
         return data
 
+def readPy(filepath) -> callable:
+    ''' 读取 Python 文件 '''
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f'{filepath} not exist!')
+    path_to = os.path.dirname(filepath)
+    file_name = os.path.basename(filepath)
+    name,exten = os.path.splitext(file_name)
+    sys.path.append(path_to)
+    module = importlib.import_module(f'{name}')
+    func = getattr(module,'script') if hasattr(module,'script') else None
+    if not callable(func):
+        raise Exception(f'{filepath} script not callable')
+    return func
+
 read_func_mapping = {
     'yml':readYaml,
     'yaml':readYaml,
-    'json':readJson
+    'json':readJson,
+    'py':readPy,
+    'python':readPy
 }
 
 def TryScanDire(direpath:str, regex:str, asraw:bool = False):

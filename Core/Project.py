@@ -67,8 +67,8 @@ class Project:
         if 'xaml' in page:
             return page['xaml']
         for card_ref in page['cards']:
-            card_ref = card_ref.replace(' ','').split('|')
             LogInfo(f'[Project] Get card: {card_ref}')
+            card_ref = card_ref.replace(' ','').split('|')
             card = self.base_library.getCard(card_ref[0],False)
             if len(card_ref) > 1:
                 for arg in card_ref[1:]:
