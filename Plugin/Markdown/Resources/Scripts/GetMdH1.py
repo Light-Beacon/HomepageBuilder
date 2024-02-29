@@ -6,4 +6,6 @@ def script(card,args,res):
         return 'NOT A MARKDOWN DOCUMENT!'
     html = markdown.markdown(card['data'])
     titles = re.findall('<h1>(.*)</h1>',html)
+    if len(titles) == 0:
+        return ''
     return titles[0]
