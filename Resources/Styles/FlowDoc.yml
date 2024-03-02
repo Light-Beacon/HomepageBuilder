@@ -9,3 +9,4 @@ Styles:
    Setters:
       FontFamily: Microsoft YaHei UI
       FontSize: 14
+      TextAlignment: Left
