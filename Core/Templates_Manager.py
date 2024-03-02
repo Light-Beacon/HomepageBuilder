@@ -7,6 +7,17 @@ from typing import List, Union
 from queue import *
 import traceback
 
+def __is_filter_value_match(rule:str,value:str):
+    if rule.startswith('$'):
+        rule = rule[1:]
+        if rule == 'HASVALUE' and value != None and len(value) > 0:
+            return True
+        if rule == 'EMPTY' and (value == None or len(value) == 0):
+            return True
+        return False
+    else:
+        return rule == value
+
 def filter_match(template,card):
     '''检测卡片是否符合模版筛选规则'''
     if 'filter' not in template:
@@ -14,11 +25,18 @@ def filter_match(template,card):
     if template['filter'] == 'never':
         return False
     for keyword in template['filter']:
-        for match in template['filter'][keyword]:
-            if card[keyword] == match:
-                break
-        else:
-            return False
+        rules = template['filter'][keyword]
+        if isinstance(rules,str):
+            if not __is_filter_value_match(rule=rules,value = card.get(keyword)):
+                return False
+        if isinstance(rules,list):
+            for rule in template['filter'][keyword]:
+                if __is_filter_value_match(rule=rule,value = card.get(keyword)):
+                    break
+            else:
+                return False
+            continue
+        raise TypeError()
     return True
 
 class TemplateManager:
