@@ -83,8 +83,8 @@ def ScanDire(direpath:str, regex:str, asraw:bool = False):
     # Log(f'[FileIO] ScanDire {direpath}')
     for f in getAllFileInDire(direpath,regex):
         filename, exten = os.path.splitext(f)
-        # 为 # 开头的文件不读取
-        if filename.startswith('#'):
+        # 为 # 或 . 开头的文件不读取
+        if filename.startswith('#') or filename.startswith('.'):
             continue
         f = f'{direpath}{os.path.sep}{f}'
         exten = exten[1:]
