@@ -21,8 +21,8 @@ def git_update():
 
 @app.route("/")
 def index_page():
-    if server.defult_page != None:
-        return getpage(server.defult_page)
+    if server.default_page != None:
+        return getpage(server.default_page)
     else:
         return 'No Page Found',404
     
@@ -54,7 +54,7 @@ class Server:
             self.config = readYaml(self.config_path)
             self.project_path = self.config['project_path']
             self.project = Project(self.project_path)
-            self.defult_page = self.project.defult_page
+            self.default_page = self.project.default_page
             self.project_dir = os.path.dirname(self.project_path)
             self.cache['version'] = self.write_latest_version_cache()
         except Exception as e:
