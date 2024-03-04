@@ -72,7 +72,7 @@ fill: # 这些内容在进阶教程会有讲解，现在照做就好。
 好了卡片库我们就先改到这里
 ### 创建第一个页面
 我们进入工程文件的 `Pages` 文件夹，创建一个 `DefaultPage.yml` 文件，文件内容为：
-```
+```YAML
 name: DefaultPage # 页面名称，如果你之前在 Project.yml 中改过默认页面请按照实际情况命名
 cards:
  - HelloWorld # 就是刚才文件的名字
