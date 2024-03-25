@@ -13,6 +13,8 @@ def format_code(code:str,card,resources,children_code,stack:list = []):
         if attr_name in stack:
             LogWarning(f'[Formatter] 检测到循环调用: {stack}')
             return code
+        for item in qurey_tuple[1:]:
+            item = format_code(item,card,resources,children_code,stack)
         if attr_name.startswith('$') or attr_name.startswith('@'):
             replacement = runScript(qurey_tuple[0][1:],resources,card,qurey_tuple,children_code)
         elif attr_name in card:

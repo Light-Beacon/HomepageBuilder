@@ -1,6 +1,7 @@
 import markdown
 import re
 from bs4 import BeautifulSoup
+from Core.Encode import encode_escape
 from Core.Debug import LogInfo
 
 def get_replacement(name:str,attrs:dict):
@@ -25,7 +26,7 @@ def get_element_frame(name,attrs,res):
         LogInfo(f'[Marodown] markdown 中存在尚不支持的元素{name}')
         return None
     for k,v in replace_list:
-        replace_str = replace_str.replace(f'${{{k}}}',replace_esc_char(v))
+        replace_str = replace_str.replace(f'${{{k}}}',encode_escape(v))
     return replace_str
     
 FIRSTLINE_SPACES = '    '
@@ -54,7 +55,7 @@ def listItem2xaml(tag,res):
                     content += '<Paragraph>'
                     in_paragraph = True
                 if isinstance(child,str):
-                    content += replace_esc_char(child)
+                    content += encode_escape(child)
                 else:
                     content += element2xaml_general(child,res)
             else:
@@ -81,7 +82,7 @@ def quote2xaml(tag,res):
 
 def element2xaml_general(tag,res):
     if isinstance(tag,str):
-        return replace_esc_char(tag)
+        return encode_escape(tag)
     match tag.name:
         case 'li':
             return listItem2xaml(tag,res)
@@ -111,11 +112,6 @@ def html2xaml(html,res):
         xaml += element2xaml_general(tag,res)
     return xaml
 
-def replace_esc_char(string:str):
-    for key in esc_chars:
-        string = string.replace(key,esc_chars[key])
-    return string
-
 del_pattern = re.compile(r'~~(.*)~~')
 
 def md_del_replace(md:str):
@@ -123,48 +119,9 @@ def md_del_replace(md:str):
 
 def convert(card,res):
     md = card['data']
-    md = md_del_replace(md)
     html = markdown.markdown(md)
     xaml = html2xaml(html,res)
     return xaml
 
 def script(card,args,res):
     return convert(card,res)
-
-esc_chars = {
-    '<':'&lt;',
-	'>':'&gt;',
-	'"':'&quot;',
-	"'":'&apos;',
-	'¡':'&iexcl;',
-	'¢':'&cent;',
-	'£':'&pound;',
-	'¤':'&curren;',
-	'¥':'&yen;',
-	'¦':'&brvbar;',
-	'§':'&sect;',
-	'¨':'&uml;',
-	'©':'&copy;',
-	'ª':'&ordf;',
-	'«':'&laquo;',
-	'¬':'&not;',
-	'®':'&reg;',
-	'¯':'&macr;',
-	'°':'&deg;',
-	'±':'&plusmn;',
-	'²':'&sup2;',
-	'³':'&sup3;',
-	'´':'&acute;',
-	'µ':'&micro;',
-	'¶':'&para;',
-	'·':'&middot;',
-	'¸':'&cedil;',
-	'¹':'&sup1;',
-	'º':'&ordm;',
-	'»':'&raquo;',
-	'¼':'&frac14;',
-	'½':'&frac12;',
-	'¾':'&frac34;',
-	'¿':'&iquest;',
-    '&':'&amp;'
-}
