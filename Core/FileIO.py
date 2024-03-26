@@ -45,11 +45,25 @@ def readPy(filepath) -> callable:
     name,exten = os.path.splitext(file_name)
     sys.path.append(path_to)
     module = importlib.import_module(f'{name}')
-    func = getattr(module,'script') if hasattr(module,'script') else None
-    if not callable(func):
-        raise Exception(f'{filepath} script not callable')
+    if hasattr(module,'script'):
+        func = getattr(module,'script')
+        if not callable(func):
+            raise Exception(f'{filepath} script not callable')
+    else:
+        return None
     return func
 
+def regist_fileread_function(func,file_extens):
+    def reg_fileread(func,file_exten:str):
+        read_func_mapping[file_exten] = func
+    if isinstance(file_extens,list):
+        for exten in file_extens:
+            reg_fileread(func,exten)
+    elif isinstance(file_extens,str):
+        reg_fileread(func,file_extens)
+    else:
+        raise TypeError()
+    
 read_func_mapping = {
     'yml':readYaml,
     'yaml':readYaml,

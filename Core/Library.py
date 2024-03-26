@@ -16,11 +16,14 @@ class Library:
         self.location = os.path.dirname(data['file_path'])
         for pair in ScanDire(self.location,r'^(?!^__LIBRARY__.yml$).*$'):  # 库所拥有的卡片
             data, filename, exten = pair
-            if type(data) is dict and 'name' in data:
-                name = data['name']
+            name = filename
+            if isinstance(data,dict):
+                if 'name' in data:
+                    name = data['name']
+                self.cards[name] = data
             else:
-                name = filename
-            self.cards.update({name:{'data':data,'file_name':filename,'file_exten':exten}})
+                self.cards[name] = { 'data':data }
+            self.cards[name].update({'data':data,'file_name':filename,'file_exten':exten})
         self.add_sub_libraries(ScanSubDire(self.location,'__LIBRARY__.yml'))  # 遍历添加子库
 
     @classmethod

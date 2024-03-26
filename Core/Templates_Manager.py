@@ -27,12 +27,14 @@ def filter_match(template,card):
     for keyword in template['filter']:
         rules = template['filter'][keyword]
         if isinstance(rules,str):
-            if not __is_filter_value_match(rule=rules,value = card.get(keyword)):
+            if __is_filter_value_match(rule=rules,value = card.get(keyword)):
+                return True
+            else:
                 return False
         if isinstance(rules,list):
             for rule in template['filter'][keyword]:
                 if __is_filter_value_match(rule=rule,value = card.get(keyword)):
-                    break
+                    break # 所有匹配可能性有一个匹配就行
             else:
                 return False
             continue
