@@ -119,9 +119,27 @@ def md_del_replace(md:str):
 
 def convert(card,res):
     md = card['data']
+    md,attr = sep_attr(md)
+    card.update(attr)
     html = markdown.markdown(md)
     xaml = html2xaml(html,res)
     return xaml
+
+ATTR_PATTERN = re.compile(r'^\-{3,}\n((.*\n)+)\-{3,}\n')
+def sep_attr(md):
+    attr = {}
+    matchs = re.match(ATTR_PATTERN, md)
+    if matchs:
+        for attr_str in matchs.groups()[0].split('\n'):
+            if ':' not in attr_str:
+                continue
+            attr_name,attr_value = attr_str.split(':',1)
+            attr_name = attr_name.replace(' ','')
+            attr_value = attr_value.removeprefix(' ')
+            attr_value = attr_value.removesuffix(' ')
+            attr[attr_name] = attr_value
+    md = re.sub(ATTR_PATTERN, '', md)
+    return md,attr
 
 def script(card,args,res):
     return convert(card,res)
