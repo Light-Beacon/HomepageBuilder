@@ -2,7 +2,7 @@ import markdown
 import re
 from bs4 import BeautifulSoup
 from Core.Encode import encode_escape
-from Core.Debug import LogInfo
+from Core.Debug import LogInfo, LogWarning
 
 def get_replacement(name:str,attrs:dict):
     component_name = name
@@ -23,7 +23,7 @@ def get_element_frame(name,attrs,res):
         return ''
     replace_str = components.get(component_name)
     if replace_str is None:
-        LogInfo(f'[Marodown] markdown 中存在尚不支持的元素{name}')
+        LogWarning(f'[Marodown] markdown 中存在尚不支持的元素{name}')
         return None
     for k,v in replace_list:
         replace_str = replace_str.replace(f'${{{k}}}',encode_escape(v))
