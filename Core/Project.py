@@ -68,8 +68,8 @@ class Project:
         if 'xaml' in page:
             return page['xaml']
         for card_ref in page['cards']:
-            LogInfo(f'[Project] Get card: {card_ref}')
             card_ref = format_code(card_ref,{},self.resources,'')
+            LogInfo(f'[Project] Get card: {card_ref}')
             card_ref = card_ref.replace(' ','').split('|')
             if card_ref[0] == '':
                 continue

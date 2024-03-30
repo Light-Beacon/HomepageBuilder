@@ -30,7 +30,7 @@ def filter_match(template,card):
         return False
     for keyword in template['filter']:
         rules = template['filter'][keyword]
-        if isinstance(rules,str):
+        if isinstance(rules,(str,int,bool,float)):
             if __is_filter_value_match(rule=str(rules),value = card.get(keyword)):
                 return True
             else:
