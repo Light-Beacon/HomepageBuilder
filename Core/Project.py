@@ -73,7 +73,11 @@ class Project:
             card_ref = card_ref.replace(' ','').split('|')
             if card_ref[0] == '':
                 continue
-            card = self.base_library.getCard(card_ref[0],False)
+            try:
+                card = self.base_library.getCard(card_ref[0],False)
+            except:
+                LogWarning(f'[Project] 获取卡片失败')
+                continue
             if len(card_ref) > 1:
                 for arg in card_ref[1:]:
                     argname,argvalue = arg.split('=')
