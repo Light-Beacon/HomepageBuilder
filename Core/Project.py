@@ -1,8 +1,9 @@
-from .FileIO import readYaml,ScanDire,ScanSubDire
+from .FileIO import readYaml, ScanDire, ScanSubDire
 from .Library import Library
 from .Resource import Resource
 from .Styles import getStyleCode
 from .Templates_Manager import TemplateManager
+from .Code_Formatter import format_code
 from .Debug import LogInfo, LogError, LogWarning, FormatXaml
 import os
 
@@ -68,7 +69,10 @@ class Project:
             return page['xaml']
         for card_ref in page['cards']:
             LogInfo(f'[Project] Get card: {card_ref}')
+            card_ref = format_code(card_ref,{},self.resources,'')
             card_ref = card_ref.replace(' ','').split('|')
+            if card_ref[0] == '':
+                continue
             card = self.base_library.getCard(card_ref[0],False)
             if len(card_ref) > 1:
                 for arg in card_ref[1:]:
