@@ -14,6 +14,11 @@ def get_replacement(name:str,attrs:dict):
         replace_list.append(('level',name[1:]))
     elif name == 'a':
         replace_list.append(('link',attrs['href'])) 
+    elif name == 'img':
+        replace_list.append(('source',attrs['src'])) 
+        if len(attrs['alt']) > 0:
+            component_name = 'titled-img'
+            replace_list.append(('alt',attrs['alt'])) 
     return (component_name, replace_list)
 
 def get_element_frame(name,attrs,res):
@@ -119,6 +124,7 @@ def md_del_replace(md:str):
 
 def convert(card,res):
     md = card['markdown']
+    md = md_del_replace(md)
     html = markdown.markdown(md)
     xaml = html2xaml(html,res)
     return xaml
