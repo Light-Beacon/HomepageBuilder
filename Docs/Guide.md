@@ -81,7 +81,11 @@ cards:
 ## 构建主页
 现在我们在解压后的目录下运行
 ```bash
+# 于 Windows 操作系统
 python main.py -o <Project.yml的路径> -w <输出文件路径>
+
+# 于 MacOS / Linux 操作系统
+python3 main.py -o <Project.yml的路径> -w <输出文件路径>
 ```
 
 > [!TIP]
