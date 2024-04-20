@@ -13,6 +13,8 @@ def sep_attr(md):
     matchs = re.match(ATTR_PATTERN, md)
     if matchs:
         for attr_str in matchs.groups()[0].split('\n'):
+            if attr_str.startswith('#'):
+                continue
             if ':' not in attr_str:
                 continue
             attr_name,attr_value = attr_str.split(':',1)

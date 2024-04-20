@@ -14,6 +14,8 @@ class Resource:
         self.styles.update(CreateDict(TryScanDire(f'{path}{sep}Styles',r'.*\.xaml$'),prefix))
         self.styles.update(CreateDict(TryScanDire(f'{path}{sep}Styles',r'.*\.yml$'),prefix))
         
+        self.components.update({'':''}) # IF Failed return a null component
+
     def __init__(self):
         self.animations = {}
         self.components = {}

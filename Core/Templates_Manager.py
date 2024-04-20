@@ -1,6 +1,5 @@
-from .Code_Formatter import format_code
 from .Resource import Resource
-from .Code_Formatter import runScript
+from .Code_Formatter import format_code,runScript
 from .Debug import LogWarning
 from .Library import Library
 from typing import List, Union
@@ -78,6 +77,7 @@ class TemplateManager:
         code = ''
         card = self.expend_card_placeholders(card,children_code)
         for cpn in target_template['components']:
+            cpn = format_code(cpn,card,self.resources,'')
             if cpn in self.resources.components:
                 code += format_code(code = self.resources.components[cpn],card = card,
                                     resources=self.resources,children_code = children_code)
@@ -85,7 +85,7 @@ class TemplateManager:
                 args = cpn[1:].split('|')
                 code += runScript(args[0],self.resources,card,args,children_code)
             else:
-                pass # TODO component NOT FOUND
+                LogWarning(f'[TemplateManager] {template_name}模版中调用了未载入的构件{cpn}，跳过')
         if 'containers' in target_template:
             tree_path = target_template['containers']
             code = self.packin_containers(tree_path,card,code)
