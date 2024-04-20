@@ -2,10 +2,9 @@ import yaml
 import json
 import os
 import re
-import importlib
-import sys
 from typing import List,Tuple,Dict
 from .Debug import LogInfo
+from .ScriptManager import RegScript
 
 def readString(filepath:str):
     # 读取字符串文件
@@ -40,18 +39,7 @@ def readPy(filepath) -> callable:
     ''' 读取 Python 文件 '''
     if not os.path.exists(filepath):
         raise FileNotFoundError(f'{filepath} not exist!')
-    path_to = os.path.dirname(filepath)
-    file_name = os.path.basename(filepath)
-    name,exten = os.path.splitext(file_name)
-    sys.path.append(path_to)
-    module = importlib.import_module(f'{name}')
-    if hasattr(module,'script'):
-        func = getattr(module,'script')
-        if not callable(func):
-            raise Exception(f'{filepath} script not callable')
-    else:
-        return None
-    return func
+    return RegScript(filepath)
 
 def regist_fileread_function(func,file_extens):
     def reg_fileread(func,file_exten:str):
