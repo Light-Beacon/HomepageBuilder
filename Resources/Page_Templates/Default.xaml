@@ -1,5 +1,5 @@
 <!-- <StackPanel xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:PCL2" > -->
-<StackPanel Margin="0,-10,0,0">
+<StackPanel Margin="0,-10,0,0" xmlns:sys ="clr-namespace:System;assembly=mscorlib">
 <!--Animations Starts-->
 <StackPanel.Triggers>
 ${animations}
