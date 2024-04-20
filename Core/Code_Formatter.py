@@ -87,7 +87,7 @@ def findall_placeholders(string:str):
                     buffer += c
             else:
                 buffer += c
-        if c == '{' and sp_mode:
+        if c == '{' and (sp_mode or pare_deepth > 0):
             pare_deepth += 1
         if c == '$':
             sp_mode = True
