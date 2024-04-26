@@ -30,7 +30,10 @@ class Project:
         LogInfo(f'[Project] Loading pages')
         for page in ScanDire(f'{self.base_path}{sep}Pages',r'.*'):
             self.import_page(page)
-        
+    
+    def getAllCard(self):
+        return self.base_library.get_all_cards()
+
     def __init__(self,path):
         LogInfo(f'[Project] Initing ...')
         envpath = os.path.dirname(os.path.dirname(__file__))
@@ -41,7 +44,7 @@ class Project:
         self.load_plugins(f'{envpath}{sep}Plugin')
         self.pages = {}
         self.import_pack(path)
-        self.TemplateManager = TemplateManager(self.resources)
+        self.TemplateManager = TemplateManager(self)
         LogInfo(f'[Project] Pack loaded successful!')
     
     def import_page(self,page_tuple):
@@ -60,7 +63,7 @@ class Project:
             LogWarning(f'[Project] Page file not supported: {file_name}.{file_exten}')
 
     def get_card_xaml(self,card_ref):
-        card_ref = format_code(card_ref,{},self.resources,'')
+        card_ref = format_code(code=card_ref,card={},project=self)
         if ';' in card_ref:
             code = ''
             for each_card_ref in card_ref.split(';'):

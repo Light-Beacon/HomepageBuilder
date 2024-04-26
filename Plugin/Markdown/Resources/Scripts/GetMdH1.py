@@ -1,6 +1,6 @@
 import markdown
 import re
-def script(card,args,res):
+def script(card,**kwargs):
     exten = card['file_exten']
     if exten != 'md' and exten != 'markdown':
         return 'NOT A MARKDOWN DOCUMENT!'

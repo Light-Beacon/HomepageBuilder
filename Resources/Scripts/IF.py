@@ -1,17 +1,26 @@
-from Core.Code_Formatter import format_code
+def script(eq_expression:str,true_return,false_return='',**kwargs):
+    card = kwargs['card']
+    eq_expression.replace(' ','')
+    return true_return if iseq(eq_expression,card) else false_return 
 
-def script(card,args,res):
-    args[1].replace(' ','')
-    if '=' in args[1]:
-        eqs = args[1].split('=',1)
-        if eqs[0] in card and card[eqs[0]] == eqs[1]:
-            return args[2]
+def iseq(eq_expression,card) -> bool:
+    if '=' in eq_expression:
+        eqexp_left, eqexp_right = eq_expression.split('=',1)
+        eqexp_left = format_eq(eqexp_left,card)
+        eqexp_right = format_eq(eqexp_right,card)
+        if eqexp_left == eqexp_right:
+            return True
     else:
-        if args[1].startswith('!'):
-            if args[1][1:] not in card or args[1][1:].lower() in ['false','null']:
-                return args[2]
-        if args[1] in card and args[1].lower() not in ['false','null']:
-            return args[2]
-    if len(args) > 3:
-        return args[3]
-    return ''
+        if eq_expression.startswith('!'):
+            if format_eq(eq_expression[1:],card) in ['false','null','none', None]:
+                return True
+        else:
+            if format_eq(eq_expression,card) not in ['false','null','none', None]:
+                return True
+    return False
+        
+def format_eq(expression:str,card):
+    if(expression.startswith('$')):
+        return card.get(expression[1:])
+    else:
+        return expression

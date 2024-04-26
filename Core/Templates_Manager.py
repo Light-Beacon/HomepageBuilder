@@ -45,9 +45,10 @@ def filter_match(template,card):
     return True
 
 class TemplateManager:
-    def __init__(self,resources: Resource):
-        self.resources = resources
-        self.templates = resources.templates
+    def __init__(self,project):
+        self.project = project
+        self.resources = project.resources
+        self.templates = self.resources.templates
 
     def expend_card_placeholders(self,card:dict,children_code):
         q = Queue()
@@ -60,7 +61,7 @@ class TemplateManager:
                 break
             key = q.get()
             try:
-                card[key] = format_code(str(card[key]),card,self.resources,children_code)
+                card[key] = format_code(str(card[key]),card,self.project,children_code)
                 tries = 0
             except KeyError:
                 q.put(key)
@@ -77,13 +78,13 @@ class TemplateManager:
         code = ''
         card = self.expend_card_placeholders(card,children_code)
         for cpn in target_template['components']:
-            cpn = format_code(cpn,card,self.resources,'')
+            cpn = format_code(cpn,card,self.project,'')
             if cpn in self.resources.components:
-                code += format_code(code = self.resources.components[cpn],card = card,
-                                    resources=self.resources,children_code = children_code)
+                code += format_code(code = self.resources.components[cpn], card = card,
+                                    project=self.project, children_code = children_code)
             elif cpn.startswith('$') or cpn.startswith('@'):
                 args = cpn[1:].split('|')
-                code += runScript(args[0],self.resources,card,args,children_code)
+                code += runScript(args[0],self.project,card,args[1:],children_code)
             else:
                 LogWarning(f'[TemplateManager] {template_name}模版中调用了未载入的构件{cpn}，跳过')
         if 'containers' in target_template:
@@ -111,7 +112,7 @@ class TemplateManager:
                 case _:
                     if container in self.resources.components:
                         current_code = format_code(self.resources.components[container],
-                                            card,self.resources,current_code)
+                                            card,self.project,current_code)
                     else:
                         raise ValueError('容器路径中存在不存在的组件')
         return current_code

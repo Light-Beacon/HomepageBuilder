@@ -1,7 +1,9 @@
 from typing import Any, Callable, Dict
 from .Debug import LogWarning, LogDebug
 
-def format_code(code:str,card,resources,children_code,stack:list = []):
+
+def format_code(code:str,card:Dict[str,object],
+                project,children_code:str='',stack:list = []):
     '''格式化代码'''
     matches = findall_placeholders(code)
     for match in matches:
@@ -12,9 +14,13 @@ def format_code(code:str,card,resources,children_code,stack:list = []):
             LogWarning(f'[Formatter] 检测到循环调用: {stack}')
             return code
         for item in qurey_tuple[1:]:
-            item = format_code(item,card,resources,children_code,stack)
+            # 格式化参数
+            item = format_code(code=item,card=card,project=project,
+                               children_code=children_code,stack=stack)
         if attr_name.startswith('$') or attr_name.startswith('@'):
-            replacement = runScript(qurey_tuple[0][1:],resources,card,qurey_tuple,children_code)
+            replacement = runScript(script_name=qurey_tuple[0][1:],
+                                    project=project,card=card,args=qurey_tuple[1:],
+                                    children_code=children_code)
         elif attr_name in card:
             replacement = str(card[attr_name])
         else:
@@ -25,15 +31,17 @@ def format_code(code:str,card,resources,children_code,stack:list = []):
                 continue
         stack.append(attr_name)
         try:
-            replacement = format_code(replacement,card,resources,children_code,stack)
+            replacement = format_code(replacement,card,project,children_code,stack)
         finally:
             stack.pop()
         code = code.replace(f'${{{match}}}',replacement,1)
     return code
 
 script: Callable[[Dict,Any], str]
-def runScript(script_name:str,resources,card,args,children_code):
+def runScript(script_name:str,project,card:Dict[str,object],
+              args:list,children_code:str):
     '''获取脚本输出结果'''
+    resources = project.resources
     scripts = resources.scripts
     if script_name == 'ChildrenPresenter':
         return children_code
@@ -41,8 +49,8 @@ def runScript(script_name:str,resources,card,args,children_code):
     if script_code is None:
         LogWarning(f'[Formatter] 尝试调用不存在的脚本: {script_name}')
         return ''
-    result = scripts[script_name](card,args,resources)
-    result = format_code(result,card,resources,children_code)
+    result = scripts[script_name](*args,card=card,res=resources,proj=project)
+    result = format_code(result,card,project,children_code)
     return result
 
 def split_args(string:str):
@@ -72,6 +80,8 @@ def split_args(string:str):
     return args
 
 def findall_placeholders(string:str):
+    if string == None:
+        return []
     placeholders = []
     pare_deepth = 0
     sp_mode = False

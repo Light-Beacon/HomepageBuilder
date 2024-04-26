@@ -129,5 +129,5 @@ def convert(card,res):
     xaml = html2xaml(html,res)
     return xaml
 
-def script(card,args,res):
+def script(card,res,**kwargs):
     return convert(card,res)
