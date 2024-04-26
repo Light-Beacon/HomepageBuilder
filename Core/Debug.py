@@ -1,23 +1,29 @@
 def LogInfo(infomation:str):
+    '''输出信息'''
     print(f'{blue}[INFO]{clear}{infomation}')
 
 def LogWarning(infomation:str):
+    '''输出警告'''
     print(f'{yellow}[WARNING]{clear}{infomation}')
 
 def LogDebug(infomation:str):
+    '''输出调试信息'''
     print(f'{green}[DEBUG]{clear}{infomation}')
     
 def LogError(infomation:str):
+    '''输出错误信息'''
     print(f'{red}[ERROR]{infomation}')
     return infomation
 
 def LogFatal(infomation:str):
+    '''输出致命错误信息'''
     print(f'{red}[FATAL]{infomation}')
     return infomation
 
 tabtext = '    '
 
 def FormatXaml(code:str):
+    '''格式化 XAML 代码'''
     code = code.replace('\n','')
     code = code.replace('\r','')
     new_code = ''

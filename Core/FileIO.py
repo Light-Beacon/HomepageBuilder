@@ -7,7 +7,7 @@ from .Debug import LogInfo
 from .ScriptManager import RegScript
 
 def readString(filepath:str):
-    # 读取字符串文件
+    '''读取字符串文件'''
     with open(filepath, "r+",encoding="utf-8") as file:
         return file.read()
     
@@ -42,6 +42,7 @@ def readPy(filepath) -> callable:
     return RegScript(filepath)
 
 def regist_fileread_function(func,file_extens):
+    '''注册处理后缀名为 file_extens 的文件读取函数'''
     def reg_fileread(func,file_exten:str):
         read_func_mapping[file_exten] = func
     if isinstance(file_extens,list):

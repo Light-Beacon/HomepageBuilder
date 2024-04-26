@@ -28,7 +28,7 @@ class Library:
 
     @classmethod
     def decorateCard(cls,card,fill,cover):
-        # 用 fill 和 cover 修饰卡片
+        '''用 fill 和 cover 修饰卡片'''
         if fill != None:
             cloned_fill = fill.copy()
         else:
@@ -39,9 +39,11 @@ class Library:
         return cloned_fill
     
     def __decorateCard(self,card):
+        '''用本卡片库的 fill 和 cover 修饰卡片'''
         return self.decorateCard(card,self.fill,self.cover)
     
-    def __getCard_decoless(self,card_ref,is_original):
+    def __getCard_decoless(self,card_ref:str,is_original:bool):
+        '''获取未经 fill 和 cover 的卡片'''
         if card_ref in self.cards:
             return self.cards[card_ref]
         if ':' in card_ref:
@@ -52,14 +54,16 @@ class Library:
                 return self.getCardFromLibMapping(splits[0],splits[1],is_original)
         return self.getCardFromCardMapping(card_ref,is_original)
     
-    def getCard(self,card_ref,is_original):
+    def getCard(self,card_ref:str,is_original:bool):
+        '''获取卡片'''
         target = self.__getCard_decoless(card_ref,is_original)
         if is_original:
             return target
         else:
             return self.__decorateCard(target)
 
-    def getCardFromCardMapping(self,card_ref,is_original):
+    def getCardFromCardMapping(self,card_ref:str,is_original:bool):
+        '''通过库内的卡片映射获取卡片'''
         if card_ref in self.cards.keys():
             return self.cards[card_ref].copy()
         elif card_ref in self.card_mapping:
@@ -68,6 +72,7 @@ class Library:
             raise KeyError(LogError(f'[Library] Cannot find card "{card_ref}"'))
 
     def getCardFromLibMapping(self,lib_name,card_ref,is_original):
+        '''通过库内的库映射获取卡片'''
         if lib_name == 'T':
             return {'templates':[card_ref]}
         if lib_name in self.libs_mapping.keys():
@@ -76,6 +81,7 @@ class Library:
             raise KeyError(LogError(f'[Library] Cannot find library "{card_ref}"'))
 
     def add_sub_libraries(self,yamldata):
+        '''增加子库'''
         def add_sub_library(self,yamldata):
             sublib = Library(yamldata)
             self.sub_libraries.update({sublib.name:sublib})

@@ -37,11 +37,13 @@ esc_chars = {
 }
 
 def decode_escape(string:str):
+    '''反编码转移字符'''
     for key in esc_chars:
         string = string.replace(esc_chars[key],key)
     return string
 
 def encode_escape(string:str):
+    '''编码转义字符'''
     for key in esc_chars:
         string = string.replace(key,esc_chars[key])
     return string

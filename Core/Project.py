@@ -45,6 +45,7 @@ class Project:
         LogInfo(f'[Project] Pack loaded successful!')
     
     def import_page(self,page_tuple):
+        '''导入页面'''
         page, file_name, file_exten = page_tuple
         if file_exten == 'yml':
             if 'name' in page:
@@ -58,8 +59,32 @@ class Project:
         else:
             LogWarning(f'[Project] Page file not supported: {file_name}.{file_exten}')
 
-    def get_page_xaml(self,page_alias):
-        '''获取 xaml 代码'''
+    def get_card_xaml(self,card_ref):
+        card_ref = format_code(card_ref,{},self.resources,'')
+        if ';' in card_ref:
+            code = ''
+            for each_card_ref in card_ref.split(';'):
+                code += self.get_card_xaml(each_card_ref)
+            return code
+        LogInfo(f'[Project] Get card: {card_ref}')
+        card_ref = card_ref.replace(' ','').split('|')
+        if card_ref[0] == '':
+            return ''
+        try:
+            card = self.base_library.getCard(card_ref[0],False)
+        except:
+            LogWarning(f'[Project] 获取卡片失败')
+            return ''
+        if len(card_ref) > 1:
+            for arg in card_ref[1:]:
+                argname,argvalue = arg.split('=')
+                card[argname] = argvalue
+        card_xaml = self.TemplateManager.build(card)
+        #card_xaml = format_code(card_xaml,card,self.resources.scripts)
+        return card_xaml
+
+    def get_page_xaml(self,page_alias):   
+        '''获取页面 xaml 代码''' 
         LogInfo(f'[Project] Getting codes of page: {page_alias}')
         if page_alias not in self.pages:
             raise PageNotFoundError(LogError(f'[Project] Cannot find page named "{page_alias}"'))
@@ -68,23 +93,7 @@ class Project:
         if 'xaml' in page:
             return page['xaml']
         for card_ref in page['cards']:
-            card_ref = format_code(card_ref,{},self.resources,'')
-            LogInfo(f'[Project] Get card: {card_ref}')
-            card_ref = card_ref.replace(' ','').split('|')
-            if card_ref[0] == '':
-                continue
-            try:
-                card = self.base_library.getCard(card_ref[0],False)
-            except:
-                LogWarning(f'[Project] 获取卡片失败')
-                continue
-            if len(card_ref) > 1:
-                for arg in card_ref[1:]:
-                    argname,argvalue = arg.split('=')
-                    card[argname] = argvalue
-            card_xaml = self.TemplateManager.build(card)
-            #card_xaml = format_code(card_xaml,card,self.resources.scripts)
-            content_xaml += card_xaml
+            content_xaml += self.get_card_xaml(card_ref)
         page_xaml = self.resources.page_templates['Default']
         page_xaml = page_xaml.replace('${animations}','') # TODO
         page_xaml = page_xaml.replace('${styles}',getStyleCode(self.resources.styles))

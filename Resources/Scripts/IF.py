@@ -1,3 +1,5 @@
+from Core.Code_Formatter import format_code
+
 def script(card,args,res):
     args[1].replace(' ','')
     if '=' in args[1]:

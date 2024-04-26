@@ -1,5 +1,8 @@
 from Core.FileIO import regist_fileread_function,readString
 import re
+import ast
+
+# 提取列表项：(?:\[?\s*)(\".*?\"|\'.*?\'|[^,]*?)(?:\s*[,|\]])
 
 def readMarkdown(filepath:str):
     string = readString(filepath=filepath)
@@ -7,7 +10,7 @@ def readMarkdown(filepath:str):
     card['markdown'] = string
     return card
 
-ATTR_PATTERN = re.compile(r'^\-{3,}\n((.*\n)+)\-{3,}\n')
+ATTR_PATTERN = re.compile(r'^\-{3,}\n((?:.*\n)+)\-{3,}(?:\n|$)')
 def sep_attr(md):
     attr = {}
     matchs = re.match(ATTR_PATTERN, md)
@@ -21,6 +24,8 @@ def sep_attr(md):
             attr_name = attr_name.replace(' ','')
             attr_value = attr_value.removeprefix(' ')
             attr_value = attr_value.removesuffix(' ')
+            if attr_value.startswith('[') and attr_value.endswith(']'):
+                attr_value = ast.literal_eval(attr_value)
             attr[attr_name] = attr_value
     md = re.sub(ATTR_PATTERN, '', md)
     return md,attr
