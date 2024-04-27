@@ -21,7 +21,7 @@ class Resource:
         self.animations = {}
         self.components = {}
         self.styles = {}
-        self.data = {}
+        self.data = {'global':{}}
         self.scripts = {}
         self.templates = {}
         self.page_templates = {}

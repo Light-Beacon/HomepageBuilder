@@ -5,7 +5,7 @@ from .Styles import getStyleCode
 from .Templates_Manager import TemplateManager
 from .Code_Formatter import format_code
 from .Debug import LogInfo, LogError, LogWarning, FormatXaml
-from .ModuleManager import storgeTempScripts
+from . import ModuleManager
 import os
 
 sep = os.path.sep
@@ -45,7 +45,8 @@ class Project:
         self.load_plugins(f'{envpath}{sep}Plugin')
         self.pages = {}
         self.import_pack(path)
-        storgeTempScripts(self.resources.scripts)
+        ModuleManager.storgeTempScripts(self.resources.scripts)
+        ModuleManager.initModules(self)
         self.TemplateManager = TemplateManager(self)
         LogInfo(f'[Project] Pack loaded successful!')
     

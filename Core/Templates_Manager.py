@@ -85,8 +85,7 @@ class TemplateManager:
                                     project=self.project, children_code = children_code)
             elif cpn.startswith('$') or cpn.startswith('@'):
                 args = cpn[1:].split('|')
-                code += format_code(invokeScript(args[0],self.project,card,args[1:],children_code)
-                                    ,card,self.project,children_code)
+                code += invokeScript(args[0],self.project,card,args[1:],children_code)
             else:
                 LogWarning(f'[TemplateManager] {template_name}模版中调用了未载入的构件{cpn}，跳过')
         if 'containers' in target_template:

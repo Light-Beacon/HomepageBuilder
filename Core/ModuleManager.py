@@ -113,3 +113,8 @@ def untilLoaded(*args):
             requireed_modules.append(module)
     if len(requireed_modules) > 0:
         raise RequireDependency(*requireed_modules)
+    
+def initModules(proj):
+    for module in scripts_modules.values():
+        if hasattr(module,'init'):
+            getattr(module,'init')(proj)
