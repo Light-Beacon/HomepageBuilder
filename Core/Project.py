@@ -110,7 +110,7 @@ class Project:
         if page_alias not in self.pages:
             raise PageNotFoundError(LogError(f'[Project] Cannot find page named "{page_alias}"'))
         page = self.pages[page_alias]
-        if result := page.get('display_name') == None:
+        if (result := page.get('display_name')) == None:
             result = page.get('name')
         return result
 class PageNotFoundError(Exception):
