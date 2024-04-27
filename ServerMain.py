@@ -96,7 +96,7 @@ class Server:
         if key not in self.cache:
             name = self.project.get_page_displayname(alias)
             if name is None:
-                name = 'Untitled Page'
+                name = alias
             self.cache[key] = name
         return f'{{"Title":"{self.cache[key]}"}}'
     
