@@ -94,7 +94,7 @@ class Server:
     def getPageJson(self,alias):
         key = alias + '.json'
         if key not in self.cache:
-            name = self.project.get_page_name(alias)
+            name = self.project.get_page_displayname(alias)
             if name is None:
                 name = 'Untitled Page'
             self.cache[key] = name

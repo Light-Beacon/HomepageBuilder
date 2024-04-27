@@ -105,11 +105,13 @@ class Project:
         page_xaml = page_xaml.replace('${content}',content_xaml)
         return page_xaml
     
-    def get_page_name(self,page_alias):
-        '''获取页面名'''
+    def get_page_displayname(self,page_alias):
+        '''获取页面显示名'''
         if page_alias not in self.pages:
             raise PageNotFoundError(LogError(f'[Project] Cannot find page named "{page_alias}"'))
         page = self.pages[page_alias]
-        return page.get('name')
+        if result := page.get('display_name') == None:
+            result = page.get('name')
+        return result
 class PageNotFoundError(Exception):
     pass
