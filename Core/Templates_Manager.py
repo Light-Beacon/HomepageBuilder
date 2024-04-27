@@ -1,5 +1,6 @@
 from .Resource import Resource
-from .Code_Formatter import format_code,runScript
+from .Code_Formatter import format_code
+from .ModuleManager import invokeScript
 from .Debug import LogWarning
 from .Library import Library
 from typing import List, Union
@@ -84,7 +85,7 @@ class TemplateManager:
                                     project=self.project, children_code = children_code)
             elif cpn.startswith('$') or cpn.startswith('@'):
                 args = cpn[1:].split('|')
-                code += runScript(args[0],self.project,card,args[1:],children_code)
+                code += invokeScript(args[0],self.project,card,args[1:],children_code)
             else:
                 LogWarning(f'[TemplateManager] {template_name}模版中调用了未载入的构件{cpn}，跳过')
         if 'containers' in target_template:

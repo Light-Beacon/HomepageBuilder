@@ -4,7 +4,7 @@ import os
 import re
 from typing import List,Tuple,Dict
 from .Debug import LogInfo
-from .ScriptManager import RegScript
+from .ModuleManager import RegScript
 
 def readString(filepath:str):
     '''读取字符串文件'''

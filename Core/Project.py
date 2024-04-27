@@ -5,6 +5,7 @@ from .Styles import getStyleCode
 from .Templates_Manager import TemplateManager
 from .Code_Formatter import format_code
 from .Debug import LogInfo, LogError, LogWarning, FormatXaml
+from .ModuleManager import storgeTempScripts
 import os
 
 sep = os.path.sep
@@ -31,7 +32,7 @@ class Project:
         for page in ScanDire(f'{self.base_path}{sep}Pages',r'.*'):
             self.import_page(page)
     
-    def getAllCard(self):
+    def getAllCard(self) -> list:
         return self.base_library.get_all_cards()
 
     def __init__(self,path):
@@ -44,6 +45,7 @@ class Project:
         self.load_plugins(f'{envpath}{sep}Plugin')
         self.pages = {}
         self.import_pack(path)
+        storgeTempScripts(self.resources.scripts)
         self.TemplateManager = TemplateManager(self)
         LogInfo(f'[Project] Pack loaded successful!')
     

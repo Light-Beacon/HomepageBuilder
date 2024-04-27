@@ -38,11 +38,11 @@ class Library:
         if card_ref in self.cards:
             return self.cards[card_ref]
         if ':' in card_ref:
-            splits = card_ref.split(':',2)
-            if splits[0] == self.name:
-                card_ref = splits[1]
+            libname,cardname = card_ref.split(':',2)
+            if libname == self.name:
+                card_ref = cardname
             else:
-                return self.getCardFromLibMapping(splits[0],splits[1],is_original)
+                return self.getCardFromLibMapping(libname,cardname,is_original)
         return self.getCardFromCardMapping(card_ref,is_original)
     
     def getCard(self,card_ref:str,is_original:bool):
@@ -80,7 +80,9 @@ class Library:
             self.cards[name] = data
         else:
             self.cards[name] = {'data':data }
-        self.cards[name].update({'data':data,'file_name':filename,'file_exten':exten})
+        self.cards[name].update({'data':data,'file_name':filename,'file_exten':exten,
+                                 'card_id':f'{self.name}:{name}','card_lib':self.name,
+                                 'card_name':name})
 
     def add_sub_libraries(self,yamldata):
         '''增加子库'''
@@ -108,7 +110,6 @@ class Library:
         # DEV NOTICE 如果映射的内存占用太大了就将每一个卡片和每一个子库的路径压成栈，交给根库来管理
 
     def get_all_cards(self):
-        print(self.name)
         result = [self.__decorateCard(card) for card in self.cards.values()]
         for lib in self.sub_libraries.values():
             result += [self.__decorateCard(card) for card in lib.get_all_cards()]

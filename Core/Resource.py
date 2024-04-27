@@ -1,5 +1,6 @@
 from .FileIO import CreateDict,TryScanDire,ScanSubDire
 from .Debug import LogInfo
+from .ModuleManager import storgeTempScripts
 from os.path import sep
 class Resource:
     def loadResources(self,path:str,prefix:str):
@@ -11,9 +12,9 @@ class Resource:
         self.templates.update(CreateDict(TryScanDire(f'{path}{sep}Templates',r'.*\.yml$'),prefix))
         self.page_templates.update(CreateDict(TryScanDire(f'{path}{sep}Page_Templates',r'.*\.xaml$'),prefix))
         self.scripts.update(CreateDict(TryScanDire(f'{path}{sep}Scripts',r'.*\.py$'),prefix))
+        storgeTempScripts(self.scripts)
         self.styles.update(CreateDict(TryScanDire(f'{path}{sep}Styles',r'.*\.xaml$'),prefix))
         self.styles.update(CreateDict(TryScanDire(f'{path}{sep}Styles',r'.*\.yml$'),prefix))
-        
         self.components.update({'':''}) # IF Failed return a null component
 
     def __init__(self):
