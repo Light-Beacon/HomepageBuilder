@@ -1,24 +1,29 @@
-from typing import Any, Callable, Dict
-from .Debug import LogWarning, LogDebug
-from .ModuleManager import invokeScript
+'''
+该模块用于格式化代码
+'''
+from typing import Dict
+from .debug import log_warning
+from .module_manager import invoke_script
 
 def format_code(code:str,card:Dict[str,object],
-                project,children_code:str='',stack:list = []):
+                project,children_code:str='',stack:list = None):
     '''格式化代码'''
+    if not stack:
+        stack = []
     matches = findall_placeholders(code)
     for match in matches:
         #LogDebug(str(match))
         qurey_tuple = split_args(match)
         attr_name = qurey_tuple[0]
         if attr_name in stack:
-            LogWarning(f'[Formatter] 检测到循环调用: {stack}')
+            log_warning(f'[Formatter] 检测到循环调用: {stack}')
             return code
         for item in qurey_tuple[1:]:
             # 格式化参数
             item = format_code(code=item,card=card,project=project,
                                children_code=children_code,stack=stack)
         if attr_name.startswith('$') or attr_name.startswith('@'):
-            replacement = invokeScript(script_name=qurey_tuple[0][1:],
+            replacement = invoke_script(script_name=qurey_tuple[0][1:],
                                     project=project,card=card,args=qurey_tuple[1:],
                                     children_code=children_code)
         elif attr_name in card:
@@ -27,7 +32,7 @@ def format_code(code:str,card:Dict[str,object],
             if len(qurey_tuple) >= 1:
                 replacement = qurey_tuple[-1]
             else:
-                LogWarning(f'[Formatter] 访问了不存在的属性，并且没有设定默认值: {attr_name}')
+                log_warning(f'[Formatter] 访问了不存在的属性，并且没有设定默认值: {attr_name}')
                 continue
         stack.append(attr_name)
         try:
@@ -38,6 +43,7 @@ def format_code(code:str,card:Dict[str,object],
     return code
 
 def split_args(string:str):
+    '''分离参数'''
     args = []
     in_qoute = False
     pare_deepth = 0
@@ -64,7 +70,8 @@ def split_args(string:str):
     return args
 
 def findall_placeholders(string:str):
-    if string == None:
+    '''寻找全部占位符'''
+    if not string:
         return []
     placeholders = []
     pare_deepth = 0

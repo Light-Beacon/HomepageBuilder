@@ -1,11 +1,16 @@
-from .FileIO import ScanDire,ScanSubDire
-from .Debug import LogInfo,LogError
+'''
+该模块内存放了卡片库类
+'''
 import os
+from typing import Tuple
+from .io import scan_dire,scan_sub_dire
+from .debug import log_info,log_error
 
 class Library:
+    '''卡片库类'''
     def __init__(self,data:dict):
         self.name= data['name']
-        LogInfo(f'[Library] Loading library: {self.name}')
+        log_info(f'[Library] Loading library: {self.name}')
         self.fill = data.get('fill',{})
         self.cover = data.get('cover',{})
         self.card_mapping = {}  # 卡片索引
@@ -13,27 +18,27 @@ class Library:
         self.sub_libraries = {} # 子库
         self.cards = {}
         self.location = os.path.dirname(data['file_path'])
-        for file_tuple in ScanDire(self.location,r'^(?!^__LIBRARY__.yml$).*$'):  # 库所拥有的卡片
+        for file_tuple in scan_dire(self.location,r'^(?!^__LIBRARY__.yml$).*$'):  # 库所拥有的卡片
             self.add_card_from_file_tuple(file_tuple)
-        self.add_sub_libraries(ScanSubDire(self.location,'__LIBRARY__.yml'))  # 遍历添加子库
+        self.add_sub_libraries(scan_sub_dire(self.location,'__LIBRARY__.yml'))  # 遍历添加子库
 
     @classmethod
-    def decorateCard(cls,card,fill,cover):
+    def decorate_card(cls,card,fill,cover):
         '''用 fill 和 cover 修饰卡片'''
-        if fill != None:
+        if fill:
             cloned_fill = fill.copy()
         else:
             cloned_fill = {}
-        if cover != None:
+        if cover:
             card.update(cover)
         cloned_fill.update(card)
         return cloned_fill
 
-    def __decorateCard(self,card):
+    def __decorate_card(self,card):
         '''用本卡片库的 fill 和 cover 修饰卡片'''
-        return self.decorateCard(card,self.fill,self.cover)
-    
-    def __getCard_decoless(self,card_ref:str,is_original:bool):
+        return self.decorate_card(card,self.fill,self.cover)
+
+    def __get_card_decoless(self,card_ref:str,is_original:bool):
         '''获取未经 fill 和 cover 的卡片'''
         if card_ref in self.cards:
             return self.cards[card_ref]
@@ -42,36 +47,37 @@ class Library:
             if libname == self.name:
                 card_ref = cardname
             else:
-                return self.getCardFromLibMapping(libname,cardname,is_original)
-        return self.getCardFromCardMapping(card_ref,is_original)
-    
-    def getCard(self,card_ref:str,is_original:bool):
+                return self.get_card_from_lib_mapping(libname,cardname,is_original)
+        return self.get_card_from_card_mapping(card_ref,is_original)
+
+    def get_card(self,card_ref:str,is_original:bool):
         '''获取卡片'''
-        target = self.__getCard_decoless(card_ref,is_original)
+        target = self.__get_card_decoless(card_ref,is_original)
         if is_original:
             return target
         else:
-            return self.__decorateCard(target)
+            return self.__decorate_card(target)
 
-    def getCardFromCardMapping(self,card_ref:str,is_original:bool):
+    def get_card_from_card_mapping(self,card_ref:str,is_original:bool):
         '''通过库内的卡片映射获取卡片'''
-        if card_ref in self.cards.keys():
+        if card_ref in self.cards:
             return self.cards[card_ref].copy()
         elif card_ref in self.card_mapping:
             return self.card_mapping[card_ref].getCard(card_ref,is_original)
         else:
-            raise KeyError(LogError(f'[Library] Cannot find card "{card_ref}"'))
+            raise KeyError(log_error(f'[Library] Cannot find card "{card_ref}"'))
 
-    def getCardFromLibMapping(self,lib_name,card_ref,is_original):
+    def get_card_from_lib_mapping(self,lib_name,card_ref,is_original):
         '''通过库内的库映射获取卡片'''
         if lib_name == 'T':
             return {'templates':[card_ref]}
-        if lib_name in self.libs_mapping.keys():
+        if lib_name in self.libs_mapping:
             return self.libs_mapping[lib_name].getCard(card_ref,is_original)
         else:
-            raise KeyError(LogError(f'[Library] Cannot find library "{card_ref}"'))
+            raise KeyError(log_error(f'[Library] Cannot find library "{card_ref}"'))
 
-    def add_card_from_file_tuple(self,file_info_tuple):
+    def add_card_from_file_tuple(self,file_info_tuple:Tuple[object,str,str]):
+        '''通过文件元组添加卡片'''
         data, filename, exten = file_info_tuple
         name = filename
         if isinstance(data,dict):
@@ -90,27 +96,28 @@ class Library:
             sublib = Library(yamldata)
             self.sub_libraries.update({sublib.name:sublib})
             # 将子库的卡片索引加入父库并映射到该子库
-            for cardname in sublib.card_mapping.keys():
+            for cardname in sublib.card_mapping:
                 self.card_mapping.update({cardname:sublib})
             # 将子库的所有卡片加入父库并映射到该子库
-            for cardname in sublib.cards.keys():
+            for cardname in sublib.cards:
                 self.card_mapping.update({cardname:sublib})
             # 将子库的子库引加入父库并映射到该子库
-            for libname in sublib.libs_mapping.keys():
+            for libname in sublib.libs_mapping:
                 self.libs_mapping.update({libname:sublib})
             # 将该子库加入父库的子库索引
             self.libs_mapping.update({sublib.name:sublib})
-        if type(yamldata) is list:
+        if isinstance(yamldata,list):
             for data in yamldata:
                 self.add_sub_libraries(data)
-        elif type(yamldata) is tuple:
+        elif isinstance(yamldata,tuple):
             add_sub_library(self,yamldata[0])
         else:
             add_sub_library(self,yamldata)
         # DEV NOTICE 如果映射的内存占用太大了就将每一个卡片和每一个子库的路径压成栈，交给根库来管理
 
     def get_all_cards(self):
-        result = [self.__decorateCard(card) for card in self.cards.values()]
+        '''获取该库的所有卡片'''
+        result = [self.__decorate_card(card) for card in self.cards.values()]
         for lib in self.sub_libraries.values():
-            result += [self.__decorateCard(card) for card in lib.get_all_cards()]
+            result += [self.__decorate_card(card) for card in lib.get_all_cards()]
         return result

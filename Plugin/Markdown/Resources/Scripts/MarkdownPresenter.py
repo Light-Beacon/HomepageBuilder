@@ -1,10 +1,11 @@
-import markdown
 import re
+import markdown
 from bs4 import BeautifulSoup
-from Core.Encode import encode_escape
-from Core.Debug import LogInfo, LogWarning
+from Core.encode import encode_escape
+from Core.debug import log_warning
 
 def get_replacement(name:str,attrs:dict):
+    '''获取替换的字符串'''
     component_name = name
     replace_list = []
     if name == 'h1':
@@ -13,37 +14,40 @@ def get_replacement(name:str,attrs:dict):
         component_name = 'h'
         replace_list.append(('level',name[1:]))
     elif name == 'a':
-        replace_list.append(('link',attrs['href'])) 
+        replace_list.append(('link',attrs['href']))
     elif name == 'img':
-        replace_list.append(('source',attrs['src'])) 
+        replace_list.append(('source',attrs['src']))
         if len(attrs['alt']) > 0:
             component_name = 'titled-img'
-            replace_list.append(('alt',attrs['alt'])) 
+            replace_list.append(('alt',attrs['alt']))
     return (component_name, replace_list)
 
 def get_element_frame(name,attrs,res):
+    '''获取元素框架'''
     components:dict[str,str] = res.components
     component_name, replace_list = get_replacement(name,attrs)
-    if component_name == None: # e.g H1
+    if not component_name: # e.g H1
         return ''
     replace_str = components.get(component_name)
     if replace_str is None:
-        LogWarning(f'[Marodown] markdown 中存在尚不支持的元素{name}')
+        log_warning(f'[Marodown] markdown 中存在尚不支持的元素{name}')
         return None
     for k,v in replace_list:
         replace_str = replace_str.replace(f'${{{k}}}',encode_escape(v))
     return replace_str
-    
+
 FIRSTLINE_SPACES = '    '
 LINE_BREAK = '<LineBreak/>'
 INLINE_ELEMENTS = ['li','p','em','strong','a','code','del']
 
 def is_inline(tag):
+    '''判断标签是否是行内元素'''
     if isinstance(tag,str):
         return True
     return tag.name in INLINE_ELEMENTS
 
-def listItem2xaml(tag,res): 
+def list_item2xaml(tag,res):
+    '''列表元素转为xaml代码'''
     if tag.name != 'li':
         raise ValueError()
     element_frame:str = get_element_frame(tag.name,{},res)
@@ -73,6 +77,7 @@ def listItem2xaml(tag,res):
     return element_frame.replace('${content}',content)
 
 def quote2xaml(tag,res):
+    '''引文元素转为xaml代码'''
     if tag.name != 'blockquote':
         raise ValueError()
     element_frame:str = get_element_frame(tag.name,{},res)
@@ -86,17 +91,19 @@ def quote2xaml(tag,res):
     return element_frame.replace('${content}',content)
 
 def element2xaml_general(tag,res):
+    '''元素转为xaml代码通用入口'''
     if isinstance(tag,str):
         return encode_escape(tag)
     match tag.name:
         case 'li':
-            return listItem2xaml(tag,res)
+            return list_item2xaml(tag,res)
         case 'blockquote':
             return quote2xaml(tag,res)
         case _:
             return common2xaml(tag,res)
 
 def common2xaml(tag,res):
+    '''一般元素转为xaml代码'''
     name = tag.name
     attrs = tag.attrs
     content = ''
@@ -105,12 +112,13 @@ def common2xaml(tag,res):
         return str(tag)
     if tag.contents:
         if name == 'p':
-                content += FIRSTLINE_SPACES
+            content += FIRSTLINE_SPACES
         for child in tag.contents:
             content += element2xaml_general(child,res)
     return element_frame.replace('${content}',content)
 
 def html2xaml(html,res):
+    '''html转为xaml代码'''
     soup = BeautifulSoup(html,'html.parser')
     xaml = ''
     for tag in soup.find_all(recursive=False):
@@ -120,14 +128,17 @@ def html2xaml(html,res):
 del_pattern = re.compile(r'~~(.*)~~')
 
 def md_del_replace(md:str):
+    '''转译删除线'''
     return re.sub(del_pattern,r'<del>\1</del>',md)
 
 def convert(card,res):
+    '''生成xaml代码'''
     md = card['markdown']
     md = md_del_replace(md)
     html = markdown.markdown(md)
     xaml = html2xaml(html,res)
     return xaml
 
-def script(card,res,**kwargs):
+def script(card,res,**_):
+    '''从markdown生成xaml代码脚本'''
     return convert(card,res)

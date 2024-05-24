@@ -1,10 +1,16 @@
-from typing import Dict,Union
-def getStyleCode(styles:Dict[str,object]) -> str:
+'''
+样式管理模块
+'''
+
+from typing import Dict
+
+def get_style_code(styles:Dict[str,object]) -> str:
+    '''获取样式代码'''
     xaml = ''
     for item in styles.values():
-        if type(item) is str:
+        if isinstance(item,str):
             xaml += item
-        if type(item) is dict:
+        if isinstance(item,dict):
             for style in item['Styles']:
                 xaml += f'<Style TargetType="{style["Target"]}" '
                 if 'Key' in style:

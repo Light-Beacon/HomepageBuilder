@@ -1,117 +1,35 @@
-def LogInfo(infomation:str):
+'''
+该模块用于输出调试与日志信息
+'''
+def log_info(infomation:str):
     '''输出信息'''
-    print(f'{blue}[INFO]{clear}{infomation}')
+    print(f'{CONSOLE_BLUE}[INFO]{CONSOLE_CLEAR}{infomation}')
 
-def LogWarning(infomation:str):
+def log_warning(infomation:str):
     '''输出警告'''
-    print(f'{yellow}[WARNING]{clear}{infomation}')
+    print(f'{CONSOLE_YELLOW}[WARNING]{CONSOLE_CLEAR}{infomation}')
 
-def LogDebug(infomation:str):
+def log_debug(infomation:str):
     '''输出调试信息'''
-    print(f'{green}[DEBUG]{clear}{infomation}')
-    
-def LogError(infomation:str):
+    print(f'{CONSOLE_GREEN}[DEBUG]{CONSOLE_CLEAR}{infomation}')
+
+def log_error(infomation:str):
     '''输出错误信息'''
-    print(f'{red}[ERROR]{infomation}')
+    print(f'{CONSOLE_RED}[ERROR]{infomation}')
     return infomation
 
-def LogFatal(infomation:str):
+def log_fatal(infomation:str):
     '''输出致命错误信息'''
-    print(f'{red}[FATAL]{infomation}')
+    print(f'{CONSOLE_RED}[FATAL]{infomation}')
     return infomation
 
-tabtext = '    '
-
-def FormatXaml(code:str):
-    '''格式化 XAML 代码'''
-    code = code.replace('\n','')
-    code = code.replace('\r','')
-    new_code = ''
-    tab = 0
-    mark_slash = False
-    mark_end = False
-    mark_newline = False
-    for i in range(len(code)):
-        c = code[i] 
-        if c == '>':
-            new_code += c
-            if not mark_slash and not mark_end:
-                tab += 1
-            mark_end = False
-            mark_newline = True
-            continue
-        else:
-            mark_slash = False
-        if c == '/':
-            mark_slash = True
-            new_code += c
-            continue
-        if c == '<':
-            new_code += '\r\n'
-            if code[i+1] == '/':
-                tab -= 1
-                mark_end = True
-            for j in range(tab):
-                new_code += tabtext
-            new_code += c
-            mark_newline = False
-            continue
-        if c != ' ' and mark_newline:
-            new_code += '\r\n'
-            for j in range(tab):
-                new_code += tabtext
-            mark_newline = False
-        new_code += c
-    return new_code
-
-def print_newlineless(char):
-    print(char,end='')
-
-def PrintXaml(code:str):
-    code = FormatXaml(code)
-    is_in_element = False
-    is_in_quote = False
-    for c in code:
-        if c == ' ':
-            if is_in_element and not is_in_quote:
-                print_newlineless(magenta)
-        if c == '=':
-            if is_in_element and not is_in_quote:
-                print_newlineless(clear)
-        if c == '{':
-            if is_in_element and is_in_quote:
-                print_newlineless(yellow)
-        if c == '}':
-            if is_in_element and is_in_quote:
-                print_newlineless(c)
-                print_newlineless(green)
-                continue
-        if c == '<':
-            print_newlineless(c)
-            print_newlineless(red)
-            is_in_element = True
-            continue
-        if c == '"':
-            if is_in_element:
-                is_in_quote = not is_in_quote
-                if is_in_quote:
-                    print_newlineless(green)
-                else:
-                    print_newlineless(c)
-                    print_newlineless(magenta)
-                    continue
-        if c == '>':
-            is_in_element = False
-            print_newlineless(clear)
-        print_newlineless(c)
-    print('')
-
-clear = '\033[0m'  
-black = '\033[30m'
-red = '\033[31m'
-green = '\033[32m'
-yellow = '\033[33m'
-blue = '\033[34m'
-magenta = '\033[35m'
-cyan = '\033[36m'
-white = '\033[37m'
+TAB_TEXT = '    '
+CONSOLE_CLEAR = '\033[0m'
+CONSOLE_BLACK = '\033[30m'
+CONSOLE_RED = '\033[31m'
+CONSOLE_GREEN = '\033[32m'
+CONSOLE_YELLOW = '\033[33m'
+CONSOLE_BLUE = '\033[34m'
+CONSOLE_MAGENTA = '\033[35m'
+CONSOLE_CYAN = '\033[36m'
+CONSOLE_WHITE = '\033[37m'

@@ -1,7 +1,10 @@
-from Core.Project import Project
+'''构建器主入口'''
 import argparse
+from Core.project import Project
+
 
 def main():
+    '''构建器主入口'''
     parser = argparse.ArgumentParser()
     parser.add_argument('-o','--open',help='Project path to be loaded')
     parser.add_argument('-w','--write',help='File path to be written')
@@ -23,6 +26,6 @@ def main():
         filepath = args.write
         with open(filepath,'w',encoding='utf-8') as f:
             f.write(xaml)
-            
+
 if __name__ == '__main__':
     main()

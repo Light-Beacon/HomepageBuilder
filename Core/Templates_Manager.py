@@ -1,22 +1,24 @@
-from .Resource import Resource
-from .Code_Formatter import format_code
-from .ModuleManager import invokeScript
-from .Debug import LogWarning
-from .Library import Library
-from typing import List, Union
-from queue import *
+'''
+模版管理器模块
+'''
 import traceback
+from queue import Queue
+from typing import List, Union
+from .code_formatter import format_code
+from .module_manager import invoke_script
+from .debug import log_warning
+from .library import Library
 
 def __is_filter_value_match(rule:str,value:str):
     if rule.startswith('$'):
         rule = rule[1:]
-        if rule == 'HASVALUE' and value != None and len(value) > 0:
+        if rule == 'HASVALUE' and value and len(value) > 0:
             return True
-        if rule == 'EMPTY' and (value == None or len(value) == 0):
+        if rule == 'EMPTY' and (value or len(value) == 0):
             return True
         return False
     else:
-        if value == None:
+        if value:
             return False
         rule = rule.lower()
         value = value.lower()
@@ -46,19 +48,21 @@ def filter_match(template,card):
     return True
 
 class TemplateManager:
+    '''模版管理器类'''
     def __init__(self,project):
         self.project = project
         self.resources = project.resources
         self.templates = self.resources.templates
 
     def expend_card_placeholders(self,card:dict,children_code):
+        '''展开卡片属性内所有占位符'''
         q = Queue()
         tries = 0
         for key in card:
             q.put(key)
         while not q.empty():
             if tries > q.qsize():
-                LogWarning(f"[TemplateManager] 检测到卡片中 {'、'.join(q.queue)} 属性无法被展开，跳过")
+                log_warning(f"[TemplateManager] 检测到卡片中 {'、'.join(q.queue)} 属性无法被展开，跳过")
                 break
             key = q.get()
             try:
@@ -69,12 +73,13 @@ class TemplateManager:
                 tries += 1
                 continue
         return card
-        
+
     def build_with_template(self,card,template_name,children_code) -> str:
-        if template_name == None or template_name == 'void':
+        '''使用指定模版构建卡片'''
+        if (not template_name) or template_name == 'void':
             return children_code
         target_template = self.templates[template_name]
-        card = Library.decorateCard(card,target_template.get('fill'),
+        card = Library.decorate_card(card,target_template.get('fill'),
                                     target_template.get('cover'))
         code = ''
         card = self.expend_card_placeholders(card,children_code)
@@ -85,14 +90,14 @@ class TemplateManager:
                                     project=self.project, children_code = children_code)
             elif cpn.startswith('$') or cpn.startswith('@'):
                 args = cpn[1:].split('|')
-                code += invokeScript(args[0],self.project,card,args[1:],children_code)
+                code += invoke_script(args[0],self.project,card,args[1:],children_code)
             else:
-                LogWarning(f'[TemplateManager] {template_name}模版中调用了未载入的构件{cpn}，跳过')
+                log_warning(f'[TemplateManager] {template_name}模版中调用了未载入的构件{cpn}，跳过')
         if 'containers' in target_template:
             tree_path = target_template['containers']
             code = self.packin_containers(tree_path,card,code)
         return self.build_with_template(card,target_template.get('base'),code)
-    
+
     def packin_containers(self,tree_path:Union[str,List[str]],card,code:str):
         '''按照容器组件路径包装'''
         containers:list = []
@@ -117,33 +122,31 @@ class TemplateManager:
                     else:
                         raise ValueError('容器路径中存在不存在的组件')
         return current_code
-                        
+
     def build(self,card):
+        '''构建卡片'''
         def try_build(self,card,template):
             try:
                 return self.build_with_template(card,template,'')
-            except Exception as e:
-                LogWarning(f'[TemplateManager] 构建卡片时出现错误：\n{traceback.format_exc()}Skipped.')
+            except Exception:
+                log_warning(f'[TemplateManager] 构建卡片时出现错误：\n{traceback.format_exc()}Skipped.')
                 return ''
-        
+
         attr = card['templates']
         if isinstance(attr,str):
             template = self.resources.templates[attr]
             if filter_match(template,card):
                 return try_build(self,card,attr)
             else:
-                LogWarning('[TemplateManager] 卡片与其配置的模版要求不符，跳过')
+                log_warning('[TemplateManager] 卡片与其配置的模版要求不符，跳过')
                 return ''
         elif isinstance(attr,list):
             for template_name in card['templates']:
                 if template_name not in self.resources.templates:
                     continue
                 if filter_match(self.resources.templates[template_name],card):
-                   return try_build(self,card,template_name)
-            else:
-                LogWarning('[TemplateManager] 卡片没有匹配的配置模版，跳过')
-                return ''
+                    return try_build(self,card,template_name)
+            log_warning('[TemplateManager] 卡片没有匹配的配置模版，跳过')
+            return ''
         else:
-            LogWarning('[TemplateManager] 模版列表类型无效，跳过')
-
-        
+            log_warning('[TemplateManager] 模版列表类型无效，跳过')
