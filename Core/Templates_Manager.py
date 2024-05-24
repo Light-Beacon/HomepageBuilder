@@ -18,7 +18,7 @@ def __is_filter_value_match(rule:str,value:str):
             return True
         return False
     else:
-        if value:
+        if not value:
             return False
         rule = rule.lower()
         value = value.lower()

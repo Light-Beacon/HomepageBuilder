@@ -104,7 +104,7 @@ def scan_dire(direpath:str, regex:str, asraw:bool = False) -> List[Tuple[object,
             else:
                 output.append((read_func_mapping[exten](f),filename,exten))
         except FileNotFoundError:
-            log_info(f'[FileIO] Fail to load {f}!')     
+            log_info(f'[FileIO] Fail to load {f}!')
     return output
 
 def scan_sub_dire(direpath:str, regex:str,

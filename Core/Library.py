@@ -63,7 +63,7 @@ class Library:
         if card_ref in self.cards:
             return self.cards[card_ref].copy()
         elif card_ref in self.card_mapping:
-            return self.card_mapping[card_ref].getCard(card_ref,is_original)
+            return self.card_mapping[card_ref].get_card(card_ref,is_original)
         else:
             raise KeyError(log_error(f'[Library] Cannot find card "{card_ref}"'))
 
@@ -72,7 +72,7 @@ class Library:
         if lib_name == 'T':
             return {'templates':[card_ref]}
         if lib_name in self.libs_mapping:
-            return self.libs_mapping[lib_name].getCard(card_ref,is_original)
+            return self.libs_mapping[lib_name].get_card(card_ref,is_original)
         else:
             raise KeyError(log_error(f'[Library] Cannot find library "{card_ref}"'))
 

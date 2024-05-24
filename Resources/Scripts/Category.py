@@ -1,4 +1,4 @@
-from Core.Project import Project
+from Core.project import Project
 
 def script(cat_name,proj:Project,**kwargs):
     cards = list(filter(lambda card:isinstance(card.get('cats'),list)
