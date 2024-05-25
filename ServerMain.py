@@ -47,6 +47,8 @@ def getpage(alias:str):
             alias = alias[:-5]
         return server.get_page_xaml(alias)
     except PageNotFoundError:
+        if alias == 'could_you_buy_me_a_coffee':
+            return 'Sure You Need A Coffee And I AM A TEAPOT',418
         return 'No Page Found',404
     except Exception:
         logger.error(traceback.format_exc())
