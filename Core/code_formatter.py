@@ -10,6 +10,7 @@ def format_code(code:str,card:Dict[str,object],
     '''格式化代码'''
     if not stack:
         stack = []
+    code = str(code)
     matches = findall_placeholders(code)
     for match in matches:
         #LogDebug(str(match))
