@@ -13,7 +13,7 @@ def format_code(code:str,card:Dict[str,object],
     matches = findall_placeholders(code)
     for match in matches:
         #LogDebug(str(match))
-        qurey_tuple = split_args(match)
+        qurey_tuple = split_args(str(match))
         attr_name = qurey_tuple[0]
         if attr_name in stack:
             log_warning(f'[Formatter] 检测到循环调用: {stack}')
@@ -45,6 +45,7 @@ def format_code(code:str,card:Dict[str,object],
 def split_args(string:str):
     '''分离参数'''
     args = []
+    string = str(string)
     in_qoute = False
     pare_deepth = 0
     buffer = ''
