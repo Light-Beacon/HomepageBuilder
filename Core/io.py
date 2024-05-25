@@ -6,8 +6,9 @@ import os
 import json
 import re
 import yaml
-from .debug import log_info
-from .module_manager import reg_script
+from .debug import Logger
+
+logger = Logger('IO')
 
 def read_string(filepath:str):
     '''读取字符串文件'''
@@ -40,6 +41,7 @@ def read_yaml(filepath:str) -> dict:
 
 def read_python(filepath:str) -> callable:
     ''' 读取 Python 文件 '''
+    from .module_manager import reg_script
     if not os.path.exists(filepath):
         raise FileNotFoundError(f'{filepath} not exist!')
     return reg_script(filepath)
@@ -64,7 +66,7 @@ read_func_mapping = {
     'python':read_python
 }
 
-def try_scan_dire(direpath:str, regex:str, asraw:bool = False) -> List[Tuple[object,str,str]]:
+def try_scan_dire(direpath:str, regex:str = '.*', asraw:bool = False) -> List[Tuple[object,str,str]]:
     '''
     尝试扫描文件夹，与`ScanDire`功能相同，但若文件不存在不会抛出异常
     '''
@@ -85,7 +87,7 @@ def get_all_filenames_in_dire(direpath:str, regex:str) -> List[str]:
             output.append(f)
     return output
 
-def scan_dire(direpath:str, regex:str, asraw:bool = False) -> List[Tuple[object,str,str]]:
+def scan_dire(direpath:str, regex:str = '.*', asraw:bool = False) -> List[Tuple[object,str,str]]:
     ''' 返回所有目录下所有文件名符合正则表达式的文件，以元组（读取出的信息，文件名，文件名后缀）的列表输出 '''
     output:List[Tuple[object,str,str]] = []
     if not os.path.exists(direpath):
@@ -104,7 +106,7 @@ def scan_dire(direpath:str, regex:str, asraw:bool = False) -> List[Tuple[object,
             else:
                 output.append((read_func_mapping[exten](f),filename,exten))
         except FileNotFoundError:
-            log_info(f'[FileIO] Fail to load {f}!')
+            logger.info(f'[FileIO] Fail to load {f}!')
     return output
 
 def scan_sub_dire(direpath:str, regex:str,

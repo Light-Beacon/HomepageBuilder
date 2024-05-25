@@ -1,8 +1,13 @@
 import subprocess
-def init(proj,**kwargs):
+from Core.debug import Logger
+from Core.i18n import locale
+
+logger = Logger('ProjectInfo')
+
+def init(proj,**_):
     res = proj.resources
     githash = get_githash(proj.base_path).removesuffix('\n')
-    print(githash)
+    logger.info(locale('projectinfo.gitversion',version=githash))
     res.data['global']['git.commit.hash'] = githash
     res.data['global']['git.commit.id'] = githash[:7]
 

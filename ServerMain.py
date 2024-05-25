@@ -8,10 +8,11 @@ import gc
 from flask import Flask, request
 from Core.project import Project, PageNotFoundError
 from Core.io import read_yaml, read_string, write_string
-from Core.debug import log_fatal,log_error,log_info
+from Core.debug import Logger
 from Server.project_updater import request_update
 
 app = Flask(__name__)
+logger = Logger('Server')
 
 @app.route("/pull",methods=['POST'])
 def git_update():
@@ -21,7 +22,7 @@ def git_update():
     if status == 200:
         server.clear_cache()
     else:
-        log_error(data)
+        logger.error(data)
     return data,status
 
 @app.route("/")
@@ -48,7 +49,7 @@ def getpage(alias:str):
     except PageNotFoundError:
         return 'No Page Found',404
     except Exception:
-        log_error(traceback.format_exc())
+        logger.error(traceback.format_exc())
         return 'Inner Error Occured',500
 
 class Server:
@@ -66,7 +67,7 @@ class Server:
             self.project_dir = os.path.dirname(self.project_path)
             self.cache['version'] = self.write_latest_version_cache()
         except Exception as e:
-            log_fatal(e.args)
+            logger.fatal(e.args)
             exit()
 
     def clear_cache(self):
@@ -76,7 +77,7 @@ class Server:
         self.project = Project(self.project_path)
         self.cache.clear()
         self.write_latest_version_cache()
-        log_info('[Server] Cache cleared.')
+        logger.info('[Server] Cache cleared.')
 
     def get_latest_version_cache(self):
         '''获取最新的主页版本字符串缓存'''

@@ -5,8 +5,10 @@ import importlib
 import os
 import sys
 from typing import Dict, Callable, Any
-from .debug import log_info, log_warning
+from .debug import Logger
+from .i18n import locale as t
 
+logger = Logger('ModuleManager')
 class RequireDependency(Exception):
     '''需求依赖例外'''
     def __init__(self,*require):
@@ -57,20 +59,20 @@ def reg_script(script_path:str,queue_load:bool=False):
     name,_ = os.path.splitext(file_name)
     if name in scripts_modules :
         # Module already exist
-        log_info(f'[Scripts] Reloading script: {name}')
+        logger.info(t('module.script.reload',name=name))
         module = importlib.reload(scripts_modules[name])
     else:
         if not queue_load:
-            log_info(f'[Scripts] Loading script: {name}')
+            logger.info(t('module.script.load',name=name))
         # Add module
         sys.path.append(path_to)
         try:
-            module = importlib.import_module(f'{name}')
+            module = importlib.import_module(name)
         except RequireDependency as rd:
             # 如果请求加载某些模块
             dependencyManager.require(rd,script_path)
             return UnLoadedFunction(script_path)
-        log_info(f'[Scripts] Successfully loaded script: {name}')
+        logger.info(t('module.script.load.success',name=name))
         scripts_modules[name] = module
         for module in dependencyManager.satisfied(name):
             # 依赖已经成功加载需要重新加载的模块
@@ -80,7 +82,7 @@ def reg_script(script_path:str,queue_load:bool=False):
     if hasattr(module,'script'):
         func = getattr(module,'script')
         if not callable(func):
-            raise TypeError(f'{script_path} script not callable')
+            raise TypeError(t('module.script.load.failed.not_callable',name=name))
     else:
         return None
     if queue_load:
@@ -102,7 +104,7 @@ def invoke_script(script_name:str,project,card:Dict[str,object],
         return children_code
     script_code = scripts.get(script_name)
     if script_code is None:
-        log_warning(f'[Formatter] 尝试调用不存在的脚本: {script_name}')
+        logger.warning(t('module.format.invoke.failed.notfound',name = script_name))
         return ''
     result = scripts[script_name](*args,card=card,res=resources,proj=project)
     return result

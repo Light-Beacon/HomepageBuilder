@@ -4,13 +4,15 @@
 import os
 from typing import Tuple
 from .io import scan_dire,scan_sub_dire
-from .debug import log_info,log_error
+from .debug import Logger
+from .i18n import locale as t
 
+logger = Logger('Library')
 class Library:
     '''卡片库类'''
     def __init__(self,data:dict):
         self.name= data['name']
-        log_info(f'[Library] Loading library: {self.name}')
+        logger.info(t('library.load',name=self.name))
         self.fill = data.get('fill',{})
         self.cover = data.get('cover',{})
         self.card_mapping = {}  # 卡片索引
@@ -65,7 +67,7 @@ class Library:
         elif card_ref in self.card_mapping:
             return self.card_mapping[card_ref].get_card(card_ref,is_original)
         else:
-            raise KeyError(log_error(f'[Library] Cannot find card "{card_ref}"'))
+            raise KeyError(logger.error(f'[Library] Cannot find card "{card_ref}"'))
 
     def get_card_from_lib_mapping(self,lib_name,card_ref,is_original):
         '''通过库内的库映射获取卡片'''
@@ -74,7 +76,7 @@ class Library:
         if lib_name in self.libs_mapping:
             return self.libs_mapping[lib_name].get_card(card_ref,is_original)
         else:
-            raise KeyError(log_error(f'[Library] Cannot find library "{card_ref}"'))
+            raise KeyError(logger.error(f'[Library] Cannot find library "{card_ref}"'))
 
     def add_card_from_file_tuple(self,file_info_tuple:Tuple[object,str,str]):
         '''通过文件元组添加卡片'''
