@@ -5,6 +5,7 @@ import hmac
 import hashlib
 import subprocess
 import traceback
+
 GIT_PULL = 'git pull -f'
 
 class GitHubAuthError(Exception):
