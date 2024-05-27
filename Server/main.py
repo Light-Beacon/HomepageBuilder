@@ -55,9 +55,10 @@ def getpage(alias:str):
     mode = None
     if alias.endswith('.json'):
         mode = 'json'
+        alias = alias[:-5]
     elif alias.endswith('.xaml'):
         mode = 'xaml'
-    alias = alias[:-5]
+        alias = alias[:-5]
     try:
         if mode == 'json':
             return projapi.get_page_json(alias)
