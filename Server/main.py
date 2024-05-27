@@ -55,17 +55,17 @@ def getpage(alias:str):
     mode = None
     if alias.endswith('.json'):
         mode = 'json'
-        alias = alias[:-5]
+        alias = alias[:-5] # 这里两个都得保留
     elif alias.endswith('.xaml'):
         mode = 'xaml'
-        alias = alias[:-5]
+        alias = alias[:-5] # 这里两个都得保留
     try:
         if mode == 'json':
             return projapi.get_page_json(alias)
         else:
             return projapi.get_page_xaml(alias)
     except PageNotFoundError:
-        process_not_found(alias,mode)
+        return process_not_found(alias,mode)
     except Exception:
         logger.error(traceback.format_exc())
         if mode == 'json':
