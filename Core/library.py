@@ -2,8 +2,7 @@
 该模块内存放了卡片库类
 '''
 import os
-from typing import Tuple
-from .io import scan_dire,scan_sub_dire
+from .IO import Dire,File
 from .debug import Logger
 from .i18n import locale as t
 
@@ -19,10 +18,10 @@ class Library:
         self.libs_mapping = {}  # 子库索引
         self.sub_libraries = {} # 子库
         self.cards = {}
-        self.location = os.path.dirname(data['file_path'])
-        for file_tuple in scan_dire(self.location,r'^(?!^__LIBRARY__.yml$).*$'):  # 库所拥有的卡片
-            self.add_card_from_file_tuple(file_tuple)
-        self.add_sub_libraries(scan_sub_dire(self.location,'__LIBRARY__.yml'))  # 遍历添加子库
+        self.dire = Dire(os.path.dirname(data['file_path']))
+        for file in self.dire.scan(patten=r'^(?!^__LIBRARY__.yml$).*$'):  # 库所拥有的卡片
+            self.add_card_from_file(file)
+        self.add_sub_libraries(self.dire.scan_subdir('__LIBRARY__.yml'))  # 遍历添加子库
 
     @classmethod
     def decorate_card(cls,card,fill,cover):
@@ -78,9 +77,11 @@ class Library:
         else:
             raise KeyError(logger.error(f'[Library] Cannot find library "{card_ref}"'))
 
-    def add_card_from_file_tuple(self,file_info_tuple:Tuple[object,str,str]):
-        '''通过文件元组添加卡片'''
-        data, filename, exten = file_info_tuple
+    def add_card_from_file(self,file:File):
+        '''通过文件添加卡片'''
+        filename = file.name
+        exten = file.extention
+        data = file.read()
         name = filename
         if isinstance(data,dict):
             if 'name' in data:
@@ -92,7 +93,7 @@ class Library:
                                  'card_id':f'{self.name}:{name}','card_lib':self.name,
                                  'card_name':name})
 
-    def add_sub_libraries(self,yamldata):
+    def add_sub_libraries(self,files):
         '''增加子库'''
         def add_sub_library(self,yamldata):
             sublib = Library(yamldata)
@@ -108,13 +109,13 @@ class Library:
                 self.libs_mapping.update({libname:sublib})
             # 将该子库加入父库的子库索引
             self.libs_mapping.update({sublib.name:sublib})
-        if isinstance(yamldata,list):
-            for data in yamldata:
-                self.add_sub_libraries(data)
-        elif isinstance(yamldata,tuple):
-            add_sub_library(self,yamldata[0])
+        if isinstance(files,list):
+            for file in files:
+                self.add_sub_libraries(file)
+        elif isinstance(files,File):
+            add_sub_library(self,files.read())
         else:
-            add_sub_library(self,yamldata)
+            add_sub_library(self,files)
         # DEV NOTICE 如果映射的内存占用太大了就将每一个卡片和每一个子库的路径压成栈，交给根库来管理
 
     def get_all_cards(self):

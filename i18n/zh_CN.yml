@@ -2,8 +2,8 @@ project.init: "初始化中..."
 project.load.basci_res: "正在加载基础资源"
 project.load.plugins: "正在加载插件"
 project.load.success: "工程加载完毕！"
-project.import.start: "正在导入资源包: ${path}"
-project.import.pack.version: "资源包版本: ${version}"
+project.import.start: "正在导入工程包: ${path}"
+project.import.pack.version: "工程包版本: ${version}"
 project.import.cards: '导入卡片中'
 project.import.resources: '导入资源中'
 project.import.pages: '导入页面中'
