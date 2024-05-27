@@ -1,0 +1,11 @@
+# 是否忽略以 IO.IngorePrefix 开头和以 IO.IngoreSuffix 结尾的文件
+# 这项文件禁用给构建器工程提供了方便的禁用手段
+IO.EnableIngore: True
+IO.IngorePrefix: ['#','.']
+IO.IngoreSuffix: ['.disabled']
+
+# 是否读取符号链接
+IO.EnableSymbolink: False
+
+# 当遇到符号链接的时候是否停止并报错
+IO.EnableSymbolinkError: False

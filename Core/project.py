@@ -2,7 +2,7 @@
 工程文件模块，构建器核心
 '''
 import os
-from .io import read_yaml, scan_dire, scan_sub_dire
+from .IO import read_yaml, Dire, File
 from .library import Library
 from .resource import Resource
 from .styles import get_style_code
@@ -19,9 +19,10 @@ class Project:
     '''工程类'''
     def load_plugins(self,plugin_path):
         '''加载插件'''
-        for data,_,_ in scan_sub_dire(plugin_path,r'pack.yml'):
+        for file in Dire(plugin_path).scan_subdir(r'pack\.yml'):
+            data = file.read()
             dire = os.path.dirname(data['file_path'])
-            self.resources.load_resources(f'{dire}{PATH_SEP}Resources','')
+            self.resources.load_resources(f'{dire}{PATH_SEP}Resources')
 
     def import_pack(self,path):
         '''导入资源包'''
@@ -35,10 +36,10 @@ class Project:
         self.base_library = Library(read_yaml(
             f"{self.base_path}{PATH_SEP}Libraries{PATH_SEP}__LIBRARY__.yml"))
         logger.info(t('project.import.resources'))
-        self.resources.load_resources(f'{self.base_path}{PATH_SEP}Resources','')
+        self.resources.load_resources(f'{self.base_path}{PATH_SEP}Resources')
         logger.info(t('project.import.pages'))
-        for page in scan_dire(f'{self.base_path}{PATH_SEP}Pages',r'.*'):
-            self.import_page(page)
+        for pagefile in Dire(f'{self.base_path}{PATH_SEP}Pages').scan():
+            self.import_page(pagefile)
 
     def get_all_card(self) -> list:
         '''获取工程里的全部卡片'''
@@ -49,7 +50,7 @@ class Project:
         envpath = os.path.dirname(os.path.dirname(__file__))
         self.resources = Resource()
         logger.info(t('project.load.basci_res'))
-        self.resources.load_resources(f'{envpath}{PATH_SEP}Resources','')
+        self.resources.load_resources(f'{envpath}{PATH_SEP}Resources')
         logger.info(t('project.load.plugins'))
         self.load_plugins(f'{envpath}{PATH_SEP}Plugin')
         self.pages = {}
@@ -59,9 +60,11 @@ class Project:
         self.template_manager = TemplateManager(self)
         logger.info(t('project.load.success'))
 
-    def import_page(self,page_tuple):
+    def import_page(self,page_file:File):
         '''导入页面'''
-        page, file_name, file_exten = page_tuple
+        page = page_file.read()
+        file_name = page_file.name
+        file_exten = page_file.extention
         if file_exten == 'yml':
             if 'name' in page:
                 self.pages.update({ page['name']:page })

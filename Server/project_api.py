@@ -2,7 +2,7 @@ import os
 import subprocess
 import gc
 from Core.project import Project
-from Core.io import read_yaml, read_string, write_string
+from Core.IO import read_yaml, read_string, write_string
 from Core.debug import Logger
 from os.path import sep as sep
 
