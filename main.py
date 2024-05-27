@@ -1,6 +1,7 @@
 '''构建器主入口'''
 import argparse
 from Core.project import Project
+from Core import config
 
 def command_build(args):
     project = Project(args.project_file_path)
@@ -42,4 +43,5 @@ def main():
     command_func_mapping[args.command](args)
 
 if __name__ == '__main__':
+    config.fully_init()
     main()

@@ -5,7 +5,7 @@ config_dict = {}
 def config(key):
     return config_dict.get(key)
 
-def __init__():
+def partly_init():
     global config_dict
     envpath = os.path.dirname(os.path.dirname(__file__))
     filepath = f"{envpath}{os.path.sep}Config{os.path.sep}basic.yml"
@@ -15,4 +15,10 @@ def __init__():
         data:dict = yaml.load(f,Loader=yaml.FullLoader)
     config_dict = data
 
-__init__()
+def fully_init():
+    from .IO import Dire
+    files = Dire(os.path.dirname(os.path.dirname(__file__))).scan(recur=True,patten=r'.*\.yml')
+    for file in files:
+        config_dict.update(file.read())
+
+partly_init()
