@@ -25,7 +25,7 @@ class Project:
             self.resources.load_resources(f'{dire}{PATH_SEP}Resources')
 
     def import_pack(self,path):
-        '''导入资源包'''
+        '''导入工程包'''
         logger.info(t('project.import.start',path = path))
         pack_info = read_yaml(path)
         self.version = pack_info['version']
@@ -38,7 +38,7 @@ class Project:
         logger.info(t('project.import.resources'))
         self.resources.load_resources(f'{self.base_path}{PATH_SEP}Resources')
         logger.info(t('project.import.pages'))
-        for pagefile in Dire(f'{self.base_path}{PATH_SEP}Pages').scan():
+        for pagefile in Dire(f'{self.base_path}{PATH_SEP}Pages').scan(recur=True):
             self.import_page(pagefile)
 
     def get_all_card(self) -> list:
