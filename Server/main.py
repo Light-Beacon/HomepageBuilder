@@ -14,7 +14,6 @@ app = Flask(__name__)
 projapi = None
 
 class Server:
-
     def __init__(self,project_path=None):
         global projapi
         logger.info(t('server.init'))
@@ -53,19 +52,38 @@ def getpage(alias:str):
         return projapi.get_version()
     while alias.endswith('/'):
         alias = alias[:-1]
+    mode = None
+    if alias.endswith('.json'):
+        mode = 'json'
+    elif alias.endswith('.xaml'):
+        mode = 'xaml'
+    alias = alias[:-5]
     try:
-        if alias.endswith('.json'):
-            return projapi.get_page_json(alias[:-5])
-        if alias.endswith('.xaml'):
-            alias = alias[:-5]
-        return projapi.get_page_xaml(alias)
+        if mode == 'json':
+            return projapi.get_page_json(alias)
+        else:
+            return projapi.get_page_xaml(alias)
     except PageNotFoundError:
-        if alias == 'could_you_buy_me_a_coffee':
-            return 'Sure You Need A Coffee And I AM A TEAPOT',418
-        return 'No Page Found',404
+        process_not_found(alias,mode)
     except Exception:
         logger.error(traceback.format_exc())
-        return 'Inner Error Occured',500
+        if mode == 'json':
+            return process_err_page_json(500)
+        else:
+            return 'Inner Error Occured',500
+
+def process_not_found(alias,mode):
+    '''处理页面未找到的请求'''
+    if mode == 'json':
+        return process_err_page_json(404)
+    if alias == 'could_you_buy_me_a_coffee':
+        return 'Sure You Need A Coffee And I AM A TEAPOT',418
+    return 'No Page Found',404
+
+def process_err_page_json(err_code):
+    '''处理发生错误的 JSON 请求'''
+    return f'{{"Title":"{err_code}"}}'
+
 
 if __name__ == "__main__":
     s = Server()
