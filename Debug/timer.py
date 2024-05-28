@@ -16,11 +16,12 @@ def count_time(func:callable):
             logger.debug(locale('debug.timer.start',
                                 func=func.__name__,count=current_count))
             star_time = time.time()
-            func(*args,**kwargs)
+            output = func(*args,**kwargs)
             end_time = time.time()
             logger.debug(locale('debug.timer.stop',
                                 func=func.__name__,count=current_count,
                                 time=round(end_time-star_time,4)))
+            return output
         else:
-            func(*args,**kwargs)
+            return func(*args,**kwargs)
     return timer_deco
