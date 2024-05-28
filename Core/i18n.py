@@ -14,7 +14,7 @@ def init(locales_tree):
     i18n_dire = Dire(f"{envpath}{os.path.sep}i18n",)
     files = i18n_dire.scan()
     for file in files:
-        locales_tree[file.name] = file.read()
+        locales_tree[file.name] = file.data
 
 def append_locale(path):
     '''加载更多本地化包'''
@@ -30,9 +30,9 @@ def append_locale(path):
     for file in files:
         lang = file.name
         if lang in locales_tree:
-            locales_tree[lang].update(file.read())
+            locales_tree[lang].update(file.data)
         else:
-            locales_tree[lang] = file.read()
+            locales_tree[lang] = file.data
 
 def locale(key:str,*args,lang:str=syslang,**kwargs):
     '''从键值获取字符串'''

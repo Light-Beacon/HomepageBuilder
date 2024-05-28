@@ -57,14 +57,14 @@ read_func_mapping = {
 def read(file,func = None,usecache:bool = True):
     '''读取文件'''
     if not func:
-        if usecache and file.data:
-            return file.data
+        if usecache and file.cache:
+            return file.cache
         if file.extention in read_func_mapping:
             func = read_func_mapping[file.extention]
         else:
             func = read_string
-        file.data = func(file.abs_path)
-        return file.data
+        file.cache = func(file.abs_path)
+        return file.cache
     return func(file.abs_path)
 
 def regist_fileread_function(func:callable,file_extens:str) -> None:

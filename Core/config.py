@@ -16,9 +16,9 @@ def partly_init():
     config_dict = data
 
 def fully_init():
-    from .IO import Dire
-    files = Dire(os.path.dirname(os.path.dirname(__file__))).scan(recur=True,patten=r'.*\.yml')
+    from .IO import Dire,ENVPATH
+    files = Dire(f"{ENVPATH}{os.path.sep}i18n",).scan(recur=True,patten=r'.*\.yml')
     for file in files:
-        config_dict.update(file.read())
+        config_dict.update(file.data)
 
 partly_init()

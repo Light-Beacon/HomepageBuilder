@@ -81,7 +81,7 @@ class Library:
         '''通过文件添加卡片'''
         filename = file.name
         exten = file.extention
-        data = file.read()
+        data = file.data
         name = filename
         if isinstance(data,dict):
             if 'name' in data:
@@ -113,7 +113,7 @@ class Library:
             for file in files:
                 self.add_sub_libraries(file)
         elif isinstance(files,File):
-            add_sub_library(self,files.read())
+            add_sub_library(self,files.data)
         else:
             add_sub_library(self,files)
         # DEV NOTICE 如果映射的内存占用太大了就将每一个卡片和每一个子库的路径压成栈，交给根库来管理

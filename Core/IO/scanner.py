@@ -3,9 +3,11 @@ import os
 import sys
 from typing import List,Dict,Union
 from Core.config import config
+from Core.logger import Logger
 from .reader import read
 from .writer import write
 
+logger = Logger('IO')
 ALL = re.compile('.*')
 SEP = os.path.sep
 
@@ -27,15 +29,22 @@ class File():
         self.fullname = os.path.basename(abs_path)
         self.name,self.extention = os.path.splitext(self.fullname)
         self.extention = self.extention.removeprefix('.')
-        self.data = None
+        self.cache = None
         if read_init:
             self.read()
 
     def __str__(self):
         return f"File({self.fullname})"
 
+    @property
+    def data(self,func = None,):
+        '''文件数据'''
+        #logger.debug(f'读取{self.abs_path}')
+        return self.read(func)
+
     def read(self,func = None,usecache:bool = True):
         '''读取文件'''
+        #logger.debug(f'读取{self.abs_path}')
         return read(self,func,usecache)
 
     def write(self,*args,func = None,**kwargs):

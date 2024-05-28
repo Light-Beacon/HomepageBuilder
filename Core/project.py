@@ -21,10 +21,11 @@ class Project:
     def load_plugins(self,plugin_path):
         '''加载插件'''
         for file in Dire(plugin_path).scan_subdir(r'pack\.yml'):
-            data = file.read()
+            data = file.data
             dire = os.path.dirname(data['file_path'])
             self.resources.load_resources(f'{dire}{PATH_SEP}Resources')
 
+    #@count_time
     def import_pack(self,path):
         '''导入工程包'''
         logger.info(t('project.import.start',path = path))
@@ -63,7 +64,7 @@ class Project:
 
     def import_page(self,page_file:File):
         '''导入页面'''
-        page = page_file.read()
+        page = page_file.data
         file_name = page_file.name
         file_exten = page_file.extention
         if file_exten == 'yml':
