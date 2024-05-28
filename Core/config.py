@@ -5,6 +5,23 @@ config_dict = {}
 def config(key):
     return config_dict.get(key)
 
+class DisabledByConfig(Exception):
+    '''被配置禁用'''
+
+def enable_by_config(key:str,default_output=None,
+                     raise_error=False):
+    def enable_by_config_deco(func:callable):
+        def wrapper(*args,**kwagrs):
+            if config(key):
+                return func(*args,**kwagrs)
+            else:
+                if raise_error:
+                    raise DisabledByConfig()
+                else:
+                    return lambda *args,**kwagrs: default_output
+        return wrapper
+    return enable_by_config_deco
+
 def partly_init():
     global config_dict
     envpath = os.path.dirname(os.path.dirname(__file__))

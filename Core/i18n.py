@@ -2,10 +2,12 @@ import os
 from locale import getlocale as get_sys_locale
 from string import Template
 from .IO import Dire
+from .config import config
 from .logger import Logger
 
+CONFIG_LANG = config('System.Language')
+DEFAULTLANG,_  = get_sys_locale() if str(CONFIG_LANG).lower() == 'auto' else (CONFIG_LANG,None)
 locales = {}
-syslang,_  = get_sys_locale()
 logger = Logger('i18n')
 
 def init(locales_tree):
@@ -34,7 +36,7 @@ def append_locale(path):
         else:
             locales_tree[lang] = file.data
 
-def locale(key:str,*args,lang:str=syslang,**kwargs):
+def locale(key:str,*args,lang:str=DEFAULTLANG,**kwargs):
     '''从键值获取字符串'''
     if lang in locales:
         string = locales.get(lang).get(key)

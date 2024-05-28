@@ -10,6 +10,7 @@ from .templates_manager import TemplateManager
 from .code_formatter import format_code
 from .logger import Logger
 from .i18n import locale as t
+from .config import enable_by_config
 from . import module_manager
 from Debug import count_time
 
@@ -18,6 +19,7 @@ logger = Logger('Project')
 
 class Project:
     '''工程类'''
+    @enable_by_config('System.EnablePlugins')
     def load_plugins(self,plugin_path):
         '''加载插件'''
         for file in Dire(plugin_path).scan_subdir(r'pack\.yml'):
