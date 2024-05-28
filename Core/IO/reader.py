@@ -5,7 +5,7 @@ from typing import List,Tuple,Dict,Union
 import os
 import json
 import yaml
-from Core.debug import Logger
+from Core.logger import Logger
 
 logger = Logger('IO')
 

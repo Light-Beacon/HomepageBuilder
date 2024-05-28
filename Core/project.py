@@ -8,9 +8,10 @@ from .resource import Resource
 from .styles import get_style_code
 from .templates_manager import TemplateManager
 from .code_formatter import format_code
-from .debug import Logger
+from .logger import Logger
 from .i18n import locale as t
 from . import module_manager
+from Debug import count_time
 
 PATH_SEP = os.path.sep
 logger = Logger('Project')

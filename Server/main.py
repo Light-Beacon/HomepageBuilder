@@ -4,7 +4,7 @@
 import traceback
 from flask import Flask, request
 from Core.project import PageNotFoundError
-from Core.debug import Logger
+from Core.logger import Logger
 from Server.project_updater import request_update
 from Server.project_api import ProjectAPI
 from Core.i18n import locale as t

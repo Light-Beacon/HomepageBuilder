@@ -2,7 +2,7 @@
 该模块用于格式化代码
 '''
 from typing import Dict
-from .debug import log_warning
+from .logger import log_warning
 from .module_manager import invoke_script
 
 def format_code(code:str,card:Dict[str,object],

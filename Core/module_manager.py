@@ -5,7 +5,7 @@ import importlib
 import os
 import sys
 from typing import Dict, Callable, Any
-from .debug import Logger
+from .logger import Logger
 from .i18n import locale as t
 
 logger = Logger('ModuleManager')

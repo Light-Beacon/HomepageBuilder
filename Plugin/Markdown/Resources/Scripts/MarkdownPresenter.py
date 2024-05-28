@@ -2,7 +2,7 @@ import re
 import markdown
 from bs4 import BeautifulSoup
 from Core.encode import encode_escape
-from Core.debug import log_warning
+from Core.logger import log_warning
 
 def get_replacement(name:str,attrs:dict):
     '''获取替换的字符串'''

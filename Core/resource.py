@@ -4,7 +4,7 @@
 import re
 from os.path import sep
 from .IO import Dire
-from .debug import Logger
+from .logger import Logger
 from .module_manager import storge_temp_scripts
 from .i18n import locale as t
 from .i18n import append_locale

@@ -6,7 +6,7 @@ from queue import Queue
 from typing import List, Union
 from .code_formatter import format_code
 from .module_manager import invoke_script
-from .debug import log_warning
+from .logger import log_warning
 from .library import Library
 
 def __is_filter_value_match(rule:str,value:str):
