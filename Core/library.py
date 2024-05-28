@@ -3,7 +3,7 @@
 '''
 import os
 from .IO import Dire,File
-from .debug import Logger
+from .logger import Logger
 from .i18n import locale as t
 
 logger = Logger('Library')

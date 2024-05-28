@@ -2,7 +2,7 @@ import os
 from locale import getlocale as get_sys_locale
 from string import Template
 from .IO import Dire
-from .debug import Logger
+from .logger import Logger
 
 locales = {}
 syslang,_  = get_sys_locale()

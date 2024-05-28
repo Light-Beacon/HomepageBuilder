@@ -1,5 +1,5 @@
 import subprocess
-from Core.debug import Logger
+from Core.logger import Logger
 from Core.i18n import locale
 
 logger = Logger('ProjectInfo')
