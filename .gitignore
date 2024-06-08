@@ -3,4 +3,5 @@
 .DS_Store
 __pycache__
 Test.py
+test.py
 server_config.yml
