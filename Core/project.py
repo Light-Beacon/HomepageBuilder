@@ -49,6 +49,10 @@ class Project:
         '''获取工程里的全部卡片'''
         return self.base_library.get_all_cards()
 
+    def get_all_pagename(self) -> list:
+        '''获取工程里的全部页面名'''
+        return self.pagelist
+
     def __init__(self,path):
         logger.info(t('project.init'))
         envpath = os.path.dirname(os.path.dirname(__file__))
@@ -58,6 +62,7 @@ class Project:
         logger.info(t('project.load.plugins'))
         self.load_plugins(f'{envpath}{PATH_SEP}Plugin')
         self.pages = {}
+        self.pagelist = []
         self.import_pack(path)
         module_manager.storge_temp_scripts(self.resources.scripts)
         module_manager.init_modules(self)
@@ -73,6 +78,7 @@ class Project:
             if 'name' in page:
                 self.pages.update({ page['name']:page })
             self.pages.update({file_name:page})
+            self.pagelist.append(file_name)
             if 'alias' in page:
                 for alias in page.get('alias'):
                     self.pages.update({alias:page})

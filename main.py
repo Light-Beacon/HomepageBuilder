@@ -1,18 +1,29 @@
 '''构建器主入口'''
 import argparse
+from os import makedirs
+from os.path import sep,exists
 from Core.project import Project
 from Core import config
 
+def build_and_output(project,page,output_path):
+    xaml = project.get_page_xaml(page)
+    with open(output_path,'w',encoding='utf-8') as f:
+        f.write(xaml)
+
 def command_build(args):
     project = Project(args.project_file_path)
-    if args.page:
-        page = args.page
+    if args.allpage:
+        if not exists(args.output_path):
+            makedirs(args.output_path,exist_ok=True)
+        for page in project.get_all_pagename():
+            build_and_output(project,page,f"{args.output_path}{sep}{page}.xaml")
     else:
-        page = project.default_page
-    xaml = project.get_page_xaml(page)
-    filepath = args.output_path
-    with open(filepath,'w',encoding='utf-8') as f:
-        f.write(xaml)
+        if args.page:
+            page = args.page
+        else:
+            page = project.default_page
+        build_and_output(project,args.page,page.output_path)
+
 
 def command_server(args):
     from Server.main import Server
@@ -27,7 +38,6 @@ command_func_mapping = {
 def main():
     '''构建器主入口'''
     parser = argparse.ArgumentParser()
-    command = 's'
     subparsers = parser.add_subparsers(help='Command',dest='command')
     parser_build = subparsers.add_parser('build', help='Build homepage')
     parser_server = subparsers.add_parser('server', help='Start server')
@@ -35,6 +45,7 @@ def main():
     parser_build.add_argument('project_file_path', type=str, help='project file path')
     parser_build.add_argument('output_path', type=str, help='generated file dest')
     parser_build.add_argument('-p','--page', type=str, help='page name')
+    parser_build.add_argument('-a','--allpage', action='store_true', help='generate all page')
 
     parser_server.add_argument('project_path', type=str, help='project path')
     parser_server.add_argument('-p','--port', type=str, help='project path')
