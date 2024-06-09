@@ -12,17 +12,20 @@ def build_and_output(project,page,output_path):
 
 def command_build(args):
     project = Project(args.project_file_path)
+    output_path = args.output_path
     if args.allpage:
         if not exists(args.output_path):
             makedirs(args.output_path,exist_ok=True)
         for page in project.get_all_pagename():
-            build_and_output(project,page,f"{args.output_path}{sep}{page}.xaml")
+            if not args.output_path.endswith(sep):
+                output_path = output_path + sep
+            build_and_output(project,page,f"{output_path}{page}.xaml")
     else:
         if args.page:
             page = args.page
         else:
             page = project.default_page
-        build_and_output(project,args.page,page.output_path)
+        build_and_output(project,args.page,output_path)
 
 
 def command_server(args):
