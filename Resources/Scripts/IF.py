@@ -1,9 +1,10 @@
 from Core.code_formatter import format_code
 
-def script(eq_expression:str,true_return,proj,false_return='',**kwargs):
+def script(eq_expression:str,true_return,false_return='',**kwargs):
+    project = kwargs['proj']
     card = kwargs['card']
     eq_expression.replace(' ','')
-    return true_return if iseq(eq_expression,card,proj) else false_return 
+    return true_return if iseq(eq_expression,card,project) else false_return 
 
 def iseq(eq_expression,card,project) -> bool:
     if '=' in eq_expression:
