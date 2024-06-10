@@ -3,7 +3,7 @@
 '''
 import re
 from os.path import sep
-from .IO import Dire
+from .IO import Dire,File
 from .logger import Logger
 from .module_manager import storge_temp_scripts
 from .i18n import locale as t
@@ -49,15 +49,22 @@ def create_res_mapping(path:str,patten = None):
     output = {}
     try:
         dire = Dire(path)
-        if patten:
-            files = dire.scan(patten,recur=True)
-        else:
-            files = dire.scan(recur=True)
+        mapping_file(dire,output,'',patten)
     except FileNotFoundError:
         return output
     except Exception as ex:
         logger.error(ex)
         return
-    for file in files:
-        output[file.name] = file.data
     return output
+
+def mapping_file(file_or_dire,output,prefix = '',patten = None,is_toplevel:bool = True):
+    if isinstance(file_or_dire,File):
+        file = file_or_dire
+        output[prefix + file.name] = file.data
+    elif isinstance(file_or_dire,Dire):
+        dire = file_or_dire
+        for node in dire.scan(patten,include_dires=True):
+            mapping_file(node,output,patten=patten,is_toplevel = False,
+                         prefix = '' if is_toplevel else f'{prefix}{dire.name}/')
+    else:
+        raise TypeError()

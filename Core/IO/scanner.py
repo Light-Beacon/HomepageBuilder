@@ -103,12 +103,15 @@ class Dire():
 
     def scan(self,patten:Union[str|re.Pattern] = ALL,
          recur:bool=False,dire_patten:Union[str|re.Pattern] = ALL,
-         min_recur_deepth:int = 0,max_recur_deepth:Union[int|None] = sys.maxsize
+         min_recur_deepth:int = 0,max_recur_deepth:Union[int|None] = sys.maxsize,
+         include_dires:bool = False,include_files:bool = True
          ) -> List[File]:
         '''遍历文件夹下所有文件夹所有文件, 读取其中符合正则表达式的文件, 最后以列表形式输出
         ## 参数
         ### 常规
             * `[patten]` 文件需要满足的正则，默认 `".*"`
+            * `[include_dires]` 指示递归遍历时输出是否包含子文件夹，默认为 `false`
+            * `[include_files]` 指示递归遍历时输出是否包含子文件，默认为 `true`
         ### 递归模式
             * `[recur]` 指示是否递归子文件夹，默认 `False`
             * `[dire_patten]` 文件夹需要满足的正则，默认 `".*"`
@@ -117,11 +120,18 @@ class Dire():
         '''
         if not (self.files or self.dires):
             self.__self_scan()
+        if not patten:
+            patten = ALL
         output = []
         if min_recur_deepth <= 0 :
-            for filename in self.files:
-                if re.match(patten,filename):
-                    output.append(self.files[filename])
+            if include_files:
+                for filename in self.files:
+                    if re.match(patten,filename):
+                        output.append(self.files[filename])
+            if include_dires:
+                for direname in self.dires:
+                    if re.match(patten,direname):
+                        output.append(self.dires[direname])
         if recur:
             for direname in self.dires:
                 if re.match(dire_patten,direname)\
@@ -129,6 +139,7 @@ class Dire():
                     output.extend(self.dires[direname].scan(
                         patten=patten,recur=recur,dire_patten=dire_patten,
                         min_recur_deepth = min_recur_deepth - 1,
-                        max_recur_deepth = max_recur_deepth - 1
+                        max_recur_deepth = max_recur_deepth - 1,
+                        include_dires = include_dires,include_files=include_files
                     ))
         return output
