@@ -6,7 +6,7 @@ from Core.project import Project
 from Core import config
 
 def build_and_output(project,page,output_path):
-    xaml = project.get_page_xaml(page)
+    xaml = project.get_page_xaml(page_alias = page)
     with open(output_path,'w',encoding='utf-8') as f:
         f.write(xaml)
 
@@ -25,7 +25,7 @@ def command_build(args):
             page = args.page
         else:
             page = project.default_page
-        build_and_output(project,args.page,output_path)
+        build_and_output(project,page,output_path)
 
 
 def command_server(args):

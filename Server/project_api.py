@@ -83,8 +83,8 @@ class ProjectAPI:
             self.cache[key] = name
         return f'{{"Title":"{self.cache[key]}"}}'
 
-    def get_page_xaml(self,alias):
+    def get_page_xaml(self,alias,args = None):
         '''获取页面xaml文件'''
-        if alias not in self.cache:
-            self.cache[alias] = self.project.get_page_xaml(alias)
-        return self.cache[alias]
+        if (alias,args) not in self.cache:
+            self.cache[(alias,args)] = self.project.get_page_xaml(alias,**args)
+        return self.cache[(alias,args)]

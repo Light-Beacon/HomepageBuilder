@@ -87,13 +87,13 @@ class Project:
         else:
             logger.warning(f'Page file not supported: {file_name}.{file_exten}')
 
-    def get_card_xaml(self,card_ref):
+    def get_card_xaml(self,card_ref,**kwargs): # kwargs 可使卡片应用源页面或函数给予的变量, 是 fill 处理
         '''获取卡片 xaml 代码'''
-        card_ref = format_code(code=card_ref,card={},project=self)
+        card_ref = format_code(code=card_ref,card=kwargs,project=self)
         if ';' in card_ref:
             code = ''
             for each_card_ref in card_ref.split(';'):
-                code += self.get_card_xaml(each_card_ref)
+                code += self.get_card_xaml(each_card_ref,**kwargs)
             return code
         logger.info(t('project.get_card',card_ref = card_ref))
         card_ref = card_ref.replace(' ','').split('|')
@@ -101,6 +101,7 @@ class Project:
             return ''
         try:
             card = self.base_library.get_card(card_ref[0],False)
+            card = Library.decorate_card(card=card,fill=kwargs,cover={})
         except Exception as ex:
             logger.warning(t('project.get_card.failed',ex=ex))
             return ''
@@ -112,9 +113,9 @@ class Project:
         #card_xaml = format_code(card_xaml,card,self.resources.scripts)
         return card_xaml
 
-    def get_page_xaml(self,page_alias):
+    def get_page_xaml(self,page_alias,**kwargs):
         '''获取页面 xaml 代码''' 
-        logger.info(t('project.gen_page.start',page=page_alias))
+        logger.info(t('project.gen_page.start',page=page_alias,args=kwargs))
         if page_alias not in self.pages:
             raise PageNotFoundError(logger.error(t('project.gen_page.failed.notfound',page=page_alias)))
         content_xaml = ''
@@ -122,7 +123,7 @@ class Project:
         if 'xaml' in page:
             return page['xaml']
         for card_ref in page['cards']:
-            content_xaml += self.get_card_xaml(str(card_ref))
+            content_xaml += self.get_card_xaml(str(card_ref),**kwargs)
         page_xaml = self.resources.page_templates['Default']
         page_xaml = page_xaml.replace('${animations}','') # TODO
         page_xaml = page_xaml.replace('${styles}',get_style_code(self.resources.styles))

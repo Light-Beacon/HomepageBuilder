@@ -49,7 +49,9 @@ def index_page():
 def getpage(alias:str):
     '''默认页面'''
     if alias.endswith('/version') or alias == 'version':
-        return projapi.get_version()
+        return projapi.get_version() # 获取版本号
+    args = request.args # 获取参数
+    logger.debug(f"args:{args}")
     while alias.endswith('/'):
         alias = alias[:-1]
     mode = None
@@ -63,7 +65,7 @@ def getpage(alias:str):
         if mode == 'json':
             return projapi.get_page_json(alias)
         else:
-            return projapi.get_page_xaml(alias)
+            return projapi.get_page_xaml(alias,args)
     except PageNotFoundError:
         return process_not_found(alias,mode)
     except Exception:
