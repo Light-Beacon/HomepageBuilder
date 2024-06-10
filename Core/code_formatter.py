@@ -6,7 +6,7 @@ from .logger import log_warning
 from .module_manager import invoke_script
 
 def format_code(code:str,card:Dict[str,object],
-                project,children_code:str='',stack:list = None):
+                project,children_code:str='',stack:list = None,err_output = None):
     '''格式化代码'''
     if not stack:
         stack = []
@@ -30,6 +30,8 @@ def format_code(code:str,card:Dict[str,object],
         elif attr_name in card:
             replacement = str(card[attr_name])
         else:
+            if err_output:
+                return err_output
             if len(qurey_tuple) >= 1:
                 replacement = qurey_tuple[-1]
             else:
