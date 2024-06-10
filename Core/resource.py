@@ -50,9 +50,9 @@ def create_res_mapping(path:str,patten = None):
     try:
         dire = Dire(path)
         if patten:
-            files = dire.scan(patten)
+            files = dire.scan(patten,recur=True)
         else:
-            files = dire.scan()
+            files = dire.scan(recur=True)
     except FileNotFoundError:
         return output
     except Exception as ex:
