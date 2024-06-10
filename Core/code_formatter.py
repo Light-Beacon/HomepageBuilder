@@ -19,10 +19,10 @@ def format_code(code:str,card:Dict[str,object],
         if attr_name in stack:
             log_warning(f'[Formatter] 检测到循环调用: {stack}')
             return code
-        for item in qurey_tuple[1:]:
+        #for item in qurey_tuple[1:]:
             # 格式化参数
-            item = format_code(code=item,card=card,project=project,
-                               children_code=children_code,stack=stack)
+        #    item = format_code(code=item,card=card,project=project,
+        #                       children_code=children_code,stack=stack)
         if attr_name.startswith('$') or attr_name.startswith('@'):
             replacement = invoke_script(script_name=qurey_tuple[0][1:],
                                     project=project,card=card,args=qurey_tuple[1:],
