@@ -14,10 +14,10 @@ def iseq(eq_expression,card,project) -> bool:
             return True
     else:
         if eq_expression.startswith('!'):
-            if format_eq(eq_expression[1:],card,project) in ['false','null','none', None]:
+            if format_eq(eq_expression[1:],card,project).lower() in ['false','null','none']:
                 return True
         else:
-            if format_eq(eq_expression,card,project) not in ['false','null','none', None]:
+            if format_eq(eq_expression,card,project).lower() not in ['false','null','none']:
                 return True
     return False
 
