@@ -107,14 +107,19 @@ def common2xaml(tag,res):
     name = tag.name
     attrs = tag.attrs
     content = ''
+    remove_wrapper = False #删除本节点，将子节点替换该节点的位置
     element_frame:str = get_element_frame(name,attrs,res)
     if element_frame is None:
         return str(tag)
     if tag.contents:
         if name == 'p':
             content += FIRSTLINE_SPACES
+            if len(tag.contents) == 1 and tag.contents[0].name == 'img':
+                remove_wrapper = True
         for child in tag.contents:
             content += element2xaml_general(child,res)
+    if remove_wrapper:
+        return content
     return element_frame.replace('${content}',content)
 
 def html2xaml(html,res):

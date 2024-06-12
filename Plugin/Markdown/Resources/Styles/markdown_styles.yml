@@ -6,6 +6,11 @@ Anchors:
   - &Color5 "{DynamicResource ColorBrush5}"
 
 Styles:
+ - Target: Image
+   Key: InnerImage
+   Setters:
+      MaxHeight: 500
+      HorizontalAlignment: Center
 
  - Target: TextBlock
    Setters:

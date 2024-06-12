@@ -1,2 +1,2 @@
-<Image Source="${source}" Margin="10,0,10,0" MaxHeight="500" />
+<Image Style="{StaticResource InnerImage}" Source="${source}" Margin="10,0,10,0" MaxHeight="500" />
 <TextBlock Text="${alt}" Style="{StaticResource imgTitle}" />
