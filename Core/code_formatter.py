@@ -16,7 +16,7 @@ def format_code(code:str,card:Dict[str,object],
         #LogDebug(str(match))
         qurey_tuple = split_args(str(match))
         attr_name = qurey_tuple[0]
-        if attr_name in stack:
+        if code in stack:
             log_warning(f'[Formatter] 检测到循环调用: {stack}')
             return code
         #for item in qurey_tuple[1:]:
@@ -37,7 +37,7 @@ def format_code(code:str,card:Dict[str,object],
             else:
                 log_warning(f'[Formatter] 访问了不存在的属性，并且没有设定默认值: {attr_name}')
                 continue
-        stack.append(attr_name)
+        stack.append(code)
         try:
             replacement = format_code(replacement,card,project,children_code,stack)
         finally:
