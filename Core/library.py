@@ -13,7 +13,8 @@ class Library:
         self.name= data['name']
         logger.info(t('library.load',name=self.name))
         self.fill = data.get('fill',{})
-        self.cover = data.get('cover',{})
+        self.override = data.get('override',{})
+        self.override.update(data.get('cover',{})) # 兼容性考虑
         self.card_mapping = {}  # 卡片索引
         self.libs_mapping = {}  # 子库索引
         self.sub_libraries = {} # 子库
@@ -24,23 +25,23 @@ class Library:
         self.add_sub_libraries(self.dire.scan_subdir('__LIBRARY__.yml'))  # 遍历添加子库
 
     @classmethod
-    def decorate_card(cls,card,fill,cover):
-        '''用 fill 和 cover 修饰卡片'''
+    def decorate_card(cls,card,fill,override):
+        '''用 fill 和 override 修饰卡片'''
         if fill:
             cloned_fill = fill.copy()
         else:
             cloned_fill = {}
-        if cover:
-            card.update(cover)
+        if override:
+            card.update(override)
         cloned_fill.update(card)
         return cloned_fill
 
     def __decorate_card(self,card):
-        '''用本卡片库的 fill 和 cover 修饰卡片'''
-        return self.decorate_card(card,self.fill,self.cover)
+        '''用本卡片库的 fill 和 override 修饰卡片'''
+        return self.decorate_card(card,self.fill,self.override)
 
-    def __get_card_decoless(self,card_ref:str,is_original:bool):
-        '''获取未经 fill 和 cover 的卡片'''
+    def __get_decoless_card(self,card_ref:str,is_original:bool):
+        '''获取未经 fill 和 override 的卡片'''
         if card_ref in self.cards:
             return self.cards[card_ref]
         if ':' in card_ref:
@@ -53,7 +54,7 @@ class Library:
 
     def get_card(self,card_ref:str,is_original:bool):
         '''获取卡片'''
-        target = self.__get_card_decoless(card_ref,is_original)
+        target = self.__get_decoless_card(card_ref,is_original)
         if is_original:
             return target
         else:
