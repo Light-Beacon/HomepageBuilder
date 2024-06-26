@@ -1,6 +1,8 @@
 from Core.code_formatter import format_code
+from Core.Interfaces import script
 
-def script(eq_expression:str,true_return,false_return='',**kwargs):
+@script('IF')
+def if_script(eq_expression:str,true_return,false_return='',**kwargs):
     project = kwargs['proj']
     card = kwargs['card']
     eq_expression.replace(' ','')

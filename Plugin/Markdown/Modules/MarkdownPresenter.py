@@ -3,6 +3,7 @@ import markdown
 from bs4 import BeautifulSoup
 from Core.encode import encode_escape
 from Core.logger import log_warning
+from Core.Interfaces import script
 
 def get_replacement(name:str,attrs:dict):
     '''获取替换的字符串'''
@@ -144,6 +145,7 @@ def convert(card,res):
     xaml = html2xaml(html,res)
     return xaml
 
+@script('MarkdownPresenter')
 def script(card,res,**_):
     '''从markdown生成xaml代码脚本'''
     return convert(card,res)

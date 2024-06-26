@@ -20,14 +20,6 @@ def read_yaml(filepath:str) -> dict:
         data.update({'file_path':filepath})
         return data
 
-@file_reader(['py','python'])
-def read_python(filepath:str) -> callable:
-    ''' 读取 Python 文件 '''
-    from Core.module_manager import reg_script
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f'{filepath} not exist!')
-    return reg_script(filepath)
-
 @file_reader('txt')
 def read_string(filepath:str):
     '''读取字符串文件'''

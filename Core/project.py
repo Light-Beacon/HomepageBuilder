@@ -11,7 +11,7 @@ from .code_formatter import format_code
 from .logger import Logger
 from .i18n import locale as t
 from .config import enable_by_config
-from . import module_manager
+from .ModuleManager import load_module_dire
 from Debug import count_time
 
 PATH_SEP = os.path.sep
@@ -36,14 +36,21 @@ class Project:
         self.default_page = pack_info.get('default_page')
         logger.info(t('project.import.pack.version',version = self.version))
         self.base_path = os.path.dirname(path)
+
         logger.info(t('project.import.cards'))
         self.base_library = Library(File(
             f"{self.base_path}{PATH_SEP}Libraries{PATH_SEP}__LIBRARY__.yml").data)
+
         logger.info(t('project.import.resources'))
         self.resources.load_resources(f'{self.base_path}{PATH_SEP}Resources')
+
         logger.info(t('project.import.pages'))
         for pagefile in Dire(f'{self.base_path}{PATH_SEP}Pages').scan(recur=True):
             self.import_page(pagefile)
+
+        logger.info(t('project.import.modules'))
+        load_module_dire(f'{self.base_path}{PATH_SEP}Modules',self)
+        logger.info(t('project.import.success'))
 
     def get_all_card(self) -> list:
         '''获取工程里的全部卡片'''
@@ -61,11 +68,11 @@ class Project:
         self.resources.load_resources(f'{envpath}{PATH_SEP}Resources')
         logger.info(t('project.load.plugins'))
         self.load_plugins(f'{envpath}{PATH_SEP}Plugin')
+        logger.info(t('project.load.modules'))
+        load_module_dire(f'{envpath}{PATH_SEP}Modules')
         self.pages = {}
         self.pagelist = []
         self.import_pack(path)
-        module_manager.storge_temp_scripts(self.resources.scripts)
-        module_manager.init_modules(self)
         self.template_manager = TemplateManager(self)
         logger.info(t('project.load.success'))
 

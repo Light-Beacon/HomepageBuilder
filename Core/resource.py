@@ -5,7 +5,6 @@ import re
 from os.path import sep
 from .IO import Dire,File
 from .logger import Logger
-from .module_manager import storge_temp_scripts
 from .i18n import locale as t
 from .i18n import append_locale
 from Debug.timer import count_time
@@ -25,16 +24,12 @@ class Resource:
         self.data.update(create_res_mapping(f'{path}{sep}Data'))
         self.templates.update(create_res_mapping(f'{path}{sep}Templates',YML_PATTERN))
         self.page_templates.update(create_res_mapping(f'{path}{sep}Page_Templates',XAML_PATTERN))
-        self.load_scripts(path=path)
+        #self.load_scripts(path=path)
         self.styles.update(create_res_mapping(f'{path}{sep}Styles',XAML_PATTERN))
         self.styles.update(create_res_mapping(f'{path}{sep}Styles',YML_PATTERN))
         append_locale(f'{path}{sep}i18n')
         self.components.update({'':''}) # IF Failed return a null component
 
-   #@count_time
-    def load_scripts(self,path):
-        self.scripts.update(create_res_mapping(f'{path}{sep}Scripts',PY_PATTERN))
-        storge_temp_scripts(self.scripts)
 
     def __init__(self):
         self.animations = {}
