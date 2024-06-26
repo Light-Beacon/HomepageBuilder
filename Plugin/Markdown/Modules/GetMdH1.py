@@ -1,6 +1,9 @@
 import markdown
 import re
-def script(card,**kwargs):
+from Core.Interfaces import script
+
+@script('GetMdH1')
+def get_md_h1(card,**kwargs):
     exten = card['file_exten']
     if exten != 'md' and exten != 'markdown':
         return 'NOT A MARKDOWN DOCUMENT!'

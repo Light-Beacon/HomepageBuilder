@@ -3,7 +3,7 @@
 '''
 from typing import Dict
 from .logger import log_warning
-from .module_manager import invoke_script
+from .ModuleManager import invoke_script
 
 def format_code(code:str,card:Dict[str,object],
                 project,children_code:str='',stack:list = None,err_output = None):

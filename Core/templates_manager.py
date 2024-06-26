@@ -5,7 +5,7 @@ import traceback
 from queue import Queue
 from typing import List, Union
 from .code_formatter import format_code
-from .module_manager import invoke_script
+from .ModuleManager import invoke_script
 from .logger import log_warning
 from .library import Library
 

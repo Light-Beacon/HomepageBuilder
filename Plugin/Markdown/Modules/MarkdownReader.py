@@ -3,7 +3,8 @@ Markdown 读取模块
 '''
 import re
 import ast
-from Core.IO import file_reader,read_string
+from Core.IO import read_string
+from Core.Interfaces import file_reader
 
 # 提取列表项：(?:\[?\s*)(\".*?\"|\'.*?\'|[^,]*?)(?:\s*[,|\]])
 
