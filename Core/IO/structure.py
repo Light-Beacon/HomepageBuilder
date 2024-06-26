@@ -4,8 +4,7 @@ import sys
 from typing import List,Dict,Union
 from Core.config import config
 from Core.logger import Logger
-from .reader import read
-from .writer import write
+from .accessor import read,write
 
 logger = Logger('IO')
 ALL = re.compile('.*')

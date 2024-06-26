@@ -2,7 +2,7 @@
 工程文件模块，构建器核心
 '''
 import os
-from .IO import read_yaml, Dire, File
+from .IO import Dire, File
 from .library import Library
 from .resource import Resource
 from .styles import get_style_code
@@ -31,14 +31,14 @@ class Project:
     def import_pack(self,path):
         '''导入工程包'''
         logger.info(t('project.import.start',path = path))
-        pack_info = read_yaml(path)
+        pack_info = File(path).read()
         self.version = pack_info['version']
         self.default_page = pack_info.get('default_page')
         logger.info(t('project.import.pack.version',version = self.version))
         self.base_path = os.path.dirname(path)
         logger.info(t('project.import.cards'))
-        self.base_library = Library(read_yaml(
-            f"{self.base_path}{PATH_SEP}Libraries{PATH_SEP}__LIBRARY__.yml"))
+        self.base_library = Library(File(
+            f"{self.base_path}{PATH_SEP}Libraries{PATH_SEP}__LIBRARY__.yml").data)
         logger.info(t('project.import.resources'))
         self.resources.load_resources(f'{self.base_path}{PATH_SEP}Resources')
         logger.info(t('project.import.pages'))
@@ -101,7 +101,7 @@ class Project:
             return ''
         try:
             card = self.base_library.get_card(card_ref[0],False)
-            card = Library.decorate_card(card=card,fill=kwargs,cover={})
+            card = Library.decorate_card(card=card,fill=kwargs,override={})
         except Exception as ex:
             logger.warning(t('project.get_card.failed',ex=ex))
             return ''

@@ -3,10 +3,11 @@ Markdown 读取模块
 '''
 import re
 import ast
-from Core.IO import regist_fileread_function,read_string
+from Core.IO import file_reader,read_string
 
 # 提取列表项：(?:\[?\s*)(\".*?\"|\'.*?\'|[^,]*?)(?:\s*[,|\]])
 
+@file_reader(['md','markdown'])
 def read_markdown(filepath:str):
     '''读取markdown文件方法'''
     string = read_string(filepath=filepath)
@@ -40,5 +41,3 @@ def sep_attr(md):
             attr[attr_name] = attr_value
     md = re.sub(ATTR_PATTERN, '', md)
     return md,attr
-
-regist_fileread_function(read_markdown,['md','markdown'])
