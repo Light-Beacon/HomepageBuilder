@@ -1,4 +1,4 @@
-from Core.Interfaces import script
+from Interfaces import script
 
 @script('RawPresenter')
 def presenter(**kwargs):

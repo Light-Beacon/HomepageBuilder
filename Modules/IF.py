@@ -1,5 +1,4 @@
-from Core.code_formatter import format_code
-from Core.Interfaces import script
+from Interfaces import script,format_code
 
 @script('IF')
 def if_script(eq_expression:str,true_return,false_return='',**kwargs):

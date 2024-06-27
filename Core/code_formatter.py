@@ -2,9 +2,10 @@
 该模块用于格式化代码
 '''
 from typing import Dict
-from .logger import log_warning
+from .logger import Logger
 from .ModuleManager import invoke_script
 
+logger = Logger('Formatter')
 def format_code(code:str,card:Dict[str,object],
                 project,children_code:str='',stack:list = None,err_output = None):
     '''格式化代码'''
@@ -17,14 +18,15 @@ def format_code(code:str,card:Dict[str,object],
         qurey_tuple = split_args(str(match))
         attr_name = qurey_tuple[0]
         if code in stack:
-            log_warning(f'[Formatter] 检测到循环调用: {stack}')
+            logger.warning(f'检测到循环调用: {stack}')
             return code
         #for item in qurey_tuple[1:]:
             # 格式化参数
         #    item = format_code(code=item,card=card,project=project,
         #                       children_code=children_code,stack=stack)
         if attr_name.startswith('$') or attr_name.startswith('@'):
-            replacement = invoke_script(script_name=qurey_tuple[0][1:],
+            script_name=qurey_tuple[0][1:]
+            replacement = invoke_script(script_name,
                                     project=project,card=card,args=qurey_tuple[1:],
                                     children_code=children_code)
         elif attr_name in card:
@@ -35,7 +37,7 @@ def format_code(code:str,card:Dict[str,object],
             if len(qurey_tuple) >= 1:
                 replacement = qurey_tuple[-1]
             else:
-                log_warning(f'[Formatter] 访问了不存在的属性，并且没有设定默认值: {attr_name}')
+                logger.warning(f'访问了不存在的属性，并且没有设定默认值: {attr_name}')
                 continue
         stack.append(code)
         try:

@@ -1,6 +1,5 @@
 from Core.project import Project
-from Core.code_formatter import format_code
-from Core.Interfaces import script
+from Interfaces import script,format_code
 
 @script('ExistCard')
 def exist_card(card_name,proj:Project,card,**kwargs):

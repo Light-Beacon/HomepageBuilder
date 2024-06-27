@@ -8,6 +8,9 @@ from .code_formatter import format_code
 from .ModuleManager import invoke_script
 from .logger import log_warning
 from .library import Library
+from .logger import Logger
+
+logger = Logger('Template')
 
 def __is_filter_value_match(rule:str,value:str):
     if rule.startswith('$'):
@@ -146,7 +149,7 @@ class TemplateManager:
                     continue
                 if filter_match(self.resources.templates[template_name],card):
                     return try_build(self,card,template_name)
-            log_warning('[TemplateManager] 卡片没有匹配的配置模版，跳过')
+            logger.warning('卡片没有匹配的配置模版，跳过')
             return ''
         else:
-            log_warning('[TemplateManager] 模版列表类型无效，跳过')
+            logger.warning('[TemplateManager] 模版列表类型无效，跳过')
