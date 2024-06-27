@@ -1,6 +1,0 @@
-name: sublibrary
-fill:
-  fillfrom: sublib
-  type: testcard
-cover:
-  coverfrom: sublib
