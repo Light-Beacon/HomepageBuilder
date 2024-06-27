@@ -1,6 +1,6 @@
 import markdown
 import re
-from Core.Interfaces import script
+from Interfaces import script
 
 @script('GetMdH1')
 def get_md_h1(card,**kwargs):

@@ -1,9 +1,9 @@
 import re
 import markdown
 from bs4 import BeautifulSoup
-from Core.encode import encode_escape
-from Core.logger import log_warning
-from Core.Interfaces import script
+from Interfaces import script,encode_escape,Logger
+
+logger = Logger('MarkdownPresenter')
 
 def get_replacement(name:str,attrs:dict):
     '''获取替换的字符串'''
@@ -31,7 +31,7 @@ def get_element_frame(name,attrs,res):
         return ''
     replace_str = components.get(component_name)
     if replace_str is None:
-        log_warning(f'[Marodown] markdown 中存在尚不支持的元素{name}')
+        logger.warning(f'markdown 中存在尚不支持的元素{name}')
         return None
     for k,v in replace_list:
         replace_str = replace_str.replace(f'${{{k}}}',encode_escape(v))

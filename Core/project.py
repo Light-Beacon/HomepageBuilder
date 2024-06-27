@@ -26,6 +26,7 @@ class Project:
             data = file.data
             dire = os.path.dirname(data['file_path'])
             self.resources.load_resources(f'{dire}{PATH_SEP}Resources')
+            load_module_dire(f'{dire}{PATH_SEP}Modules',self)
 
     #@count_time
     def import_pack(self,path):
