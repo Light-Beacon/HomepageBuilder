@@ -1,2 +1,6 @@
-<Image Style="{StaticResource InnerImage}" Source="${source}" Margin="10,0,10,0" MaxHeight="500" />
-<TextBlock Text="${alt}" Style="{StaticResource imgTitle}" />
+<BlockUIContainer>
+<StackPanel>
+<Image Style="{StaticResource InnerImage}" Source="${source}"/>
+<TextBlock Text="${title}" Style="{StaticResource imgTitle}" />
+</StackPanel>
+</BlockUIContainer>
