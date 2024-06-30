@@ -40,6 +40,7 @@ def get_element_frame(name,attrs,res):
 FIRSTLINE_SPACES = '    '
 LINE_BREAK = '<LineBreak/>'
 INLINE_ELEMENTS = ['li','p','em','strong','a','code','del']
+BLOCK_ELEMENTS = ['img']
 
 def is_inline(tag):
     '''判断标签是否是行内元素'''
@@ -98,10 +99,39 @@ def element2xaml_general(tag,res):
     match tag.name:
         case 'li':
             return list_item2xaml(tag,res)
+        case 'p':
+            return para2xaml(tag,res)
         case 'blockquote':
             return quote2xaml(tag,res)
         case _:
             return common2xaml(tag,res)
+
+def para2xaml(tag,res):
+    '''段落转为xaml代码'''
+    name = tag.name
+    attrs = tag.attrs
+    content = ''
+    element_frame:str = get_element_frame(name,attrs,res)
+    inblock = False
+    if element_frame is None:
+        return str(tag)
+    if tag.contents:
+        content += FIRSTLINE_SPACES
+        for child in tag.contents:
+            if isinstance(child,str) or child.name not in BLOCK_ELEMENTS :
+                if inblock:
+                    inblock = False
+                    content += '<Paragraph>'
+                content += element2xaml_general(child,res)
+                continue
+            else:
+                if not inblock:
+                    inblock = True
+                    content += '</Paragraph>'
+                content += element2xaml_general(child,res)
+    if inblock:
+        content += '<Paragraph>'
+    return element_frame.replace('${content}',content)
 
 def common2xaml(tag,res):
     '''一般元素转为xaml代码'''
