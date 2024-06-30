@@ -6,7 +6,7 @@ System.EnablePlugins: True
 System.Script.IgnoreError: False
 
 # 是否启用 Debug
-Debug.Enable: True
+Debug.Enable: False
 
 # 是否忽略以 IO.IngorePrefix 开头和以 IO.IngoreSuffix 结尾的文件
 # 这项文件禁用给构建器工程提供了方便的禁用手段
