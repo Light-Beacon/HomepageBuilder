@@ -15,11 +15,9 @@ def script(script_name):
     return decorator
 
 def invoke_script(script_name:str,project,card:Dict[str,object],
-              args:list,children_code:str):
+              args:list,**kwargs):
     '''获取脚本输出结果'''
     resources = project.resources
-    if script_name == 'ChildrenPresenter':
-        return children_code
     script_code = scripts.get(script_name)
     if script_code is None:
         if NO_ERR_OUTPUT_WHILE_SCRIPT_NOTFOUND:
@@ -27,5 +25,5 @@ def invoke_script(script_name:str,project,card:Dict[str,object],
         else:
             logger.error(t('script.invoke.failed.notfound',name = script_name))
         return ''
-    result = scripts[script_name](*args,card=card,res=resources,proj=project)
+    result = scripts[script_name](*args,card=card,res=resources,proj=project,**kwargs)
     return result

@@ -26,7 +26,7 @@ def format_code(code:str,card:Dict[str,object],
         #                       children_code=children_code,stack=stack)
         if attr_name.startswith('$') or attr_name.startswith('@'):
             script_name=qurey_tuple[0][1:]
-            replacement = invoke_script(script_name,
+            replacement = invoke_script(script_name=script_name,
                                     project=project,card=card,args=qurey_tuple[1:],
                                     children_code=children_code)
         elif attr_name in card:
