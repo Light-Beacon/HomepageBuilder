@@ -18,9 +18,9 @@ def get_replacement(name:str,attrs:dict):
         replace_list.append(('link',attrs['href']))
     elif name == 'img':
         replace_list.append(('source',attrs['src']))
-        if len(attrs['title']) > 0:
+        if imgtitle:=attrs.get('title'):
             component_name = 'titled-img'
-            replace_list.append(('title',attrs['title']))
+            replace_list.append(('title',imgtitle))
     return (component_name, replace_list)
 
 def get_element_frame(name,attrs,res):
