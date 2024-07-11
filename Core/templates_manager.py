@@ -1,12 +1,11 @@
-'''
+"""
 模版管理器模块
-'''
+"""
 import traceback
 from queue import Queue
 from typing import List, Union
 from .code_formatter import format_code
 from .ModuleManager import invoke_script
-from .logger import log_warning
 from .library import Library
 from .logger import Logger
 
@@ -65,7 +64,7 @@ class TemplateManager:
             q.put(key)
         while not q.empty():
             if tries > q.qsize():
-                log_warning(f"[TemplateManager] 检测到卡片中 {'、'.join(q.queue)} 属性无法被展开，跳过")
+                logger.warning(f"检测到卡片中 {'、'.join(q.queue)} 属性无法被展开，跳过")
                 break
             key = q.get()
             try:
@@ -95,7 +94,7 @@ class TemplateManager:
                 args = cpn[1:].split('|')
                 code += invoke_script(args[0],self.project,card,args[1:],children_code=children_code)
             else:
-                log_warning(f'[TemplateManager] {template_name}模版中调用了未载入的构件{cpn}，跳过')
+                logger.warning(f'{template_name}模版中调用了未载入的构件{cpn}，跳过')
         if 'containers' in target_template:
             tree_path = target_template['containers']
             code = self.packin_containers(tree_path,card,code)
@@ -132,7 +131,7 @@ class TemplateManager:
             try:
                 return self.build_with_template(card,template,'')
             except Exception:
-                log_warning(f'[TemplateManager] 构建卡片时出现错误：\n{traceback.format_exc()}Skipped.')
+                logger.warning(f'构建卡片时出现错误：\n{traceback.format_exc()}Skipped.')
                 return ''
 
         attr = card['templates']
@@ -141,7 +140,7 @@ class TemplateManager:
             if filter_match(template,card):
                 return try_build(self,card,attr)
             else:
-                log_warning('[TemplateManager] 卡片与其配置的模版要求不符，跳过')
+                logger.warning('卡片与其配置的模版要求不符，跳过')
                 return ''
         elif isinstance(attr,list):
             for template_name in card['templates']:

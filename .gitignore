@@ -5,3 +5,6 @@ __pycache__
 Test.py
 test.py
 server_config.yml
+venv
+.idea
+Log

@@ -1,5 +1,5 @@
-project.init: "Initing..."
-project.load.basci_res: "Loading basic resources"
+project.init: "Initializing.."
+project.load.basic_res: "Loading basic resources"
 project.load.plugins: "Loading plugins"
 project.load.success: "Pack loaded successful!"
 project.import.start: "Start to import pack at: ${path}"
@@ -19,7 +19,7 @@ module.reload: 'Reloading script: ${name}'
 script.invoke.failed.notfound: 'Try to invoke not existed script ${name}'
 resource.load: 'Loading resource pack: ${path}'
 library.load: 'Loading library: ${name}'
-server.init: 'Server Initing...'
+server.init: 'Server Initializing...'
 server.start: 'Server Started on port ${port}'
 debug.timer.start: '${func}(${count}) Timer Started'
-debug.timer.stop: '${func}(${count}) Timer Stoped, Time used: ${time}s'
+debug.timer.stop: '${func}(${count}) Timer Stopped, Time used: ${time}s'

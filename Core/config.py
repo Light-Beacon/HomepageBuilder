@@ -2,11 +2,17 @@ import os
 import yaml
 
 config_dict = {}
+
+
 def config(key):
+    """获取配置"""
     return config_dict.get(key)
 
+
 class DisabledByConfig(Exception):
-    '''被配置禁用'''
+    """被配置禁用"""
+
+
 
 def enable_by_config(key:str,default_output=None,
                      raise_error=False):
@@ -21,6 +27,7 @@ def enable_by_config(key:str,default_output=None,
                     return lambda *args,**kwagrs: default_output
         return wrapper
     return enable_by_config_deco
+
 
 def partly_init():
     global config_dict

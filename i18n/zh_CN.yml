@@ -1,5 +1,6 @@
 project.init: "初始化中..."
-project.load.basci_res: "正在加载基础资源"
+project.load.basic_res: "正在加载基础资源"
+project.load.modules: "正在加载模块"
 project.load.plugins: "正在加载插件"
 project.load.success: "工程加载完毕！"
 project.import.start: "正在导入工程包: ${path}"
@@ -10,6 +11,7 @@ project.import.pages: '导入页面中'
 project.import.modules: '导入模块中'
 project.import.success: '导入完成'
 project.get_card: '获取卡片: ${card_ref}'
+project.get_card.null: '跳过空卡片'
 project.get_card.failed: '由于以下原因，获取卡片失败: ${ex}'
 project.gen_page.start: '正在获取页面 ${page} 的代码, 参数：${args}'
 project.gen_page.failed.notfound: '无法找到名为 ${page} 的页面'

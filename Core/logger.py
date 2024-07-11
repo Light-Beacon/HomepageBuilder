@@ -1,6 +1,9 @@
-'''
+"""
 该模块用于输出调试与日志信息
-'''
+"""
+import logging
+import sys
+import time
 
 TAB_TEXT = '    '
 CONSOLE_CLEAR = '\033[0m'
@@ -13,51 +16,66 @@ CONSOLE_MAGENTA = '\033[35m'
 CONSOLE_CYAN = '\033[36m'
 CONSOLE_WHITE = '\033[37m'
 
-class Logger:
-    '''日志记录器'''
-    def __init__(self,source_name):
-        self.source = source_name
+LEVEL_COLORES = {
+    10: CONSOLE_GREEN,
+    20: CONSOLE_BLUE,
+    30: CONSOLE_YELLOW,
+    40: CONSOLE_RED,
+    50: CONSOLE_MAGENTA}
 
-    def info(self,infomation:str):
-        '''输出信息'''
-        print(f'{CONSOLE_BLUE}[INFO]{CONSOLE_CLEAR}[{self.source}] {infomation}')
+LEVEL_NAMES = {
+    10: "DEBUG",
+    20: "INFO",
+    30: "WARNING",
+    40: "ERROR",
+    50: "CRITICAL"}
 
-    def warning(self,infomation:str):
-        '''输出警告'''
-        print(f'{CONSOLE_YELLOW}[WARNING]{CONSOLE_CLEAR}[{self.source}] {infomation}')
+TIME_PART_FMT = "[%(asctime)s.%(msecs)03d]"
+COLORED_TIME_PART_FMT = CONSOLE_WHITE + TIME_PART_FMT + CONSOLE_CLEAR
+LOC_PART_FMT = "[%(name)s|%(filename)s:%(lineno)d]"
 
-    def debug(self,infomation:str):
-        '''输出调试信息'''
-        print(f'{CONSOLE_GREEN}[DEBUG]{CONSOLE_CLEAR}[{self.source}] {infomation}')
+class ColorConsoleFormater(logging.Formatter):
+    def __init__(self):
+        self.super_formatter = logging.Formatter(
+            fmt=f'{COLORED_TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
+            datefmt='%m/%d|%H:%M:%S')
 
-    def error(self,infomation:str):
-        '''输出错误信息'''
-        print(f'{CONSOLE_RED}[ERROR][{self.source}] {infomation}')
-        return infomation
+    def format(self, record):
+        level_color_console_str = LEVEL_COLORES.get(record.levelno, CONSOLE_CLEAR)
+        level_name = LEVEL_NAMES.get(record.levelno, "UNKNOWN")
+        return f"{level_color_console_str}[{level_name}]{CONSOLE_CLEAR}" + self.super_formatter.format(record)
 
-    def fatal(self,infomation:str):
-        '''输出致命错误信息'''
-        print(f'{CONSOLE_RED}[FATAL][{self.source}] {infomation}')
-        return infomation
+CONSOLE_FORMATTER = ColorConsoleFormater()
 
-def log_info(infomation:str):
-    '''输出信息'''
-    print(f'{CONSOLE_BLUE}[INFO]{CONSOLE_CLEAR}{infomation}')
+class LogConsoleHandler(logging.Handler):
+    def __init__(self):
+        logging.Handler.__init__(self)
+        self.level = 0
+        self.errStreamHandler = logging.StreamHandler(sys.stderr)
+        self.errStreamHandler.setFormatter(CONSOLE_FORMATTER)
+        self.outStreamHandler = logging.StreamHandler(sys.stdout)
+        self.outStreamHandler.setFormatter(CONSOLE_FORMATTER)
 
-def log_warning(infomation:str):
-    '''输出警告'''
-    print(f'{CONSOLE_YELLOW}[WARNING]{CONSOLE_CLEAR}{infomation}')
+    def emit(self, record):
+        if record.levelno >= logging.ERROR:
+            self.errStreamHandler.emit(record)
+        else:
+            self.outStreamHandler.emit(record)
 
-def log_debug(infomation:str):
-    '''输出调试信息'''
-    print(f'{CONSOLE_GREEN}[DEBUG]{CONSOLE_CLEAR}{infomation}')
 
-def log_error(infomation:str):
-    '''输出错误信息'''
-    print(f'{CONSOLE_RED}[ERROR]{infomation}')
-    return infomation
+CONSOLE_HANDLER = LogConsoleHandler()
 
-def log_fatal(infomation:str):
-    '''输出致命错误信息'''
-    print(f'{CONSOLE_RED}[FATAL]{infomation}')
-    return infomation
+current_time = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
+FILE_HANDLER = logging.FileHandler(f'Log/{current_time}.log')
+FILE_HANDLER.setFormatter(logging.Formatter(
+            fmt=f'[%(levelname)s]{TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
+            datefmt='%m/%d|%H:%M:%S'))
+logging.basicConfig(level=logging.INFO)
+
+class Logger(logging.Logger):
+    """日志记录器"""
+    def __init__(self, name):
+        logging.Logger.__init__(self, name)
+        self.addHandler(CONSOLE_HANDLER)
+        self.addHandler(FILE_HANDLER)
+        self.propagate = False

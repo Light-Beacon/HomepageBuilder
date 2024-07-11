@@ -1,6 +1,6 @@
-'''
+"""
 该模块用于格式化代码
-'''
+"""
 from typing import Dict
 from .logger import Logger
 from .ModuleManager import invoke_script
