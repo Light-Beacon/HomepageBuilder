@@ -2,6 +2,7 @@
 该模块用于输出调试与日志信息
 """
 import logging
+import os.path
 import sys
 import time
 
@@ -66,7 +67,11 @@ class LogConsoleHandler(logging.Handler):
 CONSOLE_HANDLER = LogConsoleHandler()
 
 current_time = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
-FILE_HANDLER = logging.FileHandler(f'Log/{current_time}.log')
+log_pos = os.path.abspath("Log/")
+print(log_pos)
+if not os.path.exists(log_pos):
+    os.makedirs(log_pos)
+FILE_HANDLER = logging.FileHandler(f"{log_pos}{os.path.sep}{current_time}.log")
 FILE_HANDLER.setFormatter(logging.Formatter(
             fmt=f'[%(levelname)s]{TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
             datefmt='%m/%d|%H:%M:%S'))
