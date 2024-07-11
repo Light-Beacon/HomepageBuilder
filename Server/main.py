@@ -63,11 +63,12 @@ def getpage(alias:str):
         alias = alias[:-5] # 这里两个都得保留
     try:
         if mode == 'json':
+            result = projapi.get_page_json(alias)
             logger.debug(t("server.request.response.json",page=alias,args=args))
-            return projapi.get_page_json(alias)
         else:
+            result = projapi.get_page_xaml(alias,args)
             logger.debug(t("server.request.response.page",page=alias,args=args))
-            return projapi.get_page_xaml(alias,args)
+        return result
     except PageNotFoundError:
         logger.debug(t("server.request.response.not_found",page=alias,args=args))
         return process_not_found(alias,mode)

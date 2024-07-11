@@ -5,6 +5,7 @@ import logging
 import os.path
 import sys
 import time
+from Core.config import config
 
 TAB_TEXT = '    '
 CONSOLE_CLEAR = '\033[0m'
@@ -75,6 +76,12 @@ FILE_HANDLER = logging.FileHandler(f"{log_pos}{os.path.sep}{current_time}.log")
 FILE_HANDLER.setFormatter(logging.Formatter(
             fmt=f'[%(levelname)s]{TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
             datefmt='%m/%d|%H:%M:%S'))
+
+is_enable_debug = config('Debug.Enable')
+level = 0 if is_enable_debug else config('Debug.Logging.Level')
+FILE_HANDLER.setLevel(level)
+CONSOLE_HANDLER.setLevel(level)
+
 logging.basicConfig(level=logging.INFO)
 
 class Logger(logging.Logger):

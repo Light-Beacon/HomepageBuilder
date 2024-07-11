@@ -132,11 +132,13 @@ class Project:
         #card_xaml = format_code(card_xaml,card,self.resources.scripts)
         return card_xaml
 
-    def get_page_xaml(self, page_alias, **kwargs):
+    def get_page_xaml(self, page_alias, no_not_found_err_logging = False ,**kwargs):
         """获取页面 xaml 代码"""
         logger.info(t('project.gen_page.start', page=page_alias, args=kwargs))
         if page_alias not in self.pages:
-            raise PageNotFoundError(logger.error(t('project.gen_page.failed.notfound', page=page_alias)))
+            if not no_not_found_err_logging:
+                logger.error(t('project.gen_page.failed.notfound', page=page_alias))
+            raise PageNotFoundError(page_alias)
         content_xaml = ''
         page = self.pages[page_alias]
         if 'xaml' in page:
