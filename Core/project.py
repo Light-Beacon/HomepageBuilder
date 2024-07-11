@@ -11,7 +11,7 @@ from .code_formatter import format_code
 from .logger import Logger
 from .i18n import locale as t
 from .config import enable_by_config
-from .ModuleManager import load_module_dire
+from .ModuleManager import load_module_dire,get_check_list
 from Debug import count_time
 
 PATH_SEP = os.path.sep
@@ -28,6 +28,10 @@ class Project:
             dire = os.path.dirname(data['file_path'])
             self.resources.load_resources(f'{dire}{PATH_SEP}Resources')
             load_module_dire(f'{dire}{PATH_SEP}Modules', self)
+
+    def checkModuleWaitList(self):
+        if len(wait_list := get_check_list()) > 0:
+            logger.error(t('project.check_module_list.error', wait_list=wait_list))
 
     def import_pack(self, path):
         """导入工程包"""
@@ -78,6 +82,7 @@ class Project:
         self.pages = {}
         self.pagelist = []
         self.import_pack(path)
+        self.checkModuleWaitList()
         self.template_manager = TemplateManager(self)
         logger.info(t('project.load.success'))
 

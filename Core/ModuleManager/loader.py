@@ -46,12 +46,21 @@ class DependencyManager():
         self.load_checks.pop(module_name)
         return needs_load_modules
 
+    def get_check_list(self):
+        load_checks = list(self.load_checks.keys())
+        if len(load_checks) > 0 and load_checks[0]:
+            return load_checks
+        else:
+            return []
 class UnLoadedFunction():
     '''未加载的方法占位符类'''
     def __init__(self,path):
         self.path = path
 
 dependency_manager = DependencyManager()
+
+def get_check_list():
+    return dependency_manager.get_check_list()
 
 def load_module(module_path:str,queue_load:bool=False):
     '''导入模块'''
