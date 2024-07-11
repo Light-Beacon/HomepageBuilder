@@ -1,6 +1,6 @@
 project.init: "Initializing.."
 project.load.basic_res: "Loading basic resources"
-project.load.modules: ""Loading modules"
+project.load.modules: "Loading modules"
 project.load.plugins: "Loading plugins"
 project.load.success: "Pack loaded successful!"
 project.import.start: "Start to import pack at: ${path}"
