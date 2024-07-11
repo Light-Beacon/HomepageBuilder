@@ -152,7 +152,7 @@ class Project:
     def get_page_displayname(self, page_alias):
         """获取页面显示名"""
         if page_alias not in self.pages:
-            raise PageNotFoundError(logger.error(f'[Project] Cannot find page named "{page_alias}"'))
+            raise PageNotFoundError(t('page.not_found',page = page_alias))
         page = self.pages[page_alias]
         if not (result := page.get('display_name')):
             result = page.get('name')

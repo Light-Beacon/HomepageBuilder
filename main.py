@@ -50,7 +50,6 @@ command_func_mapping = {
     'server': command_server
 }
 
-
 def main():
     """构建器主入口"""
     parser = argparse.ArgumentParser()

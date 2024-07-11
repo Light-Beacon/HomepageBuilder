@@ -51,7 +51,7 @@ def getpage(alias:str):
     if alias.endswith('/version') or alias == 'version':
         return projapi.get_version() # 获取版本号
     args = request.args # 获取参数
-    logger.debug(f"args:{args}")
+    logger.debug(t("server.request.received",page=alias,args=args))
     while alias.endswith('/'):
         alias = alias[:-1]
     mode = None
@@ -63,13 +63,17 @@ def getpage(alias:str):
         alias = alias[:-5] # 这里两个都得保留
     try:
         if mode == 'json':
+            logger.debug(t("server.request.response.json",page=alias,args=args))
             return projapi.get_page_json(alias)
         else:
+            logger.debug(t("server.request.response.page",page=alias,args=args))
             return projapi.get_page_xaml(alias,args)
     except PageNotFoundError:
+        logger.debug(t("server.request.response.not_found",page=alias,args=args))
         return process_not_found(alias,mode)
-    except Exception:
-        logger.error(traceback.format_exc())
+    except Exception as e:
+        logger.error(t("server.request.response.error",page=alias,args=args))
+        logger.exception(e)
         if mode == 'json':
             return process_err_page_json(500)
         else:
