@@ -67,7 +67,7 @@ class Project:
         self.base_path = None
         self.default_page = None
         self.version = None
-        envpath = os.path.abspath('')
+        envpath = os.path.dirname(os.path.dirname(__file__))
         self.resources = Resource()
         logger.info(t('project.load.basic_res'))
         self.resources.load_resources(f'{envpath}{PATH_SEP}Resources')
