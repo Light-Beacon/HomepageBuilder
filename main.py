@@ -35,7 +35,7 @@ def command_build(args):
         if args.dry_run:
             page_output_path = None
         else:
-            page_output_path = f"{output_path}{page}.xaml"
+            page_output_path = f"{output_path}.xaml"
         build_and_output(project, page, page_output_path)
 
 
