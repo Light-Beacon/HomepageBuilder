@@ -1,19 +1,21 @@
-from typing import Union,List
+from typing import Union,List,Literal
+from abc import abstractmethod,ABC
 from Interfaces import encode_escape,Logger
 
 logger = Logger('Markdown')
 FIRSTLINE_SPACES = '    '
 
-class Node(): 
+class Node():
     def __init__(self,tag,res,parent_stack):
         self.res = res
-        self.name = tag.name
-        self.attrs = tag.attrs
+        self.name = None
+        self.attrs = None
         self.tag = tag
         self.children = None
         self.parent_stack = parent_stack
         self.expose = False
         self.self_break = False
+        self.parse_children()
     
     @property
     def inline(self) -> bool:
@@ -27,13 +29,61 @@ class Node():
     def component_name(self) -> str:
         '''对应组件的名称'''
         return self.name
-        
+    
+    @abstractmethod
     def get_replacement(self) -> Union[List|None]:
         '''获取替换框架占位符的字符串列表'''
+    
+    @abstractmethod
+    def get_element_frame(self) -> str:
+        '''获取元素框架'''
+
+    @abstractmethod
+    def parse_children(self) -> None:
+        '''解析子元素'''
+    
+    @abstractmethod
+    def add_child_node(self,child_node:'Node') -> None:
+        '''增加子节点'''
+    
+    @abstractmethod
+    def convert_children(self) -> str:
+        '''获取子节点的xaml代码'''
+    
+    @abstractmethod
+    def convert(self) -> str:
+        '''获取本节点的xaml代码'''
+
+class VoidNode(Node):
+    def get_replacement(self):
         return None
 
     def get_element_frame(self):
-        '''获取元素框架'''
+        return ''
+    
+    def parse_children(self):
+        pass
+        
+    def add_child_node(self,child_node):
+        raise NotImplementedError()
+    
+    def convert_children(self):
+        return ''
+
+    def convert(self) -> str:
+        return ''
+
+class NodeBase(Node): 
+    def __init__(self, tag, *args, **kwargs):
+        super().__init__(tag, *args, **kwargs)
+        self.name = tag.name
+        self.attrs = tag.attrs
+        self.parse_children()
+    
+    def get_replacement(self) -> Union[List|None]:
+        return None
+
+    def get_element_frame(self):
         components:dict[str,str] = self.res.components
         replace_list = self.get_replacement()
         replace_str = components.get(self.component_name)
@@ -46,56 +96,58 @@ class Node():
         if self.tag.contents:
             self.children = []
             for child in self.tag.contents:
-                self.add_child_node(create_node(child,self.parent_stack + self))
+                self.add_child_node(create_node(child,self.res,self.parent_stack + [self]))
                 
-    def add_child_node(self,child_node:'node'):
+    def add_child_node(self,child_node:Node):
         if child_node.expose:
             self.self_break = True
-        self.children += child_node
+        self.children.append(child_node)
     
-    def prase_children(self):
+    def convert_children(self):
         content = ''
         for child in self.children:
-            content += child.prase()
+            content += child.convert()
         return content
     
-    def prase(self):
-        element_frame:str = self.get_element_frame(self.res)
-        if element_frame is None:
-            return str(self.tag)
-        content = self.prase_children() if self.children else ''
+    def convert(self):
+        element_frame:str = self.get_element_frame()
+        content = self.convert_children() if self.children else ''
         if self.self_break:
             return content
         return element_frame.replace('${content}',content)
     
-class inlineNode(Node):
+class InlineNode(NodeBase):
     @property
     def inline(self):
         return True
     
-class lineNode(Node):
+class LineNode(NodeBase):
     @property
     def inline(self):
         return False
     
-class blockNode(Node):
+class BlockNode(NodeBase):
     @property
     def isblock(self):
         return True
 
-class Text(inlineNode):
-    def __init__(self,content,*args,**kwargs):
-        super().__init__(*args,**kwargs)
-        self.content = content
+class Text(VoidNode):
+    def __init__(self,tag,*args,**kwargs):
+        super().__init__(tag,*args,**kwargs)
+        self.content = str(tag)
     
-    def prase(self):
+    @property
+    def inline(self) -> Literal[True]:
+        return True
+    
+    def convert(self):
         return encode_escape(self.content)
 
     def __eq__(self,cmp):
         return cmp == self.content
     
-class MarkdownListItem(lineNode):
-    def prase_children(self):
+class MarkdownListItem(LineNode):
+    def convert_children(self):
         content = ''
         in_paragraph = False
         for child in self.children:
@@ -109,21 +161,21 @@ class MarkdownListItem(lineNode):
                 if in_paragraph:
                     content += '</Paragraph>'
                     in_paragraph = False
-            content += child.prase()
+            content += child.convert()
         if in_paragraph:
             content += '</Paragraph>'
         return content
 
-class Qoute(lineNode):
-    def prase_children(self):
+class Qoute(LineNode):
+    def convert_children(self):
         for child in self.children:
             if child.name != 'p':
                 continue
             for grand_child in child.children:
-                content += grand_child.prase()
+                content += grand_child.convert()
                 
-class Paragraph(lineNode):
-    def prase_children(self):                
+class Paragraph(LineNode):
+    def convert_children(self):                
         inblock = False
         content = FIRSTLINE_SPACES
         for child in self.children:
@@ -131,17 +183,18 @@ class Paragraph(lineNode):
                 if inblock:
                     inblock = False
                     content += '<Paragraph>'
-                content += child.prase()
+                content += child.convert()
                 continue
             else:
                 if not inblock:
                     inblock = True
                     content += '</Paragraph>'
-                    content += child.prase()
+                    content += child.convert()
         if inblock:
             content += '<Paragraph>'
+        return content
 
-class Heading(lineNode):
+class Heading(LineNode):
     @property
     def component_name(self) -> str:
         return 'heading'
@@ -149,11 +202,11 @@ class Heading(lineNode):
     def get_replacement(self) -> Union[List|None]:
         return[('level',self.name[1:])]
 
-class Link(inlineNode):   
+class Link(InlineNode):   
     def get_replacement(self) -> Union[List|None]:
         return[('link',self.attrs['href'])]
 
-class MarkdownImage(blockNode):
+class MarkdownImage(BlockNode):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
         self.title = self.attrs.get('title')
@@ -167,3 +220,27 @@ class MarkdownImage(blockNode):
         replace_list.append(('source',self.attrs['src']))
         if self.title:
             replace_list.append(('title',self.title))
+
+TAG_PARSER_MAPPING = {
+    'ul': LineNode,
+    'li': MarkdownListItem,
+    'p': Paragraph,
+    'blockquote': Qoute,
+    'img': MarkdownImage,
+    'h1': Heading,
+    'h2': Heading,
+    'h3': Heading,
+    'h4': Heading,
+    'h5': Heading,
+    'a': Link,
+    'em': InlineNode,
+    'strong': InlineNode,
+    'code': InlineNode,
+    'del': InlineNode
+}
+
+def create_node(tag,res,parent_stack):
+    if isinstance(tag,str):
+        return Text(tag,res,parent_stack)
+    else:
+        return TAG_PARSER_MAPPING[tag.name](tag=tag,res=res,parent_stack=parent_stack)

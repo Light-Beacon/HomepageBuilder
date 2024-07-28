@@ -101,7 +101,7 @@ def require(module_name):
     if required_module:
         return required_module
     else:
-        raise RequireDependency(required_module)
+        raise RequireDependency(module_name)
 
 
 @file_reader(['py','python'])

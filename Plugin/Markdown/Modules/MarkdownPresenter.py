@@ -2,7 +2,7 @@ import re
 import markdown
 from bs4 import BeautifulSoup
 from Interfaces import script,encode_escape,Logger
-
+from Parsers import create_node
 logger = Logger('MarkdownPresenter')
 
 def get_replacement(name:str,attrs:dict):
@@ -158,7 +158,7 @@ def html2xaml(html,res):
     soup = BeautifulSoup(html,'html.parser')
     xaml = ''
     for tag in soup.find_all(recursive=False):
-        xaml += element2xaml_general(tag,res)
+        xaml += create_node(tag,res,[]).convert()
     return xaml
 
 del_pattern = re.compile(r'~~(.*)~~')

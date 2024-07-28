@@ -31,6 +31,14 @@ Styles:
      Foreground: Black
      LineHeight: 22
 
+ - Key: H1
+   Target: Paragraph
+   Setters:
+      FontSize: 24
+      Margin: 0,10,0,10
+      FontWeight: Bold
+      Foreground: *Color3
+
  - Key: H2
    Target: Paragraph
    Setters:
