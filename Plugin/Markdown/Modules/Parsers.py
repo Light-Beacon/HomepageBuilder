@@ -144,7 +144,7 @@ class LineNode(NodeBase):
     def inline(self):
         return False
     
-class BlockNode(NodeBase):
+class BlockNode(LineNode):
     @property
     def isblock(self):
         return True
@@ -250,6 +250,7 @@ class MarkdownImage(BlockNode):
         replace_list.append(('source',self.attrs['src']))
         if self.title:
             replace_list.append(('title',self.title))
+        return replace_list
 
 def create_node(tag,res,parent_stack):
     if isinstance(tag,str):
