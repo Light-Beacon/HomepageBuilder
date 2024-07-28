@@ -5,6 +5,15 @@ from Interfaces import encode_escape,Logger
 logger = Logger('Markdown')
 FIRSTLINE_SPACES = '    '
 
+TAG_PARSER_MAPPING = {}
+
+def handles(*args):
+    def wrapper(cls):
+        for name in args:
+            TAG_PARSER_MAPPING[name] = cls
+        return cls
+    return wrapper
+
 class Node():
     def __init__(self,tag,res,parent_stack):
         self.res = res
@@ -64,7 +73,7 @@ class VoidNode(Node):
     def parse_children(self):
         pass
         
-    def add_child_node(self,child_node):
+    def add_child_node(self,_):
         raise NotImplementedError()
     
     def convert_children(self):
@@ -115,12 +124,14 @@ class NodeBase(Node):
         if self.self_break:
             return content
         return element_frame.replace('${content}',content)
-    
+
+@handles('em','strong','code','del') 
 class InlineNode(NodeBase):
     @property
     def inline(self):
         return True
-    
+
+@handles('ul')    
 class LineNode(NodeBase):
     @property
     def inline(self):
@@ -145,7 +156,8 @@ class Text(VoidNode):
 
     def __eq__(self,cmp):
         return cmp == self.content
-    
+
+@handles('li')
 class MarkdownListItem(LineNode):
     def convert_children(self):
         content = ''
@@ -166,6 +178,7 @@ class MarkdownListItem(LineNode):
             content += '</Paragraph>'
         return content
 
+@handles('blockqoute')
 class Qoute(LineNode):
     def convert_children(self):
         for child in self.children:
@@ -173,7 +186,8 @@ class Qoute(LineNode):
                 continue
             for grand_child in child.children:
                 content += grand_child.convert()
-                
+
+@handles('p')           
 class Paragraph(LineNode):
     def convert_children(self):                
         inblock = False
@@ -194,6 +208,7 @@ class Paragraph(LineNode):
             content += '<Paragraph>'
         return content
 
+@handles('h1','h2','h3','h4','h5')
 class Heading(LineNode):
     @property
     def component_name(self) -> str:
@@ -202,10 +217,12 @@ class Heading(LineNode):
     def get_replacement(self) -> Union[List|None]:
         return[('level',self.name[1:])]
 
+@handles('a')
 class Link(InlineNode):   
     def get_replacement(self) -> Union[List|None]:
         return[('link',self.attrs['href'])]
 
+@handles('img')
 class MarkdownImage(BlockNode):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
@@ -220,24 +237,6 @@ class MarkdownImage(BlockNode):
         replace_list.append(('source',self.attrs['src']))
         if self.title:
             replace_list.append(('title',self.title))
-
-TAG_PARSER_MAPPING = {
-    'ul': LineNode,
-    'li': MarkdownListItem,
-    'p': Paragraph,
-    'blockquote': Qoute,
-    'img': MarkdownImage,
-    'h1': Heading,
-    'h2': Heading,
-    'h3': Heading,
-    'h4': Heading,
-    'h5': Heading,
-    'a': Link,
-    'em': InlineNode,
-    'strong': InlineNode,
-    'code': InlineNode,
-    'del': InlineNode
-}
 
 def create_node(tag,res,parent_stack):
     if isinstance(tag,str):
