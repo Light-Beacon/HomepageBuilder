@@ -1,12 +1,12 @@
 import os
-from locale import getlocale as get_sys_locale
+from locale import getdefaultlocale
 from string import Template
 from .IO import Dire
 from .config import config
 from .logger import Logger
 
 CONFIG_LANG = config('System.Language')
-DEFAULTLANG,_  = get_sys_locale() if str(CONFIG_LANG).lower() == 'auto' else (CONFIG_LANG,None)
+DEFAULTLANG,_  = getdefaultlocale() if str(CONFIG_LANG).lower() == 'auto' else (CONFIG_LANG,None)
 locales = {}
 logger = Logger('i18n')
 
@@ -47,6 +47,6 @@ def locale(key:str,*args,lang:str=DEFAULTLANG,**kwargs):
                 string = key
         return Template(string).substitute(*args,**kwargs)
     else:
-        return locale(key,lang='en_US')
+        return locale(key,lang='en_US',**kwargs)
 
 init(locales)

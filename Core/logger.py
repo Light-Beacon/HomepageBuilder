@@ -67,7 +67,7 @@ class LogConsoleHandler(logging.Handler):
 
 CONSOLE_HANDLER = LogConsoleHandler()
 
-current_time = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
+current_time = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
 log_pos = os.path.abspath("Log/")
 print(log_pos)
 if not os.path.exists(log_pos):
