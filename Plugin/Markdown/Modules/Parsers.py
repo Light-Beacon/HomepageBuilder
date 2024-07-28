@@ -27,6 +27,13 @@ class Node():
         self.parse_children()
     
     @property
+    def ancestor(self) -> 'Node':
+        if len(self.parent_stack) > 0:
+            return self.parent_stack[-1]
+        else:
+            return None
+    
+    @property
     def inline(self) -> bool:
         raise NotImplementedError()
     
@@ -98,7 +105,7 @@ class NodeBase(Node):
         replace_str = components.get(self.component_name)
         if replace_list:
             for k,v in replace_list:
-                replace_str = replace_str.replace(f'${{{k}}}',encode_escape(v))
+                replace_str = replace_str.replace(f'${{{k}}}',encode_escape(str(v)))
         return replace_str
     
     def parse_children(self):
@@ -220,7 +227,13 @@ class Heading(LineNode):
 @handles('a')
 class Link(InlineNode):   
     def get_replacement(self) -> Union[List|None]:
-        return[('link',self.attrs['href'])]
+        reps = [('link',self.attrs['href'])]
+        ancestor = self.ancestor
+        if ancestor.name == 'li':
+            reps.append(('pos_down',9))
+        else:
+            reps.append(('pos_down',2))
+        return reps
 
 @handles('img')
 class MarkdownImage(BlockNode):
