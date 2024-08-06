@@ -115,7 +115,10 @@ def load_module_dire(dire,*args,**kwargs):
     ''' 载入文件夹下的所有 python 模块 '''
     modulelist = []
     if isinstance(dire,str):
-        dire = Dire(dire)
+        try:
+            dire = Dire(dire)
+        except FileNotFoundError:
+            return
     if not isinstance(dire,Dire):
         raise TypeError()
     for file in dire.scan(PY_PATTERN):

@@ -28,15 +28,14 @@ def command_build(args):
                 page_output_path = f"{output_path}{page}.xaml"
             build_and_output(project, page, page_output_path)
     else:
-        if args.page:
-            page = args.page
-        else:
-            page = project.default_page
-        if args.dry_run:
-            page_output_path = None
-        else:
-            page_output_path = f"{output_path}.xaml"
-        build_and_output(project, page, page_output_path)
+        page = args.page
+    if not page:
+        page = project.default_page
+    if args.dry_run:
+        page_output_path = None
+    else:
+        page_output_path = f"{output_path}"
+    build_and_output(project, page, page_output_path)
 
 
 def command_server(args):
