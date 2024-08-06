@@ -26,6 +26,7 @@ class File():
     def __init__(self,abs_path,read_init = False):
         self.abs_path = abs_path
         self.fullname = os.path.basename(abs_path)
+        self.direname = os.path.dirname(abs_path)
         self.name,self.extention = os.path.splitext(self.fullname)
         self.extention = self.extention.removeprefix('.')
         self.cache = None
