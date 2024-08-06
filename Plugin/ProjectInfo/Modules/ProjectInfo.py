@@ -19,6 +19,8 @@ def get_githash(path):
 
 @on_card_building()
 def get_card_last_update_time(_,card):
+    if 'last_update' in card:
+        return
     file = card.get('file')
     if not file:
         return
