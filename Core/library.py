@@ -5,6 +5,7 @@ import os
 from .IO import Dire,File
 from .logger import Logger
 from .i18n import locale as t
+from Core.event import trigger_invoke,trigger_return
 
 logger = Logger('Library')
 class Library:
@@ -78,6 +79,8 @@ class Library:
         else:
             raise KeyError(logger.error(f'[Library] Cannot find library "{card_ref}"'))
 
+    @trigger_invoke('card.creating')
+    @trigger_return('card.created',return_name='card')
     def add_card_from_file(self,file:File):
         '''通过文件添加卡片'''
         filename = file.name
@@ -92,7 +95,8 @@ class Library:
             self.cards[name] = {'data':data }
         self.cards[name].update({'data':data,'file_name':filename,'file_exten':exten,
                                  'card_id':f'{self.name}:{name}','card_lib':self.name,
-                                 'card_name':name})
+                                 'card_name':name,'file': file})
+        return self.cards[name]
 
     def add_sub_libraries(self,files):
         '''增加子库'''

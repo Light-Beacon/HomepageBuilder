@@ -8,6 +8,7 @@ from .code_formatter import format_code
 from .ModuleManager import invoke_script
 from .library import Library
 from .logger import Logger
+from .event import trigger_invoke, trigger_return
 
 logger = Logger('Template')
 
@@ -125,6 +126,8 @@ class TemplateManager:
                         raise ValueError('容器路径中存在不存在的组件')
         return current_code
 
+    @trigger_invoke('card.building')
+    @trigger_return('card.builded')
     def build(self,card):
         '''构建卡片'''
         def try_build(self,card,template):
