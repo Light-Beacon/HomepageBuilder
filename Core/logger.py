@@ -19,6 +19,7 @@ CONSOLE_CYAN = '\033[36m'
 CONSOLE_WHITE = '\033[37m'
 
 LEVEL_COLORES = {
+    5: CONSOLE_CYAN,
     10: CONSOLE_GREEN,
     20: CONSOLE_BLUE,
     30: CONSOLE_YELLOW,
@@ -26,6 +27,7 @@ LEVEL_COLORES = {
     50: CONSOLE_MAGENTA}
 
 LEVEL_NAMES = {
+    5: "EVENT",
     10: "DEBUG",
     20: "INFO",
     30: "WARNING",
@@ -91,3 +93,6 @@ class Logger(logging.Logger):
         self.addHandler(CONSOLE_HANDLER)
         self.addHandler(FILE_HANDLER)
         self.propagate = False
+    
+    def event(self, msg, *args, **kwargs):
+        self._log(5, msg, args, **kwargs)

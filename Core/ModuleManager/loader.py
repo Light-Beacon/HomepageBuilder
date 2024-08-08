@@ -109,7 +109,7 @@ def read_python(filepath:str) -> callable:
     ''' 读取 Python 文件 '''
     if not os.path.exists(filepath):
         raise FileNotFoundError(f'{filepath} not exist!')
-    load_module(filepath)
+    return load_module(filepath)
 
 def load_module_dire(dire,*args,**kwargs):
     ''' 载入文件夹下的所有 python 模块 '''

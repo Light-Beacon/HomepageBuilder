@@ -32,3 +32,4 @@ server.request.response.error: 'An error occured during responding the request o
 page.not_found: 'Cannot find page named ${page}'
 debug.timer.start: '${func}(${count}) Timer Started'
 debug.timer.stop: '${func}(${count}) Timer Stopped, Time used: ${time}s'
+event.triggered: 'Triggered event ${event_name}'

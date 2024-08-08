@@ -41,7 +41,7 @@ def partly_init():
 
 def fully_init():
     from .IO import Dire,ENVPATH
-    files = Dire(f"{ENVPATH}{os.path.sep}i18n",).scan(recur=True,patten=r'.*\.yml')
+    files = Dire(f"{ENVPATH}{os.path.sep}config",).scan(recur=True,patten=r'.*\.yml')
     for file in files:
         config_dict.update(file.data)
 

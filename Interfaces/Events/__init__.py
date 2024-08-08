@@ -11,3 +11,6 @@ def on_card_building():
 
 def on_card_builded():
     return on(event_name='card.builded')
+
+def on_project_loaded():
+    return on(event_name='project.loaded')

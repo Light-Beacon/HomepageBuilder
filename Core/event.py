@@ -1,6 +1,9 @@
 from typing import Dict, List
+from .logger import Logger
+from .i18n import locale
 
 events:Dict[str,List[callable]] = {}
+logger = Logger('Event')
 
 def trigger_invoke(event_name:str):
     '''在函数开始时触发事件'''
@@ -45,6 +48,7 @@ def listen_event(event_name:str):
     return wrapper
 
 def trigger_event(event_name:str,*args,**kwargs):
+    logger.event(locale('event.triggered',event_name=event_name))
     actions_list = events.get(event_name)
     if not actions_list:
         return

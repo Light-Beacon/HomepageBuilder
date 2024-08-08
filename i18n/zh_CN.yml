@@ -32,3 +32,4 @@ server.request.response.error: '在返回对 ${page} 伴有参数 ${args} 的请
 page.not_found: '无法找到页面 ${page}'
 debug.timer.start: '${func}(${count}) 计时器启动'
 debug.timer.stop: '${func}(${count}) 计时器停止，该函数运行时间: ${time}s'
+event.triggered: '事件 ${event_name} 被触发'

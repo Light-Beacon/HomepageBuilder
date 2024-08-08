@@ -12,6 +12,7 @@ from .logger import Logger
 from .i18n import locale as t
 from .config import enable_by_config
 from .ModuleManager import load_module_dire,get_check_list
+from .event import trigger_invoke,trigger_return
 from Debug import count_time
 
 PATH_SEP = os.path.sep
@@ -65,6 +66,8 @@ class Project:
         """获取工程里的全部页面名"""
         return self.pagelist
 
+    @trigger_invoke('project.loading')
+    @trigger_return('project.loaded')
     def __init__(self, path):
         logger.info(t('project.init'))
         self.base_library = None
