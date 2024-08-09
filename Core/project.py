@@ -147,7 +147,7 @@ class Project:
         if 'xaml' in page:
             return page['xaml']
         fill = page.get('fill',{})
-        override = page.get('fill')
+        override = page.get('fill', {})
         for card_ref in page['cards']:
             content_xaml += self.get_card_xaml(str(card_ref), fill=fill, override=override.update(kwargs))
         page_xaml = self.resources.page_templates['Default']
