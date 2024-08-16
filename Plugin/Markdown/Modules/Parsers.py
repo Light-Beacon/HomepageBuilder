@@ -186,13 +186,15 @@ class MarkdownListItem(LineNode):
         return content
 
 @handles('blockquote')
-class Qoute(LineNode):
+class Quote(LineNode):
     def convert_children(self):
+        content = ''
         for child in self.children:
             if child.name != 'p':
                 continue
             for grand_child in child.children:
                 content += grand_child.convert()
+        return content
 
 @handles('p')           
 class Paragraph(LineNode):
