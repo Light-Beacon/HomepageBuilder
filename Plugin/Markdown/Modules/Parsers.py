@@ -126,10 +126,10 @@ class NodeBase(Node):
         return content
     
     def convert(self):
-        element_frame:str = self.get_element_frame()
         content = self.convert_children() if self.children else ''
         if self.self_break:
             return content
+        element_frame:str = self.get_element_frame()
         return element_frame.replace('${content}',content)
 
 @handles('em','strong','code','del') 
@@ -160,6 +160,9 @@ class Text(VoidNode):
     
     def convert(self):
         return encode_escape(self.content)
+
+    def isempty(self):
+        return len(self.content) == 0
 
     def __eq__(self,cmp):
         return cmp == self.content
@@ -198,23 +201,26 @@ class Quote(LineNode):
 
 @handles('p')           
 class Paragraph(LineNode):
+    
+    def __init__(self, tag, *args, **kwargs):
+        super().__init__(tag, *args, **kwargs)
+        self.self_break = True
+    
     def convert_children(self):                
-        inblock = False
+        inblock = True
         content = FIRSTLINE_SPACES
         for child in self.children:
-            if not child.isblock:
+            if child.isblock:
+                if not inblock:
+                    inblock = True
+                    content += '</Paragraph>'  
+            else:
                 if inblock:
                     inblock = False
                     content += '<Paragraph>'
-                content += child.convert()
-                continue
-            else:
-                if not inblock:
-                    inblock = True
-                    content += '</Paragraph>'
-                    content += child.convert()
-        if inblock:
-            content += '<Paragraph>'
+            content += child.convert()
+        if not inblock:
+            content += '</Paragraph>'
         return content
 
 @handles('h1','h2','h3','h4','h5')

@@ -62,6 +62,13 @@ Styles:
       Margin: 0,3,0,5
       FontWeight: Bold
       Foreground: *Color4
+  
+ - Key: H5
+   Target: Paragraph
+   Setters:
+      FontSize: 15
+      Margin: 0,3,0,5
+      Foreground: *Color4
 
  - Key: Quote
    Target: Border
