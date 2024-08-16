@@ -185,7 +185,7 @@ class MarkdownListItem(LineNode):
             content += '</Paragraph>'
         return content
 
-@handles('blockqoute')
+@handles('blockquote')
 class Qoute(LineNode):
     def convert_children(self):
         for child in self.children:
