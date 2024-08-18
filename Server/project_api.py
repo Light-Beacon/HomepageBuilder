@@ -4,6 +4,7 @@ import gc
 from Core.project import Project
 from Core.IO import read_string, write_string
 from Core.IO.formats import read_yaml
+from Core.utils import PropertySetter
 from Core.logger import Logger
 from os.path import sep as sep
 
@@ -87,5 +88,5 @@ class ProjectAPI:
     def get_page_xaml(self,alias,args = None):
         '''获取页面xaml文件'''
         if (alias,args) not in self.cache:
-            self.cache[(alias,args)] = self.project.get_page_xaml(alias,**args)
+            self.cache[(alias,args)] = self.project.get_page_xaml(alias,PropertySetter(None,args))
         return self.cache[(alias,args)]
