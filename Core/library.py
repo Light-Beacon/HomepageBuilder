@@ -6,6 +6,7 @@ from .IO import Dire,File
 from .logger import Logger
 from .i18n import locale as t
 from Core.event import trigger_invoke,trigger_return
+from Core.utils import PropertySetter
 
 logger = Logger('Library')
 class Library:
@@ -13,9 +14,8 @@ class Library:
     def __init__(self,data:dict):
         self.name= data['name']
         logger.info(t('library.load',name=self.name))
-        self.fill = data.get('fill',{})
-        self.override = data.get('override',{})
-        self.override.update(data.get('cover',{})) # 兼容性考虑
+        self.setter = PropertySetter(data.get('fill'),data.get('override'))
+        self.setter.override.update(data.get('cover',{})) # 兼容性考虑
         self.card_mapping = {}  # 卡片索引
         self.libs_mapping = {}  # 子库索引
         self.sub_libraries = {} # 子库
@@ -26,8 +26,10 @@ class Library:
         self.add_sub_libraries(self.dire.scan_subdir('__LIBRARY__.yml'))  # 遍历添加子库
 
     @classmethod
-    def decorate_card(cls,card,fill,override):
+    def decorate_card(cls,card,setter):
         '''用 fill 和 override 修饰卡片'''
+        fill = setter.fill
+        override = setter.override
         if fill:
             cloned_fill = fill.copy()
         else:
@@ -39,7 +41,7 @@ class Library:
 
     def __decorate_card(self,card):
         '''用本卡片库的 fill 和 override 修饰卡片'''
-        return self.decorate_card(card,self.fill,self.override)
+        return self.decorate_card(card,self.setter) # TODO: 等待重构
 
     def __get_decoless_card(self,card_ref:str,is_original:bool):
         '''获取未经 fill 和 override 的卡片'''
@@ -52,7 +54,7 @@ class Library:
             else:
                 return self.get_card_from_lib_mapping(libname,cardname,is_original)
         return self.get_card_from_card_mapping(card_ref,is_original)
-
+    
     def get_card(self,card_ref:str,is_original:bool):
         '''获取卡片'''
         target = self.__get_decoless_card(card_ref,is_original)

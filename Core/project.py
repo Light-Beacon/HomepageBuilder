@@ -2,6 +2,7 @@
 工程文件模块，构建器核心
 """
 import os
+from typing import Dict
 from .IO import Dire, File
 from .library import Library
 from .resource import Resource
@@ -14,6 +15,7 @@ from .config import enable_by_config
 from .ModuleManager import load_module_dire,get_check_list
 from .event import trigger_invoke,trigger_return
 from Debug import count_time
+from .page import CardStackPage, RawXamlPage, PageBase
 
 PATH_SEP = os.path.sep
 logger = Logger('Project')
@@ -82,7 +84,7 @@ class Project:
         self.load_plugins(f'{envpath}{PATH_SEP}Plugin')
         logger.info(t('project.load.modules'))
         load_module_dire(f'{envpath}{PATH_SEP}Modules')
-        self.pages = {}
+        self.pages:Dict[PageBase] = {}
         self.pagelist = []
         self.import_pack(path)
         self.checkModuleWaitList()
@@ -91,71 +93,34 @@ class Project:
 
     def import_page(self, page_file: File):
         """导入页面"""
-        page = page_file.data
         file_name = page_file.name
         file_exten = page_file.extention
         if file_exten == 'yml':
-            if 'name' in page:
-                self.pages.update({page['name']: page})
-            self.pages.update({file_name: page})
-            self.pagelist.append(file_name)
-            if 'alias' in page:
-                for alias in page.get('alias'):
-                    self.pages.update({alias: page})
+            page = CardStackPage(page_file,self)
+            self.__import_card_stack_page(page)
         elif file_exten == 'xaml':
-            self.pages.update({file_name: {'xaml': page}})
+            page = RawXamlPage(page_file,self)
         else:
             logger.warning(f'Page file not supported: {file_name}.{file_exten}')
+            return
+        self.pages[file_name] = page
+        self.pagelist.append(file_name)
         
-    def get_card_xaml(self, card_ref, fill = None, override = None):  # kwargs 可使卡片应用源页面或函数给予的变量, 是 fill 处理
-        """获取卡片 xaml 代码"""
-        card_ref = format_code(code=card_ref, card=Library.decorate_card({},fill,override), project=self)
-        if ';' in card_ref:
-            code = ''
-            for each_card_ref in card_ref.split(';'):
-                code += self.get_card_xaml(each_card_ref,fill,override)
-            return code
+    def __import_card_stack_page(self,page:CardStackPage):
+        if page.name:
+            self.pages[page.name] = page
+        if page.alias:
+            for alias in page.alias:
+                self.pages[alias] = page
 
-        card_ref = card_ref.replace(' ', '').split('|')
-        if card_ref[0] == '':
-            logger.info(t('project.get_card.null'))
-            return ''
-        logger.info(t('project.get_card', card_ref=card_ref[0]))
-        try:
-            card = self.base_library.get_card(card_ref[0], False)
-            card = Library.decorate_card(card=card, fill=fill, override=override)
-        except Exception as ex:
-            logger.warning(t('project.get_card.failed', ex=ex))
-            return ''
-        if len(card_ref) > 1:
-            for arg in card_ref[1:]:
-                argname, argvalue = arg.split('=')
-                card[argname] = argvalue
-        card_xaml = self.template_manager.build(card)
-        #card_xaml = format_code(card_xaml,card,self.resources.scripts)
-        return card_xaml
-
-    def get_page_xaml(self, page_alias, no_not_found_err_logging = False ,**kwargs):
+    def get_page_xaml(self, page_alias, no_not_found_err_logging = False, setter = None):
         """获取页面 xaml 代码"""
-        logger.info(t('project.gen_page.start', page=page_alias, args=kwargs))
+        logger.info(t('project.gen_page.start', page=page_alias, args=setter))
         if page_alias not in self.pages:
             if not no_not_found_err_logging:
                 logger.error(t('project.gen_page.failed.notfound', page=page_alias))
             raise PageNotFoundError(page_alias)
-        content_xaml = ''
-        page = self.pages[page_alias]
-        if 'xaml' in page:
-            return page['xaml']
-        fill = page.get('fill',{})
-        override = page.get('fill', {})
-        override.update(kwargs)
-        for card_ref in page['cards']:
-            content_xaml += self.get_card_xaml(str(card_ref),fill,override)
-        page_xaml = self.resources.page_templates['Default']
-        page_xaml = page_xaml.replace('${animations}', '')  # TODO
-        page_xaml = page_xaml.replace('${styles}', get_style_code(self.resources.styles))
-        page_xaml = page_xaml.replace('${content}', content_xaml)
-        return page_xaml
+        return self.pages[page_alias].generate(setter = setter)
 
     def get_page_displayname(self, page_alias):
         """获取页面显示名"""

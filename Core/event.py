@@ -30,12 +30,23 @@ def trigger_failed(event_name:str, re_arise = True):
     def wrapper(func):
         def inner_wrapper(*args,**kwagrs):
             try:
-                func(*args,**kwagrs)
+                return func(*args,**kwagrs)
             except Exception as ex:
                 kwagrs['exception'] = ex
                 trigger_event(event_name, *args,**kwagrs)
                 if re_arise:
                     raise ex
+        return inner_wrapper
+    return wrapper
+
+def triggers(event_name:str):
+    '''在函数开始时、返回、和出错时触发事件'''
+    def wrapper(func):
+        @trigger_invoke(event_name + '.start')
+        @trigger_return(event_name + '.return')
+        @trigger_failed(event_name + '.failed')
+        def inner_wrapper(*args,**kwagrs):
+            return func(*args,**kwagrs)
         return inner_wrapper
     return wrapper
 
