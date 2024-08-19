@@ -30,7 +30,6 @@ class Resource:
         append_locale(f'{path}{sep}i18n')
         self.components.update({'':''}) # IF Failed return a null component
 
-
     def __init__(self):
         self.animations = {}
         self.components = {}

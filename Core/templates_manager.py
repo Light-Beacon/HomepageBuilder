@@ -4,11 +4,11 @@
 import traceback
 from queue import Queue
 from typing import List, Union
-from .code_formatter import format_code
+from .utils.formatter import format_code
 from .ModuleManager import invoke_script
 from .library import Library
 from .logger import Logger
-from .event import trigger_invoke, trigger_return
+from .utils.event import trigger_invoke, trigger_return
 from .utils import PropertySetter
 
 logger = Logger('Template')
@@ -83,9 +83,8 @@ class TemplateManager:
         if (not template_name) or template_name == 'void':
             return children_code
         target_template = self.templates[template_name]
-        card = Library.decorate_card(card,PropertySetter(
-            target_template.get('fill'),target_template.get('cover')))
         code = ''
+        card = PropertySetter(target_template.get('fill'),target_template.get('cover')).decorate(card)
         card = self.expend_card_placeholders(card,children_code)
         for cpn in target_template['components']:
             cpn = format_code(cpn,card,self.project,'')

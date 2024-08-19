@@ -1,4 +1,4 @@
-from Core.event import trigger_invoke, trigger_failed, trigger_return, listen_event as on
+from Core.utils.event import trigger_invoke, trigger_failed, trigger_return, listen_event as on
 
 def on_card_creating():
     return on(event_name='card.creating')
