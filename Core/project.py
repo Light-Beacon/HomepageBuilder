@@ -13,7 +13,7 @@ from .logger import Logger
 from .i18n import locale as t
 from .config import enable_by_config
 from .ModuleManager import load_module_dire,get_check_list
-from .utils.event import trigger_invoke,trigger_return
+from .utils.event import trigger_invoke,trigger_return,triggers
 from Debug import count_time
 from .page import CardStackPage, RawXamlPage, PageBase
 
@@ -36,6 +36,7 @@ class Project:
         if len(wait_list := get_check_list()) > 0:
             logger.error(t('project.check_module_list.error', wait_list=wait_list))
 
+    @triggers('project.import')
     def import_pack(self, path):
         """导入工程包"""
         logger.info(t('project.import.start', path=path))
@@ -44,22 +45,34 @@ class Project:
         self.default_page = pack_info.get('default_page')
         logger.info(t('project.import.pack.version', version=self.version))
         self.base_path = os.path.dirname(path)
+        self.__init_import_modules()
+        self.__init_import_cards()
+        self.__init_import_resources()
+        self.__init_import_pages()
+        logger.info(t('project.import.success'))
 
+    @triggers('project.import.modules')
+    def __init_import_modules(self):
+        logger.info(t('project.import.modules'))
+        load_module_dire(f'{self.base_path}{PATH_SEP}Modules', self)
+    
+    @triggers('project.import.cards')
+    def __init_import_cards(self):
         logger.info(t('project.import.cards'))
         self.base_library = Library(File(
             f"{self.base_path}{PATH_SEP}Libraries{PATH_SEP}__LIBRARY__.yml").data)
 
+    @triggers('project.import.resources')
+    def __init_import_resources(self):
         logger.info(t('project.import.resources'))
         self.resources.load_resources(f'{self.base_path}{PATH_SEP}Resources')
-
+    
+    @triggers('project.import.pages')
+    def __init_import_pages(self):
         logger.info(t('project.import.pages'))
         for pagefile in Dire(f'{self.base_path}{PATH_SEP}Pages').scan(recur=True):
-            self.import_page(pagefile)
-
-        logger.info(t('project.import.modules'))
-        load_module_dire(f'{self.base_path}{PATH_SEP}Modules', self)
-        logger.info(t('project.import.success'))
-
+            self.import_page_from_file(pagefile)
+    
     def get_all_card(self) -> list:
         """获取工程里的全部卡片"""
         return self.base_library.get_all_cards()
@@ -91,7 +104,7 @@ class Project:
         self.template_manager = TemplateManager(self)
         logger.info(t('project.load.success'))
 
-    def import_page(self, page_file: File):
+    def import_page_from_file(self, page_file: File):
         """导入页面"""
         file_name = page_file.name
         file_exten = page_file.extention
@@ -105,7 +118,7 @@ class Project:
             return
         self.pages[file_name] = page
         self.pagelist.append(file_name)
-        
+       
     def __import_card_stack_page(self,page:CardStackPage):
         if page.name:
             self.pages[page.name] = page
