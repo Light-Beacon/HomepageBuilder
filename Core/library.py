@@ -5,7 +5,7 @@ import os
 from .IO import Dire,File
 from .logger import Logger
 from .i18n import locale as t
-from Core.event import trigger_invoke,trigger_return
+from Core.utils.event import trigger_invoke,trigger_return
 from Core.utils import PropertySetter
 
 logger = Logger('Library')
@@ -25,35 +25,14 @@ class Library:
             self.add_card_from_file(file)
         self.add_sub_libraries(self.dire.scan_subdir('__LIBRARY__.yml'))  # 遍历添加子库
 
-    @classmethod
-    def decorate_card(cls,card,setter):
-        '''用 fill 和 override 修饰卡片'''
-        fill = setter.fill
-        override = setter.override
-        if fill:
-            cloned_fill = fill.copy()
-        else:
-            cloned_fill = {}
-        if override:
-            card.update(override)
-        cloned_fill.update(card)
-        return cloned_fill
-
-    def __decorate_card(self,card):
-        '''用本卡片库的 fill 和 override 修饰卡片'''
-        return self.decorate_card(card,self.setter) # TODO: 等待重构
-
     def __get_decoless_card(self,card_ref:str,is_original:bool):
-        '''获取未经 fill 和 override 的卡片'''
-        if card_ref in self.cards:
-            return self.cards[card_ref]
+        '''获取未经本库修饰的卡片'''
+        if card := self.cards.get(card_ref):
+            return card
+        libname = None
         if ':' in card_ref:
-            libname,cardname = card_ref.split(':',2)
-            if libname == self.name:
-                card_ref = cardname
-            else:
-                return self.get_card_from_lib_mapping(libname,cardname,is_original)
-        return self.get_card_from_card_mapping(card_ref,is_original)
+            libname, card_ref = card_ref.split(':',2)
+        return self.get_card_from_mapping(card_ref,libname,is_original)
     
     def get_card(self,card_ref:str,is_original:bool):
         '''获取卡片'''
@@ -61,26 +40,27 @@ class Library:
         if is_original:
             return target
         else:
-            return self.__decorate_card(target)
+            return self.setter.decorate(target)
 
-    def get_card_from_card_mapping(self,card_ref:str,is_original:bool):
-        '''通过库内的卡片映射获取卡片'''
-        if card_ref in self.cards:
-            return self.cards[card_ref].copy()
-        elif card_ref in self.card_mapping:
-            return self.card_mapping[card_ref].get_card(card_ref,is_original)
+    def get_card_from_mapping(self,card_ref,lib_name,is_original):
+        '''通过库内的映射获取卡片'''
+        if lib_name: # 如果指定子库
+            if lib_name == self.name:
+                return self.cards[card_ref]
+            if lib_name == 'T':
+                return {'templates':[card_ref]}
+            targetlib = self.libs_mapping.get(lib_name)
+            if not targetlib:
+                raise logger.exception(KeyError(f'[Library] Cannot find library "{lib_name}"'))
         else:
-            raise KeyError(logger.error(f'[Library] Cannot find card "{card_ref}"'))
+            if card_ref in self.cards:
+                return self.cards[card_ref].copy()
+            targetlib = self.card_mapping.get(card_ref)
+            if not targetlib:
+                raise logger.exception(KeyError(f'[Library] Cannot find card "{card_ref} among sub-libraries"'))
+        return targetlib.get_card(card_ref,is_original)
 
-    def get_card_from_lib_mapping(self,lib_name,card_ref,is_original):
-        '''通过库内的库映射获取卡片'''
-        if lib_name == 'T':
-            return {'templates':[card_ref]}
-        if lib_name in self.libs_mapping:
-            return self.libs_mapping[lib_name].get_card(card_ref,is_original)
-        else:
-            raise KeyError(logger.error(f'[Library] Cannot find library "{card_ref}"'))
-
+            
     @trigger_invoke('card.creating')
     @trigger_return('card.created',return_name='card')
     def add_card_from_file(self,file:File):
@@ -127,7 +107,7 @@ class Library:
 
     def get_all_cards(self):
         '''获取该库的所有卡片'''
-        result = [self.__decorate_card(card) for card in self.cards.values()]
+        result = [self.setter.decorate(card) for card in self.cards.values()]
         for lib in self.sub_libraries.values():
-            result += [self.__decorate_card(card) for card in lib.get_all_cards()]
+            result += [self.setter.decorate(card) for card in lib.get_all_cards()]
         return result

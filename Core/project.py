@@ -8,12 +8,12 @@ from .library import Library
 from .resource import Resource
 from .styles import get_style_code
 from .templates_manager import TemplateManager
-from .code_formatter import format_code
+from .utils.formatter import format_code
 from .logger import Logger
 from .i18n import locale as t
 from .config import enable_by_config
 from .ModuleManager import load_module_dire,get_check_list
-from .event import trigger_invoke,trigger_return
+from .utils.event import trigger_invoke,trigger_return
 from Debug import count_time
 from .page import CardStackPage, RawXamlPage, PageBase
 
@@ -124,12 +124,10 @@ class Project:
 
     def get_page_displayname(self, page_alias):
         """获取页面显示名"""
-        if page_alias not in self.pages:
+        page = self.pages.get(page_alias)
+        if not page:
             raise PageNotFoundError(t('page.not_found',page = page_alias))
-        page = self.pages[page_alias]
-        if not (result := page.get('display_name')):
-            result = page.get('name')
-        return result
+        return page.display_name
 
 
 class PageNotFoundError(Exception):

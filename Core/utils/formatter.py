@@ -2,8 +2,8 @@
 该模块用于格式化代码
 """
 from typing import Dict
-from .logger import Logger
-from .ModuleManager import invoke_script
+from ..logger import Logger
+from ..ModuleManager import invoke_script
 
 logger = Logger('Formatter')
 def format_code(code:str,card:Dict[str,object],

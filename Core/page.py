@@ -1,11 +1,12 @@
 from .IO import File
 from .styles import get_style_code
 from .utils import PropertySetter
-from .event import triggers
-from .code_formatter import format_code
+from .utils.event import triggers
+from .utils.formatter import format_code
 from .library import Library
 from .logger import Logger
 from .i18n import locale as t
+from .config import config
 
 logger = Logger('Page')
 
@@ -16,6 +17,10 @@ class PageBase():
     
     def generate(self, *args, **kwargs):
         "获取页面 XAML 代码"
+    
+    @property
+    def display_name(self):
+        raise NotImplementedError()
 
 class FileBasedPage(PageBase):
     "基于文件的页面，仅应用于继承"
@@ -26,9 +31,10 @@ class FileBasedPage(PageBase):
     def generate(self, *args, **kwargs):
         raise NotImplementedError()
         
-class RawXamlPage(FileBasedPage):  
+class RawXamlPage(FileBasedPage):
+    
     @property
-    def name(self):
+    def display_name(self):
         return self.file.name
     
     def generate(self, *args, **kwargs):
@@ -39,9 +45,14 @@ class CardStackPage(FileBasedPage):
         super().__init__(file, project)
         data = file.data
         self.setter = PropertySetter(data.get('fill'), data.get('override'))
-        self.name = data.get('name')
+        self.name = data.get('name', file.name)
+        self.display_name_str = data.get('display_name', self.name)
         self.cardrefs = data.get('cards',{})
         self.alias = data.get('alias', [])
+    
+    @property
+    def display_name(self):
+        return self.display_name_str
     
     @triggers('page.generate')
     def generate(self, *args, **kwargs):
@@ -84,6 +95,8 @@ class CardStackPage(FileBasedPage):
         return self.project.template_manager.build(card)
     
     def __getcard(self,ref,setter):
+        if config('Debug.Enable'):
+            return self.__getcardunsafe(ref, setter)
         try:
             return self.__getcardunsafe(ref, setter)
         except Exception as ex:
@@ -92,7 +105,7 @@ class CardStackPage(FileBasedPage):
     
     def __getcardunsafe(self,ref,setter):
         card = self.project.base_library.get_card(ref, False)
-        card = Library.decorate_card(card=card, setter = setter)
+        card = setter.decorate(card)
         return card
     
     def getframe(self):
