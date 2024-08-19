@@ -80,7 +80,7 @@ FILE_HANDLER.setFormatter(logging.Formatter(
             datefmt='%m/%d|%H:%M:%S'))
 
 is_enable_debug = config('Debug.Enable')
-level = 0 if is_enable_debug else config('Debug.Logging.Level')
+level = config('Debug.Logging.Level') if is_enable_debug else config('Logging.Level')
 FILE_HANDLER.setLevel(level)
 CONSOLE_HANDLER.setLevel(level)
 
