@@ -135,6 +135,13 @@ class Project:
             raise PageNotFoundError(page_alias)
         return self.pages[page_alias].generate(setter = setter)
 
+    def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None):
+        if page_alias not in self.pages:
+            if not no_not_found_err_logging:
+                logger.error(t('project.gen_page.failed.notfound', page=page_alias))
+            raise PageNotFoundError(page_alias)
+        return self.pages[page_alias].get_content_type(setter = setter)
+    
     def get_page_displayname(self, page_alias):
         """获取页面显示名"""
         page = self.pages.get(page_alias)

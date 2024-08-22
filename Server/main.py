@@ -2,7 +2,7 @@
 服务器主模块
 '''
 import traceback
-from flask import Flask, request
+from flask import Flask, request, make_response
 from Core.project import PageNotFoundError
 from Core.logger import Logger
 from Server.project_updater import request_update
@@ -63,12 +63,14 @@ def getpage(alias:str):
         alias = alias[:-5] # 这里两个都得保留
     try:
         if mode == 'json':
-            result = projapi.get_page_json(alias)
+            response_dict = projapi.get_page_json(alias)
             logger.debug(t("server.request.response.json",page=alias,args=args))
         else:
-            result = projapi.get_page_xaml(alias,args)
+            response_dict = projapi.get_page_response(alias,args)
             logger.debug(t("server.request.response.page",page=alias,args=args))
-        return result
+        response = make_response(response_dict['response'])
+        response.headers['Content-Type'] = response_dict['content-type'] 
+        return response
     except PageNotFoundError:
         logger.debug(t("server.request.response.not_found",page=alias,args=args))
         return process_not_found(alias,mode)
