@@ -21,6 +21,9 @@ class PageBase():
     @property
     def display_name(self):
         raise NotImplementedError()
+    
+    def get_content_type(self, setter):
+        return 'application/xml'
 
 class FileBasedPage(PageBase):
     "基于文件的页面，仅应用于继承"

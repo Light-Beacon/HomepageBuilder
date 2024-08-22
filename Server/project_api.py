@@ -83,10 +83,13 @@ class ProjectAPI:
             if name is None:
                 name = alias
             self.cache[key] = name
-        return f'{{"Title":"{self.cache[key]}"}}'
+        return {'response': f'{{"Title":"{self.cache[key]}"}}',
+                'content-type': 'application/json'}
 
-    def get_page_xaml(self,alias,args = None):
-        '''获取页面xaml文件'''
+    def get_page_response(self,alias,args = None):
+        '''获取页面内容'''
         if (alias,args) not in self.cache:
-            self.cache[(alias,args)] = self.project.get_page_xaml(alias,setter = PropertySetter(None,args))
+            self.cache[(alias,args)] = {
+                'response':self.project.get_page_xaml(alias,setter = PropertySetter(None,args)),
+                'content-type' : self.project.get_page_content_type(alias,setter = PropertySetter(None,args)) }
         return self.cache[(alias,args)]
