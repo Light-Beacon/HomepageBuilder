@@ -96,14 +96,14 @@ class NodeBase(Node):
         self.attrs = tag.attrs
         self.parse_children()
     
-    def get_replacement(self) -> Union[List|None]:
-        return None
+    def get_replacement(self) -> Union[List]:
+        return []
 
     def get_element_frame(self):
         components:dict[str,str] = self.res.components
         replace_list = self.get_replacement()
         replace_str = components.get(self.component_name)
-        if replace_list:
+        if len(replace_list) > 0:
             for k,v in replace_list:
                 replace_str = replace_str.replace(f'${{{k}}}',encode_escape(str(v)))
         return replace_str
@@ -138,7 +138,7 @@ class InlineNode(NodeBase):
     def inline(self):
         return True
 
-@handles('ul')    
+@handles('ul','ol')    
 class LineNode(NodeBase):
     @property
     def inline(self):
