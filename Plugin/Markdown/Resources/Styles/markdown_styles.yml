@@ -77,3 +77,38 @@ Styles:
       BorderBrush: *Color4
       Padding: 10,5
       Margin: 0,5
+  
+ - Key: cautionQuote
+   Target: Border
+   BasedOn: Quote
+   Setters:
+      BorderBrush: "#CC4455"
+      Background: "#33CC4455"
+
+ - Key: noteQuote
+   Target: Border
+   BasedOn: Quote
+   Setters:
+      BorderBrush: "#4455AA"
+      Background: "#334455AA"
+
+ - Key: tipQuote
+   Target: Border
+   BasedOn: Quote
+   Setters:
+      BorderBrush: "#44AA55"
+      Background: "#3344AA55"
+
+ - Key: importantQuote
+   Target: Border
+   BasedOn: Quote
+   Setters:
+      BorderBrush: "#AA55BB"
+      Background: "#33AA55BB"
+
+ - Key: warningQuote
+   Target: Border
+   BasedOn: Quote
+   Setters:
+      BorderBrush: "#DDBB44"
+      Background: "#33DDBB44"

@@ -1,5 +1,6 @@
 from typing import Union,List,Literal
 from abc import abstractmethod,ABC
+import re 
 from Interfaces import encode_escape,Logger
 
 logger = Logger('Markdown')
@@ -13,6 +14,29 @@ def handles(*args):
             TAG_PARSER_MAPPING[name] = cls
         return cls
     return wrapper
+
+def find_first_text(node:'Node',regex:Union[re.Pattern|None],
+                    remove:bool = False) -> Union[str|None]:
+    '''寻找节点中符合要求的最开始的文本'''
+    for child in node.children:
+        if isinstance(child,Text):
+            if len(text := child.content.replace('\n','')) > 0:
+                # 找到了文本
+                if not regex:
+                    if remove:
+                        child.content = ''
+                    return text
+                else:
+                    if matches := re.match(regex,text):
+                        text = matches.group(1)
+                        if remove:
+                            child.content = child.content.replace(matches.group(0),'',1)
+                        return text
+        else:
+            if text := find_first_text(child,regex,remove):
+                return text
+    return None
+
 
 class Node():
     def __init__(self,tag,res,parent_stack):
@@ -188,8 +212,30 @@ class MarkdownListItem(LineNode):
             content += '</Paragraph>'
         return content
 
+QUOTE_TYPE_PATTERN = re.compile(r'^\[!(.*)\]')
+QUOTE_TYPE_NAMES = {
+    'note': '注释',
+    'tip': '提示',
+    'important': '重要',
+    'warning': '警告',
+    'caution': '注意'
+}
 @handles('blockquote')
 class Quote(LineNode):
+    def __init__(self, tag, *args, **kwargs):
+        super().__init__(tag, *args, **kwargs)
+        quote_type = find_first_text(self,regex = QUOTE_TYPE_PATTERN,remove=True)
+        self.quote_type = quote_type.lower() if quote_type else None
+        self.quote_type_name = QUOTE_TYPE_NAMES.get(self.quote_type)
+    
+    @property
+    def component_name(self) -> str:
+        return 'blockquote-typed' if self.quote_type else 'blockquote'
+    
+    def get_replacement(self) -> Union[List]:
+        return [('type', self.quote_type),
+                ('typename',self.quote_type_name)]
+
     def convert_children(self):
         content = ''
         for child in self.children:

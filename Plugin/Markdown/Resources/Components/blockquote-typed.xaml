@@ -1,0 +1,12 @@
+<BlockUIContainer>
+  <Border Style="{StaticResource ${type}Quote}">
+    <StackPanel>
+      <TextBlock Text="${typename}" FontWeight="Bold">
+        <TextBlock.Foreground>
+        <Binding Path="BorderBrush" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Border}" />
+        </TextBlock.Foreground>
+      </TextBlock>
+      <TextBlock>${content}</TextBlock>
+    </StackPanel>
+  </Border>
+</BlockUIContainer>
