@@ -37,6 +37,14 @@ def find_first_text(node:'Node',regex:Union[re.Pattern|None],
                 return text
     return None
 
+def to_plain_str(node:'Node') -> str:
+    content = ''
+    for child in node.children:
+        if isinstance(child,Text):
+            content += child.content
+        else:
+            content += to_plain_str(child)
+    return content
 
 class Node():
     def __init__(self,tag,res,parent_stack):
@@ -220,29 +228,45 @@ QUOTE_TYPE_NAMES = {
     'warning': '警告',
     'caution': '注意'
 }
+QUOTE_TYPE_ISWARN_MAPPING = {
+    'info': False,
+    'warn': True,
+}
 @handles('blockquote')
 class Quote(LineNode):
     def __init__(self, tag, *args, **kwargs):
         super().__init__(tag, *args, **kwargs)
         quote_type = find_first_text(self,regex = QUOTE_TYPE_PATTERN,remove=True)
         self.quote_type = quote_type.lower() if quote_type else None
-        self.quote_type_name = QUOTE_TYPE_NAMES.get(self.quote_type)
+        self.quote_type_name = QUOTE_TYPE_NAMES.get(self.quote_type,quote_type)
+        self.is_pcl_hint = self.quote_type in QUOTE_TYPE_ISWARN_MAPPING
+        self.is_warn = QUOTE_TYPE_ISWARN_MAPPING.get(self.quote_type,None)
     
     @property
     def component_name(self) -> str:
-        return 'blockquote-typed' if self.quote_type else 'blockquote'
+        if self.is_pcl_hint:
+            return 'pclhint'
+        if self.quote_type:
+            return 'blockquote-typed'
+        return 'blockquote'
     
     def get_replacement(self) -> Union[List]:
-        return [('type', self.quote_type),
-                ('typename',self.quote_type_name)]
+        if self.is_pcl_hint:
+            return [('iswarn', self.is_warn)]
+        else:
+            return [('type', self.quote_type),
+                    ('typename',self.quote_type_name)]
 
     def convert_children(self):
         content = ''
-        for child in self.children:
-            if child.name != 'p':
-                continue
-            for grand_child in child.children:
-                content += grand_child.convert()
+        if self.is_pcl_hint:
+            content = to_plain_str(self)
+        else:
+            for child in self.children:
+                if child.name != 'p':
+                    continue
+                for grand_child in child.children:
+                    content += grand_child.convert()
         return content
 
 @handles('p')           
