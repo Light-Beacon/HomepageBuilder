@@ -19,17 +19,29 @@ Styles:
       FontSize: 14
       Foreground: Black
 
+ - Target: Paragraph
+   Setters:
+      LineHeight: 12
+      TextIndent: 16
+      Margin: 0,8
+
+ - Key: Lp
+   Target: Paragraph
+   Setters:
+      LineHeight: 16
+      TextIndent: 0
+
  - Target: List
    Setters:
       Foreground: *Color3
-      Margin: 20,2,0,2
+      Margin: 20,6,0,6
       MarkerStyle: 1
       Padding: 0
 
  - Target: ListItem
    Setters:
      Foreground: Black
-     LineHeight: 22
+     Margin: 0,4
 
  - Key: Hr
    Target: Section

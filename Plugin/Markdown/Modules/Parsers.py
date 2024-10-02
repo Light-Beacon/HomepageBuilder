@@ -210,7 +210,7 @@ class MarkdownListItem(LineNode):
                 if child == '\n':
                     continue
                 if not in_paragraph:
-                    content += '<Paragraph>'
+                    content += '<Paragraph Style="{StaticResource Lp}">'
                     in_paragraph = True
             else:
                 if in_paragraph:
