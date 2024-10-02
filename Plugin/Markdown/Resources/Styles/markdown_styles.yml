@@ -22,7 +22,7 @@ Styles:
  - Target: List
    Setters:
       Foreground: *Color3
-      Margin: 20,0,0,0
+      Margin: 20,2,0,2
       MarkerStyle: 1
       Padding: 0
 

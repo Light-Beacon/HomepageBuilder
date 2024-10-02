@@ -34,13 +34,13 @@ Styles:
    Target: Paragraph
    Setters:
       FontSize: 16
-      Margin: 0,3,0,5
+      Margin: 0,5,0,5
       FontWeight: Bold
       Foreground: *Color4
   
  - Key: H5
    Target: Paragraph
    Setters:
-      FontSize: 15
-      Margin: 0,3,0,5
+      FontSize: 14
+      Margin: 0,5,0,5
       Foreground: *Color4
