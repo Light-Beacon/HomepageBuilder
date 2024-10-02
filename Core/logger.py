@@ -67,22 +67,29 @@ class LogConsoleHandler(logging.Handler):
             self.outStreamHandler.emit(record)
 
 
+def init_file_handler():
+    current_time = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
+    log_pos = os.path.abspath("Log/")
+    print(log_pos)
+    if not os.path.exists(log_pos):
+        os.makedirs(log_pos)
+    handler = logging.FileHandler(f"{log_pos}{os.path.sep}{current_time}.log")
+    handler.setFormatter(logging.Formatter(
+                fmt=f'[%(levelname)s]{TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
+                datefmt='%m/%d|%H:%M:%S'))
+    return handler
+
+IS_DEBUG_ENABLE = config('Debug.Enable')
+LOGGING_LEVEL = config('Debug.Logging.Level') if IS_DEBUG_ENABLE else config('Logging.Level')
+
 CONSOLE_HANDLER = LogConsoleHandler()
+CONSOLE_HANDLER.setLevel(LOGGING_LEVEL)
 
-current_time = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
-log_pos = os.path.abspath("Log/")
-print(log_pos)
-if not os.path.exists(log_pos):
-    os.makedirs(log_pos)
-FILE_HANDLER = logging.FileHandler(f"{log_pos}{os.path.sep}{current_time}.log")
-FILE_HANDLER.setFormatter(logging.Formatter(
-            fmt=f'[%(levelname)s]{TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
-            datefmt='%m/%d|%H:%M:%S'))
-
-is_enable_debug = config('Debug.Enable')
-level = config('Debug.Logging.Level') if is_enable_debug else config('Logging.Level')
-FILE_HANDLER.setLevel(level)
-CONSOLE_HANDLER.setLevel(level)
+if config('Debug.Logging.FileOutput.Enable'):
+    FILE_HANDLER = init_file_handler()
+    FILE_HANDLER.setLevel(LOGGING_LEVEL)
+else:
+    FILE_HANDLER = None
 
 logging.basicConfig(level=logging.INFO)
 
@@ -90,8 +97,10 @@ class Logger(logging.Logger):
     """日志记录器"""
     def __init__(self, name):
         logging.Logger.__init__(self, name)
-        self.addHandler(CONSOLE_HANDLER)
-        self.addHandler(FILE_HANDLER)
+        if CONSOLE_HANDLER:
+            self.addHandler(CONSOLE_HANDLER)
+        if FILE_HANDLER:
+            self.addHandler(FILE_HANDLER)
         self.propagate = False
     
     def event(self, msg, *args, **kwargs):
