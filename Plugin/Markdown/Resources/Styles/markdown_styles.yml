@@ -22,7 +22,7 @@ Styles:
  - Target: Paragraph
    Setters:
       LineHeight: 12
-      TextIndent: 16
+      TextIndent: 0
       Margin: 0,8
 
  - Key: Lp
