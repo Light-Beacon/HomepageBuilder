@@ -31,84 +31,10 @@ Styles:
      Foreground: Black
      LineHeight: 22
 
- - Key: H1
-   Target: Paragraph
+ - Key: Hr
+   Target: Section
    Setters:
-      FontSize: 24
-      Margin: 0,10,0,10
-      FontWeight: Bold
-      Foreground: *Color3
-
- - Key: H2
-   Target: Paragraph
-   Setters:
-      FontSize: 22
-      Margin: 0,10,0,5
-      FontWeight: Bold
-      Foreground: *Color3
-
- - Key: H3
-   Target: Paragraph
-   Setters:
-      FontSize: 18
-      Margin: 0,5,0,5
-      FontWeight: Bold
-      Foreground: *Color4
-
- - Key: H4
-   Target: Paragraph
-   Setters:
-      FontSize: 16
-      Margin: 0,3,0,5
-      FontWeight: Bold
-      Foreground: *Color4
-  
- - Key: H5
-   Target: Paragraph
-   Setters:
-      FontSize: 15
-      Margin: 0,3,0,5
-      Foreground: *Color4
-
- - Key: Quote
-   Target: Border
-   Setters:
-      BorderThickness: 5,0,0,0
-      BorderBrush: *Color4
-      Padding: 10,5
-      Margin: 0,5
-  
- - Key: cautionQuote
-   Target: Border
-   BasedOn: Quote
-   Setters:
-      BorderBrush: "#CC4455"
-      Background: "#33CC4455"
-
- - Key: noteQuote
-   Target: Border
-   BasedOn: Quote
-   Setters:
-      BorderBrush: "#4455AA"
-      Background: "#334455AA"
-
- - Key: tipQuote
-   Target: Border
-   BasedOn: Quote
-   Setters:
-      BorderBrush: "#44AA55"
-      Background: "#3344AA55"
-
- - Key: importantQuote
-   Target: Border
-   BasedOn: Quote
-   Setters:
-      BorderBrush: "#AA55BB"
-      Background: "#33AA55BB"
-
- - Key: warningQuote
-   Target: Border
-   BasedOn: Quote
-   Setters:
-      BorderBrush: "#DDBB44"
-      Background: "#33DDBB44"
+      Margin: "0,4,0,0"
+      BorderThickness: "0,1.5,0,0"
+      BorderBrush: "{StaticResource ColorBrush4}"
+      FontSize: 4

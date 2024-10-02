@@ -175,7 +175,8 @@ class LineNode(NodeBase):
     @property
     def inline(self):
         return False
-    
+
+@handles('hr') 
 class BlockNode(LineNode):
     @property
     def isblock(self):
