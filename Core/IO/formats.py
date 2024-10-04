@@ -20,13 +20,13 @@ def read_yaml(filepath:str) -> dict:
         data.update({'file_path':filepath})
         return data
 
-@file_reader('txt')
+@file_reader(['txt','xaml'])
 def read_string(filepath:str):
     '''读取字符串文件'''
     with open(filepath, "r+",encoding="utf-8") as file:
         return file.read()
 
-@file_writer('txt')
+@file_writer(['txt','xaml'])
 def write_string(filepath:str,data:str):
     '''写入字符串文件'''
     with open(filepath, "w",encoding="utf-8") as file:

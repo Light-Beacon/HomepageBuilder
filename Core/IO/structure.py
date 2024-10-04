@@ -45,7 +45,10 @@ class File():
     def read(self,func = None,usecache:bool = True):
         '''读取文件'''
         #logger.debug(f'读取{self.abs_path}')
-        return read(self,func,usecache)
+        try:
+            return read(self,func,usecache)
+        except Exception as ex:
+            logger.warning(ex)
 
     def write(self,*args,func = None,**kwargs):
         '''写入文件'''

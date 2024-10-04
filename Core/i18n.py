@@ -1,10 +1,9 @@
 import os
 from locale import getdefaultlocale
 from string import Template
-from .IO import Dire
 from .config import config
 from .logger import Logger
-
+from .IO import Dire
 CONFIG_LANG = config('System.Language')
 DEFAULTLANG,_  = getdefaultlocale() if str(CONFIG_LANG).lower() == 'auto' else (CONFIG_LANG,None)
 locales = {}

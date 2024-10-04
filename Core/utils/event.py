@@ -1,3 +1,4 @@
+import functools
 from typing import Dict, List
 from ..logger import Logger
 from ..i18n import locale
@@ -8,6 +9,7 @@ logger = Logger('Event')
 def trigger_invoke(event_name:str):
     '''在函数开始时触发事件'''
     def wrapper(func):
+        @functools.wraps(func)
         def inner_wrapper(*args,**kwagrs):
             trigger_event(event_name,*args,**kwagrs)
             return func(*args,**kwagrs)
@@ -17,6 +19,7 @@ def trigger_invoke(event_name:str):
 def trigger_return(event_name:str,return_name='result'):
     '''在函数返回时触发事件'''
     def wrapper(func):
+        @functools.wraps(func)
         def inner_wrapper(*args,**kwagrs):
             result = func(*args,**kwagrs)
             kwagrs[return_name] = result
@@ -28,6 +31,7 @@ def trigger_return(event_name:str,return_name='result'):
 def trigger_failed(event_name:str, re_arise = True):
     '''在函数出错时触发事件'''
     def wrapper(func):
+        @functools.wraps(func)
         def inner_wrapper(*args,**kwagrs):
             try:
                 return func(*args,**kwagrs)
@@ -42,6 +46,7 @@ def trigger_failed(event_name:str, re_arise = True):
 def triggers(event_name:str):
     '''在函数开始时、返回、和出错时触发事件'''
     def wrapper(func):
+        @functools.wraps(func)
         @trigger_invoke(event_name + '.start')
         @trigger_return(event_name + '.return')
         @trigger_failed(event_name + '.failed')

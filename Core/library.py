@@ -5,12 +5,13 @@ import os
 from .IO import Dire,File
 from .logger import Logger
 from .i18n import locale as t
-from Core.utils.event import trigger_invoke,trigger_return
+from Core.utils.event import trigger_invoke,trigger_return,triggers
 from Core.utils import PropertySetter
 
 logger = Logger('Library')
 class Library:
     '''卡片库类'''
+    @triggers('library.init')
     def __init__(self,data:dict):
         self.name= data['name']
         logger.info(t('library.load',name=self.name))

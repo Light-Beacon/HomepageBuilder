@@ -5,6 +5,16 @@ logger = Logger('IO')
 read_func_mapping = {}
 write_func_mapping = {}
 
+class FileFormatUnsupportedError(Exception):
+    def __init__(self,file, *args: object) -> None:
+        from Core.i18n import locale
+        super().__init__(*args)
+        self.file = file
+        self.msg = locale('io.format.unsupported',path=file.abs_path,exten = file.extention)
+    
+    def __str__(self):
+        return self.msg
+
 def regist_file_function(func:callable,action:str,file_extentions:str) -> None:
     '''注册后缀名为 `file_extens` 的文件的读写函数'''
     def reg_filetype(func,file_exten:str,action:str):
@@ -46,7 +56,7 @@ def read(file,func = None,usecache:bool = True):
         if file.extention in read_func_mapping:
             func = read_func_mapping[file.extention]
         else:
-            func = read_func_mapping['txt']
+            raise FileFormatUnsupportedError(file)
         file.cache = func(file.abs_path)
         return file.cache
     return func(file.abs_path)
