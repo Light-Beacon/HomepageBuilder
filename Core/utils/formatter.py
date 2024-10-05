@@ -9,6 +9,8 @@ logger = Logger('Formatter')
 def format_code(code:str,card:Dict[str,object],
                 project,children_code:str='',stack:list = None,err_output = None):
     '''格式化代码'''
+    if not isinstance(code,str):
+        return code
     if not stack:
         stack = []
     code = str(code)
@@ -29,24 +31,37 @@ def format_code(code:str,card:Dict[str,object],
             replacement = invoke_script(script_name=script_name,
                                     project=project,card=card,args=qurey_tuple[1:],
                                     children_code=children_code)
-        elif attr_name in card:
-            replacement = str(card[attr_name])
         else:
-            if err_output:
-                return err_output
-            if len(qurey_tuple) >= 1:
-                replacement = qurey_tuple[-1]
-            else:
-                logger.warning(f'访问了不存在的属性，并且没有设定默认值: {attr_name}')
-                continue
+            try:
+                replacement = get_card_prop(card,attr_name)
+            except Exception:
+                if err_output:
+                    return err_output
+                if len(qurey_tuple) >= 1:
+                    replacement = qurey_tuple[-1]
+                else:
+                    logger.warning(f'访问了不存在的属性，并且没有设定默认值: {attr_name}')
+                    continue
         stack.append(code)
         try:
             replacement = format_code(replacement,card,project,children_code,stack)
         finally:
             stack.pop()
-        code = code.replace(f'${{{match}}}',replacement,1)
+        code = code.replace(f'${{{match}}}',str(replacement),1)
     return code
 
+def get_card_prop(card,attr_name):
+    return dfs_get_prop(card,attr_name)
+
+def dfs_get_prop(current_tree,prop_path:str):
+    if '.' not in prop_path:
+        return current_tree[prop_path]
+    this_name,next_path = prop_path.split('.',maxsplit=2)
+    if next_tree := current_tree.get(this_name):
+        return dfs_get_prop(next_tree,next_path)
+    else:
+        raise KeyError()
+    
 def split_args(string:str):
     '''分离参数'''
     args = []

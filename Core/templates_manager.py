@@ -70,7 +70,7 @@ class TemplateManager:
                 break
             key = q.get()
             try:
-                card[key] = format_code(str(card[key]),card,self.project,children_code)
+                card[key] = format_code(card[key],card,self.project,children_code)
                 tries = 0
             except KeyError:
                 q.put(key)
