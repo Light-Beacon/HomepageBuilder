@@ -164,7 +164,7 @@ class NodeBase(Node):
         element_frame:str = self.get_element_frame()
         return element_frame.replace('${content}',content)
 
-@handles('em','strong','code','del') 
+@handles('em','strong','code','del','br') 
 class InlineNode(NodeBase):
     @property
     def inline(self):
