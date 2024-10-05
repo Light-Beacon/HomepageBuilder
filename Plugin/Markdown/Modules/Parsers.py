@@ -309,7 +309,7 @@ class Link(InlineNode):
         reps = [('link',self.attrs['href'])]
         ancestor = self.ancestor
         if ancestor.name == 'li':
-            reps.append(('pos_down',9))
+            reps.append(('pos_down',3))
         else:
             reps.append(('pos_down',2))
         return reps

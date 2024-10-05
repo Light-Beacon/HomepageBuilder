@@ -53,13 +53,14 @@ class Library:
             targetlib = self.libs_mapping.get(lib_name)
             if not targetlib:
                 raise logger.exception(KeyError(f'[Library] Cannot find library "{lib_name}"'))
+            return targetlib.get_card(lib_name + ':' + card_ref,is_original)
         else:
             if card_ref in self.cards:
                 return self.cards[card_ref].copy()
             targetlib = self.card_mapping.get(card_ref)
             if not targetlib:
                 raise logger.exception(KeyError(f'[Library] Cannot find card "{card_ref} among sub-libraries"'))
-        return targetlib.get_card(card_ref,is_original)
+            return targetlib.get_card(card_ref,is_original)
 
             
     @trigger_invoke('card.creating')
