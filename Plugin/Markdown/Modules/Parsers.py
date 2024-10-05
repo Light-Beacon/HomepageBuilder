@@ -263,11 +263,12 @@ class Quote(LineNode):
         if self.is_pcl_hint:
             content = to_plain_str(self)
         else:
-            for child in self.children:
-                if child.name != 'p':
-                    continue
-                for grand_child in child.children:
-                    content += grand_child.convert()
+            content = super().convert_children()
+            #for child in self.children:
+            #    if child.name != 'p':
+            #        continue
+            #    for grand_child in child.children:
+            #        content += grand_child.convert()
         return content
 
 @handles('p')           

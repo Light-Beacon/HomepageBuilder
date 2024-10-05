@@ -1,5 +1,3 @@
-<BlockUIContainer>
-  <Border Style="{StaticResource Quote}">
-    <TextBlock>${content}</TextBlock>
-  </Border>
-</BlockUIContainer>
+<Section Style="{StaticResource Quote}">
+  ${content}
+</Section>

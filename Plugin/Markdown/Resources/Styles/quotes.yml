@@ -1,6 +1,6 @@
 Styles:
  - Key: Quote
-   Target: Border
+   Target: Section
    Setters:
       BorderThickness: 5,0,0,0
       BorderBrush: "{DynamicResource ColorBrush4}"
@@ -8,35 +8,35 @@ Styles:
       Margin: 0,5
   
  - Key: cautionQuote
-   Target: Border
+   Target: Section
    BasedOn: Quote
    Setters:
       BorderBrush: "#CC4455"
       Background: "#33CC4455"
 
  - Key: noteQuote
-   Target: Border
+   Target: Section
    BasedOn: Quote
    Setters:
       BorderBrush: "#4455AA"
       Background: "#334455AA"
 
  - Key: tipQuote
-   Target: Border
+   Target: Section
    BasedOn: Quote
    Setters:
       BorderBrush: "#44AA55"
       Background: "#3344AA55"
 
  - Key: importantQuote
-   Target: Border
+   Target: Section
    BasedOn: Quote
    Setters:
       BorderBrush: "#AA55BB"
       Background: "#33AA55BB"
 
  - Key: warningQuote
-   Target: Border
+   Target: Section
    BasedOn: Quote
    Setters:
       BorderBrush: "#DDBB44"
