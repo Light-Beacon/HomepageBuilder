@@ -4,7 +4,7 @@ from os import makedirs
 from os.path import sep, exists
 from Core.project import Project
 from Core import config
-
+from Debug import count_time, global_anlyzer as anl
 
 def build_and_output(project, page, output_path):
     xaml = project.get_page_xaml(page_alias=page)
@@ -16,6 +16,7 @@ def build_and_output(project, page, output_path):
 def command_build(args):
     project = Project(args.project_file_path)
     output_path = args.output_path
+    anl.phase('构建页面')
     if args.all_page:
         if not exists(args.output_path):
             makedirs(args.output_path, exist_ok=True)
@@ -36,7 +37,8 @@ def command_build(args):
         else:
             page_output_path = f"{output_path}"
         build_and_output(project, page, page_output_path)
-
+    anl.stop()
+    anl.summarize()
 
 def command_server(args):
     from Server.main import Server

@@ -14,7 +14,7 @@ from .i18n import locale as t
 from .config import enable_by_config
 from .ModuleManager import load_module_dire,get_check_list
 from .utils.event import trigger_invoke,trigger_return,triggers
-from Debug import count_time
+from Debug import count_time, global_anlyzer as anl
 from .page import CardStackPage, RawXamlPage, PageBase
 
 PATH_SEP = os.path.sep
@@ -84,25 +84,32 @@ class Project:
     @trigger_invoke('project.loading')
     @trigger_return('project.loaded')
     def __init__(self, path):
+        anl.phase('初始化仓库类')
         logger.info(t('project.init'))
         self.base_library = None
         self.base_path = None
         self.default_page = None
         self.version = None
-        envpath = os.path.dirname(os.path.dirname(__file__))
-        self.resources = Resource()
-        logger.info(t('project.load.basic_res'))
-        self.resources.load_resources(f'{envpath}{PATH_SEP}Resources')
-        logger.info(t('project.load.plugins'))
-        self.load_plugins(f'{envpath}{PATH_SEP}Plugin')
-        logger.info(t('project.load.modules'))
-        load_module_dire(f'{envpath}{PATH_SEP}Modules')
         self.pages:Dict[PageBase] = {}
         self.pagelist = []
+        envpath = os.path.dirname(os.path.dirname(__file__))
+        self.resources = Resource()
+        anl.phase('加载基础资源')
+        logger.info(t('project.load.basic_res'))
+        self.resources.load_resources(f'{envpath}{PATH_SEP}Resources')
+        anl.phase('初始化模版管理器')
+        self.template_manager = TemplateManager(self)
+        anl.phase('加载插件')
+        logger.info(t('project.load.plugins'))
+        self.load_plugins(f'{envpath}{PATH_SEP}Plugin')
+        anl.phase('加载模块')
+        logger.info(t('project.load.modules'))
+        load_module_dire(f'{envpath}{PATH_SEP}Modules')
+        anl.phase('加载用户包')
         self.import_pack(path)
         self.checkModuleWaitList()
-        self.template_manager = TemplateManager(self)
         logger.info(t('project.load.success'))
+        anl.stop()
 
     def import_page_from_file(self, page_file: File):
         """导入页面"""
