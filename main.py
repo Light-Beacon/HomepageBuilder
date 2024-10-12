@@ -73,5 +73,7 @@ def main():
 
 if __name__ == '__main__':
     anl.phase('初始化构建器')
+    anl.switch_in()
+    anl.phase('初始化构建器代码')
     config.fully_init()
     main()

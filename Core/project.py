@@ -26,11 +26,15 @@ class Project:
     @enable_by_config('System.EnablePlugins')
     def load_plugins(self, plugin_path):
         """加载插件"""
+        logger.info(t('project.load.plugins'))
+        anl.switch_in()
         for file in Dire(plugin_path).scan_subdir(r'pack\.yml'):
             data = file.data
+            anl.phase(file.data['pack_namespace'])
             dire = os.path.dirname(data['file_path'])
             self.resources.load_resources(f'{dire}{PATH_SEP}Resources')
             load_module_dire(f'{dire}{PATH_SEP}Modules', self)
+        anl.switch_out()
 
     def checkModuleWaitList(self):
         if len(wait_list := get_check_list()) > 0:
@@ -100,16 +104,16 @@ class Project:
         anl.phase('初始化模版管理器')
         self.template_manager = TemplateManager(self)
         anl.phase('加载插件')
-        logger.info(t('project.load.plugins'))
         self.load_plugins(f'{envpath}{PATH_SEP}Plugin')
         anl.phase('加载模块')
         logger.info(t('project.load.modules'))
         load_module_dire(f'{envpath}{PATH_SEP}Modules')
+        anl.switch_out()
         anl.phase('加载用户包')
         self.import_pack(path)
         self.checkModuleWaitList()
         logger.info(t('project.load.success'))
-        anl.stop()
+        anl.pause()
 
     def import_page_from_file(self, page_file: File):
         """导入页面"""

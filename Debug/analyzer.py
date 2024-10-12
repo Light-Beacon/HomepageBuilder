@@ -29,12 +29,17 @@ class Phase():
         if not self.__start_time:
             raise PhaseNotStartedError(phase = self)
         return self.__timespan
+
+    @property
+    def timespan_ms(self):
+        return round(self.__timespan*1000)
     
     def start_new_subphase(self,name:str):
         if self.__current_subphase:
             self.__current_subphase.stop()
         subphase = Phase(name)
         subphase.__set_ancestor(self)
+        self.__current_subphase = subphase
         self.subphases.append(subphase)
         subphase.start()
         return subphase
@@ -57,6 +62,7 @@ class Phase():
         return self.__end_time
 
     def start(self):
+        self.__checklock()
         if self.__start_time:
             raise PhaseStartedError(phase = self)
         self.__start_time = time.time()
@@ -64,7 +70,7 @@ class Phase():
     def pasue(self):
         if self.__pasued:
             return
-        self.__timespan += self.__getspan()
+        self.__timespan += self.getspan()
         self.__pasued = True
     
     def resume(self):
@@ -76,7 +82,8 @@ class Phase():
         if self.__current_subphase:
             self.__current_subphase.stop()
         self.__end_time = time.time()
-        self.__timespan += self.getspan(self.__end_time)
+        if not self.__pasued:
+            self.__timespan += self.getspan(self.__end_time)
 
     def is_ended(self):
         return bool(self.__end_time)
@@ -85,7 +92,9 @@ class Phase():
         if self.__end_time:
             raise PhaseEndedError(phase = self)
 
-    def getspan(self, curtime = time.time()):
+    def getspan(self, curtime = None):
+        if not curtime:
+            curtime = time.time()
         return curtime - self.__start_time
 
 class PhaseNotStartedError(Exception):
@@ -97,7 +106,6 @@ class PhaseStartedError(Exception):
 class PhaseEndedError(Exception):
     pass
 
-
 class Analyzer():
     def __init__(self) -> None:
         self.__start_time = time.time()
@@ -105,10 +113,6 @@ class Analyzer():
         self.ancesotrphase = self.mainphase
         self.currentphase = None
         self.mainphase.start()
-
-    @property
-    def phase(self):
-        return self.currentphase
 
     def switch_in(self):
         if not self.currentphase:
@@ -118,7 +122,7 @@ class Analyzer():
 
     def switch_out(self):
         if not self.currentphase.ancesotr:
-            raise 
+            raise ReferenceError()
         if not self.currentphase.is_ended():
             self.currentphase.stop()
         self.currentphase = self.ancesotrphase
@@ -126,26 +130,35 @@ class Analyzer():
 
     def phase(self,name) -> Phase:
         '''阶段'''
-        self.currentphase = self.ancesotrphase.start_new_subphase('name')
+        self.currentphase = self.ancesotrphase.start_new_subphase(name)
     
     def stop(self):
         if self.mainphase and not self.mainphase.is_ended():
             self.mainphase.stop()
 
+    def pause(self):
+        if self.currentphase and not self.currentphase.is_ended():
+            self.currentphase.pasue()
+
     def get_total_time(self):
         return self.mainphase.getspan()
 
     def __print_phase(self,phase,total_time,deepth:int):
-        print(f'{repeat("  ",deepth)}{phase.name}: {round(phase.timespan,4)}s {round(phase.timespan * 100 / total_time,4)}%')
+        print(f'{repeat("  ",deepth)}{phase.name}: {phase.timespan_ms}ms {round(phase.timespan * 100 / total_time,2)}%')
+        self.__print_subphases(phase,total_time,deepth)
+    
+    def __print_subphases(self,phase,total_time,deepth:int):
         for subphase in phase.subphases:
             self.__print_phase(subphase,total_time,deepth+1)
 
     def summarize(self):
         total_time = self.get_total_time()
-        print(repeat('=',20))
+        print(repeat('=',26))
         print('TIME COUSUMING SUMMERY:')
-        print(repeat('-',20))
-        self.__print_phase(self.mainphase,total_time,0)
-        print(repeat('=',20))
+        print(repeat('-',26))
+        self.__print_subphases(self.mainphase,total_time,-1)
+        print(repeat('-',26))
+        print(f'TOTAL: {round(self.mainphase.timespan,4)}s {round(self.mainphase.timespan * 100 / total_time,4)}%')
+        print(repeat('=',26))
 
 global_anlyzer = Analyzer()
