@@ -3,6 +3,7 @@ import argparse
 from os import makedirs
 from os.path import sep, exists
 from Core.project import Project
+from Core.builder import Builder
 from Core import config
 from Debug import global_anlyzer as anl
 
@@ -14,29 +15,30 @@ def build_and_output(project, page, output_path):
 
 
 def command_build(args):
-    project = Project(args.project_file_path)
+    builder = Builder()
+    builder.load_proejct(args.project_file_path)
     output_path = args.output_path
     anl.phase('构建页面')
     if args.all_page:
         if not exists(args.output_path):
             makedirs(args.output_path, exist_ok=True)
-        for page in project.get_all_pagename():
+        for page in builder.current_project.get_all_pagename():
             if not args.output_path.endswith(sep):
                 output_path = output_path + sep
             if args.dry_run:
                 page_output_path = None
             else:
                 page_output_path = f"{output_path}{page}.xaml"
-            build_and_output(project, page, page_output_path)
+            build_and_output(builder.current_project, page, page_output_path)
     else:
         page = args.page
         if not page:
-            page = project.default_page
+            page = builder.current_project.default_page
         if args.dry_run:
             page_output_path = None
         else:
             page_output_path = f"{output_path}"
-        build_and_output(project, page, page_output_path)
+        build_and_output(builder.current_project, page, page_output_path)
     anl.stop()
     anl.summarize()
 
@@ -72,8 +74,6 @@ def main():
 
 
 if __name__ == '__main__':
-    anl.phase('初始化构建器')
-    anl.switch_in()
     anl.phase('初始化构建器代码')
     config.fully_init()
     main()

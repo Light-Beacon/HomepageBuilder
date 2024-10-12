@@ -95,7 +95,7 @@ class CardStackPage(FileBasedPage):
         card = self.__getcard(real_ref,setter)
         if not card:
             return ''
-        return self.project.template_manager.build(card)
+        return self.project.builder.template_manager.build(card)
     
     def __getcard(self,ref,setter):
         if config('Debug.Enable'):

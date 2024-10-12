@@ -5,10 +5,7 @@ import os
 from typing import Dict
 from .IO import Dire, File
 from .library import Library
-from .resource import Resource
-from .styles import get_style_code
-from .templates_manager import TemplateManager
-from .utils.formatter import format_code
+from .types import Builder
 from .logger import Logger
 from .i18n import locale as t
 from .config import enable_by_config
@@ -23,19 +20,6 @@ logger = Logger('Project')
 class Project:
     """工程类"""
 
-    @enable_by_config('System.EnablePlugins')
-    def load_plugins(self, plugin_path):
-        """加载插件"""
-        logger.info(t('project.load.plugins'))
-        anl.switch_in()
-        for file in Dire(plugin_path).scan_subdir(r'pack\.yml'):
-            data = file.data
-            anl.phase(file.data['pack_namespace'])
-            dire = os.path.dirname(data['file_path'])
-            self.resources.load_resources(f'{dire}{PATH_SEP}Resources')
-            load_module_dire(f'{dire}{PATH_SEP}Modules', self)
-        anl.switch_out()
-
     def checkModuleWaitList(self):
         if len(wait_list := get_check_list()) > 0:
             logger.error(t('project.check_module_list.error', wait_list=wait_list))
@@ -43,36 +27,49 @@ class Project:
     @triggers('project.import')
     def import_pack(self, path):
         """导入工程包"""
+        anl.phase('加载工程包')
+        anl.switch_in()
         logger.info(t('project.import.start', path=path))
-        pack_info = File(path).read()
-        self.version = pack_info['version']
-        self.default_page = pack_info.get('default_page')
-        logger.info(t('project.import.pack.version', version=self.version))
-        self.base_path = os.path.dirname(path)
-        self.__init_import_modules()
+        self.__init_load_projectfile(path)
         self.__init_import_cards()
         self.__init_import_resources()
         self.__init_import_pages()
+        self.__init_import_modules()
+        anl.switch_out()
         logger.info(t('project.import.success'))
+
+    @triggers('project.import.projectfile')
+    def __init_load_projectfile(self,path):
+        anl.phase('读取工程文件')
+        pack_info = File(path).read()
+        self.base_path = os.path.dirname(path)
+        self.version = pack_info['version']
+        self.default_page = pack_info.get('default_page')
+        logger.info(t('project.import.pack.version', version=self.version))
 
     @triggers('project.import.modules')
     def __init_import_modules(self):
+        anl.phase('导入模块')
         logger.info(t('project.import.modules'))
         load_module_dire(f'{self.base_path}{PATH_SEP}Modules', self)
+        self.checkModuleWaitList()
     
     @triggers('project.import.cards')
     def __init_import_cards(self):
+        anl.phase('导入卡片')
         logger.info(t('project.import.cards'))
         self.base_library = Library(File(
             f"{self.base_path}{PATH_SEP}Libraries{PATH_SEP}__LIBRARY__.yml").data)
 
     @triggers('project.import.resources')
     def __init_import_resources(self):
+        anl.phase('导入资源')
         logger.info(t('project.import.resources'))
         self.resources.load_resources(f'{self.base_path}{PATH_SEP}Resources')
     
     @triggers('project.import.pages')
     def __init_import_pages(self):
+        anl.phase('导入页面')
         logger.info(t('project.import.pages'))
         for pagefile in Dire(f'{self.base_path}{PATH_SEP}Pages').scan(recur=True):
             self.import_page_from_file(pagefile)
@@ -87,31 +84,18 @@ class Project:
 
     @trigger_invoke('project.loading')
     @trigger_return('project.loaded')
-    def __init__(self, path):
+    def __init__(self,builder:Builder, path):
         anl.phase('初始化仓库类')
         logger.info(t('project.init'))
+        self.builder = builder
+        self.resources = builder.resources
         self.base_library = None
         self.base_path = None
         self.default_page = None
         self.version = None
         self.pages:Dict[PageBase] = {}
         self.pagelist = []
-        envpath = os.path.dirname(os.path.dirname(__file__))
-        self.resources = Resource()
-        anl.phase('加载基础资源')
-        logger.info(t('project.load.basic_res'))
-        self.resources.load_resources(f'{envpath}{PATH_SEP}Resources')
-        anl.phase('初始化模版管理器')
-        self.template_manager = TemplateManager(self)
-        anl.phase('加载插件')
-        self.load_plugins(f'{envpath}{PATH_SEP}Plugin')
-        anl.phase('加载模块')
-        logger.info(t('project.load.modules'))
-        load_module_dire(f'{envpath}{PATH_SEP}Modules')
-        anl.switch_out()
-        anl.phase('加载用户包')
         self.import_pack(path)
-        self.checkModuleWaitList()
         logger.info(t('project.load.success'))
         anl.pause()
 

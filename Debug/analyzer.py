@@ -81,6 +81,8 @@ class Phase():
     def stop(self):
         if self.__current_subphase:
             self.__current_subphase.stop()
+        if self.is_ended():
+            return
         self.__end_time = time.time()
         if not self.__pasued:
             self.__timespan += self.getspan(self.__end_time)
