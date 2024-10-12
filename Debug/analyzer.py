@@ -73,6 +73,7 @@ class PhaseEndedError(Exception):
 
 class Analyzer():
     def __init__(self) -> None:
+        self.__start_time = time.time()
         self.currentphase = None
         self.phaselist:List[Phase] = []
 
@@ -87,12 +88,25 @@ class Analyzer():
         if self.currentphase and not self.currentphase.is_ended():
             self.currentphase.stop()
 
-    def summarize(self):
-        print(repet('=',10))
-        print('Running Summary:')
-        print(repet('-',10))
+    def get_sum_time(self):
+        total_time = 0
         for phase in self.phaselist:
-            print(f'{phase.name} : Consumed {round(phase.timespan,4)}s')
-        print(repet('=',10))
+            total_time += phase.timespan
+        return total_time
+
+    def get_total_time(self):
+        return time.time() - self.__start_time
+
+    def summarize(self):
+        total_time = self.get_total_time()
+        sum_time = self.get_sum_time()
+        print(repet('=',20))
+        print('TIME COUSUMING SUMMERY:')
+        print(repet('-',20))
+        for phase in self.phaselist:
+            print(f'{phase.name} : {round(phase.timespan,4)}s {round(phase.timespan * 100 /total_time,4)}%')
+        print(repet('=',20))
+        print(f'TOTAL: {round(sum_time,4)} {round(sum_time*100/total_time,4)}%')
+        print(repet('=',20))
 
 global_anlyzer = Analyzer()

@@ -4,7 +4,7 @@ from os import makedirs
 from os.path import sep, exists
 from Core.project import Project
 from Core import config
-from Debug import count_time, global_anlyzer as anl
+from Debug import global_anlyzer as anl
 
 def build_and_output(project, page, output_path):
     xaml = project.get_page_xaml(page_alias=page)
@@ -72,5 +72,6 @@ def main():
 
 
 if __name__ == '__main__':
+    anl.phase('初始化构建器')
     config.fully_init()
     main()
