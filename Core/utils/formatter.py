@@ -1,14 +1,21 @@
 """
 该模块用于格式化代码
 """
-from typing import Dict
+from typing import Dict, TYPE_CHECKING, Annotated
 from ..logger import Logger
 from ..ModuleManager import invoke_script
 
+if TYPE_CHECKING:
+    from Core.types import BuildingEnvironment
+
+
 logger = Logger('Formatter')
-def format_code(code:str,card:Dict[str,object],
-                env,children_code:str='',
-                stack:list = None,err_output = None):
+def format_code(code: str,
+                data: Dict[str,object],
+                env: 'BuildingEnvironment',
+                children_code: str = '',
+                stack:list = None,
+                err_output = None):
     '''格式化代码'''
     if not isinstance(code,str):
         return code
@@ -31,11 +38,11 @@ def format_code(code:str,card:Dict[str,object],
         if attr_name.startswith('$') or attr_name.startswith('@'):
             script_name=qurey_tuple[0][1:]
             replacement = invoke_script(script_name=script_name,
-                                    project=project,env=env,card=card,args=qurey_tuple[1:],
+                                    project=project,env=env,card=data,args=qurey_tuple[1:],
                                     children_code=children_code)
         else:
             try:
-                replacement = get_card_prop(card,attr_name)
+                replacement = get_card_prop(data,attr_name)
             except Exception:
                 if err_output:
                     return err_output
@@ -46,7 +53,7 @@ def format_code(code:str,card:Dict[str,object],
                     continue
         stack.append(code)
         try:
-            replacement = format_code(replacement,card,env,children_code,stack)
+            replacement = format_code(replacement,data,env,children_code,stack)
         finally:
             stack.pop()
         code = code.replace(f'${{{match}}}',str(replacement),1)

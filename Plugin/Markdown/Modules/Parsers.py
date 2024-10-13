@@ -47,8 +47,9 @@ def to_plain_str(node:'Node') -> str:
     return content
 
 class Node():
-    def __init__(self,tag,res,parent_stack):
-        self.res = res
+    def __init__(self,tag,env,parent_stack):
+        self.env = env
+        self.components = env.get('components')
         self.name = None
         self.attrs = None
         self.tag = tag
@@ -132,19 +133,15 @@ class NodeBase(Node):
         return []
 
     def get_element_frame(self):
-        components:dict[str,str] = self.res.components
         replace_list = self.get_replacement()
-        replace_str = components.get(self.component_name)
-        if len(replace_list) > 0:
-            for k,v in replace_list:
-                replace_str = replace_str.replace(f'${{{k}}}',encode_escape(str(v)))
+        replace_str =  self.components.get(self.component_name).toxaml(replace_list, self.env)
         return replace_str
     
     def parse_children(self):
         if self.tag.contents:
             self.children = []
             for child in self.tag.contents:
-                self.add_child_node(create_node(child,self.res,self.parent_stack + [self]))
+                self.add_child_node(create_node(child,self.env,self.parent_stack + [self]))
                 
     def add_child_node(self,child_node:Node):
         if child_node.expose:
@@ -253,10 +250,10 @@ class Quote(LineNode):
     
     def get_replacement(self) -> Union[List]:
         if self.is_pcl_hint:
-            return [('iswarn', self.is_warn)]
+            return {'iswarn': self.is_warn}
         else:
-            return [('type', self.quote_type),
-                    ('typename',self.quote_type_name)]
+            return {'type': self.quote_type,
+                    'typename': self.quote_type_name}
 
     def convert_children(self):
         content = ''
@@ -302,17 +299,17 @@ class Heading(LineNode):
         return 'heading'
         
     def get_replacement(self) -> Union[List|None]:
-        return[('level',self.name[1:])]
+        return {'level': self.name[1:]}
 
 @handles('a')
 class Link(InlineNode):   
     def get_replacement(self) -> Union[List|None]:
-        reps = [('link',self.attrs['href'])]
+        reps = {'link': self.attrs['href']}
         ancestor = self.ancestor
         if ancestor.name == 'li':
-            reps.append(('pos_down',3))
+            reps['pos_down'] = 3
         else:
-            reps.append(('pos_down',2))
+            reps['pos_down'] = 2
         return reps
 
 @handles('img')
@@ -326,14 +323,13 @@ class MarkdownImage(BlockNode):
         return 'titled-img' if self.title else 'img'
     
     def get_replacement(self) -> Union[List|None]:
-        replace_list = []
-        replace_list.append(('source',self.attrs['src']))
+        replacements = {'source': self.attrs['src']}
         if self.title:
-            replace_list.append(('title',self.title))
-        return replace_list
+            replacements['title'] = self.title
+        return replacements
 
-def create_node(tag,res,parent_stack):
+def create_node(tag,env,parent_stack):
     if isinstance(tag,str):
-        return Text(tag,res,parent_stack)
+        return Text(tag,env=env,parent_stack=parent_stack)
     else:
-        return TAG_PARSER_MAPPING[tag.name](tag=tag,res=res,parent_stack=parent_stack)
+        return TAG_PARSER_MAPPING[tag.name](tag=tag,env=env,parent_stack=parent_stack)

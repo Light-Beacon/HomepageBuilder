@@ -1,8 +1,10 @@
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 from Core.config import config
 from Core.logger import Logger
 from Core.i18n import locale as t
-from Core.types import BuildingEnvironment
+
+if TYPE_CHECKING:
+    from Core.types import BuildingEnvironment
 
 logger = Logger('ScriptsManager')
 NO_ERR_OUTPUT_WHILE_SCRIPT_NOTFOUND = config('System.Script.IgnoreError')
@@ -15,7 +17,7 @@ def script(script_name):
         return func
     return decorator
 
-def invoke_script(script_name:str,env:BuildingEnvironment,card:Dict[str,object],
+def invoke_script(script_name:str,env:'BuildingEnvironment',card:Dict[str,object],
               args:list,**kwargs):
     '''获取脚本输出结果'''
     project = env.get('project')

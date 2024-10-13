@@ -24,4 +24,4 @@ def iseq(eq_expression,card,env) -> bool:
     return False
 
 def format_eq(expression:str,card,env):
-    return format_code(expression,card=card,env=env,children_code='',err_output='false')
+    return format_code(expression,data=card,env=env,children_code='',err_output='false')

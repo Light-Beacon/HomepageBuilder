@@ -10,7 +10,7 @@ from .config import enable_by_config
 from .ModuleManager import load_module_dire,get_check_list
 from .utils.event import trigger_invoke,trigger_return,triggers
 from Debug import count_time, global_anlyzer as anl
-from .page import CardStackPage, RawXamlPage, PageBase
+from .page import CardStackPage, RawXamlPage
 from Core.types import Project as ProjectBase
 
 PATH_SEP = os.path.sep
@@ -113,6 +113,7 @@ class Project(ProjectBase):
             raise PageNotFoundError(page_alias)
         env = self.get_environment_copy()
         env.update(setter=setter)
+        env.update(used_styles=set())
         return self.pages[page_alias].generate(env = env)
 
     def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None):

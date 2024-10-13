@@ -3,14 +3,17 @@
 """
 import traceback
 from queue import Queue
-from typing import List, Union
+from typing import  TYPE_CHECKING
 from .utils.formatter import format_code
 from .ModuleManager import invoke_script
-from .library import Library
 from .logger import Logger
 from .utils.event import trigger_invoke, trigger_return
 from .utils import PropertySetter
-from .types import BuildingEnvironment,TemplateManager as TemplateManagerBase
+
+if TYPE_CHECKING:
+    from typing import List, Union
+    from .types import BuildingEnvironment
+    from .elements import Component
 
 logger = Logger('Template')
 
@@ -52,7 +55,7 @@ def filter_match(template,card):
         raise TypeError()
     return True
 
-class TemplateManager(TemplateManagerBase):
+class TemplateManager():
     '''模版管理器类'''
     def expend_card_placeholders(self,card:dict,children_code,env):
         '''展开卡片属性内所有占位符'''
@@ -74,7 +77,7 @@ class TemplateManager(TemplateManagerBase):
                 continue
         return card
 
-    def build_with_template(self,card,template_name,children_code,env:BuildingEnvironment) -> str:
+    def build_with_template(self,card,template_name,children_code,env:'BuildingEnvironment') -> str:
         '''使用指定模版构建卡片'''
         if (not template_name) or template_name == 'void':
             return children_code
@@ -84,20 +87,19 @@ class TemplateManager(TemplateManagerBase):
         card = self.expend_card_placeholders(card,children_code,env)
         for cpn in target_template['components']:
             cpn = format_code(cpn,card,env,'')
-            if cpn in env.get('components'):
-                code += format_code(code = env.get('components')[cpn], card = card,
-                                    env=env, children_code = children_code)
+            if cpnobj := env.get('components').get(cpn):
+                code += cpnobj.toxaml(card,env)
             elif cpn.startswith('$') or cpn.startswith('@'):
                 args = cpn[1:].split('|')
                 code += invoke_script(args[0],env=env,card=card,args=args[1:],children_code=children_code)
-            else:
+            elif not cpn == '':
                 logger.warning(f'{template_name}模版中调用了未载入的构件{cpn}，跳过')
         if 'containers' in target_template:
             tree_path = target_template['containers']
             code = self.packin_containers(tree_path,card,code,env)
         return self.build_with_template(card,target_template.get('base'),code,env)
 
-    def packin_containers(self,tree_path:Union[str,List[str]],card,code:str,env:BuildingEnvironment):
+    def packin_containers(self,tree_path:'Union[str,List[str]]',card,code:str,env:'BuildingEnvironment'):
         '''按照容器组件路径包装'''
         containers:list = []
         if isinstance(tree_path,str):
@@ -124,9 +126,9 @@ class TemplateManager(TemplateManagerBase):
 
     @trigger_invoke('card.building')
     @trigger_return('card.builded')
-    def build(self,card,env:BuildingEnvironment):
+    def build(self,card,env:'BuildingEnvironment'):
         '''构建卡片'''
-        def try_build(self,card,template,env:BuildingEnvironment):
+        def try_build(self,card,template,env:'BuildingEnvironment'):
             try:
                 return self.build_with_template(card,template,'',env)
             except Exception:
