@@ -24,7 +24,6 @@ class Resource:
         self.data.update(create_res_mapping(f'{path}{sep}Data'))
         self.templates.update(create_res_mapping(f'{path}{sep}Templates',YML_PATTERN))
         self.page_templates.update(create_res_mapping(f'{path}{sep}Page_Templates',XAML_PATTERN))
-        #self.load_scripts(path=path)
         self.styles.update(create_res_mapping(f'{path}{sep}Styles',XAML_PATTERN))
         self.styles.update(create_res_mapping(f'{path}{sep}Styles',YML_PATTERN))
         append_locale(f'{path}{sep}i18n')
@@ -35,7 +34,6 @@ class Resource:
         self.components = {}
         self.styles = {}
         self.data = {'global':{}}
-        self.scripts = {}
         self.templates = {}
         self.page_templates = {}
 

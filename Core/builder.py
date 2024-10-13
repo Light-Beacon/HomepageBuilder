@@ -16,13 +16,14 @@ logger = Logger('Builder')
 class Builder(BuilderBase):
     """构建器核心"""
     def __init__(self):
+        super().__init__()
         self.envpath = os.path.dirname(os.path.dirname(__file__))
         anl.phase('初始化构建器')
         anl.switch_in()
         anl.phase('加载基础资源')
         self.resources = Resource()
         self.load_resources(f'{self.envpath}{PATH_SEP}Resources')
-        self.template_manager = TemplateManager(self)    
+        self.template_manager = TemplateManager()    
         self.load_modules(f'{self.envpath}{PATH_SEP}Modules')
         self.load_plugins(f'{self.envpath}{PATH_SEP}Plugin')
         self.current_project = None

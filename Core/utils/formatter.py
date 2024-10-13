@@ -7,12 +7,14 @@ from ..ModuleManager import invoke_script
 
 logger = Logger('Formatter')
 def format_code(code:str,card:Dict[str,object],
-                project,children_code:str='',stack:list = None,err_output = None):
+                env,children_code:str='',
+                stack:list = None,err_output = None):
     '''格式化代码'''
     if not isinstance(code,str):
         return code
     if not stack:
         stack = []
+    project = env.get('project')
     code = str(code)
     matches = findall_placeholders(code)
     for match in matches:
@@ -29,7 +31,7 @@ def format_code(code:str,card:Dict[str,object],
         if attr_name.startswith('$') or attr_name.startswith('@'):
             script_name=qurey_tuple[0][1:]
             replacement = invoke_script(script_name=script_name,
-                                    project=project,card=card,args=qurey_tuple[1:],
+                                    project=project,env=env,card=card,args=qurey_tuple[1:],
                                     children_code=children_code)
         else:
             try:
@@ -44,7 +46,7 @@ def format_code(code:str,card:Dict[str,object],
                     continue
         stack.append(code)
         try:
-            replacement = format_code(replacement,card,project,children_code,stack)
+            replacement = format_code(replacement,card,env,children_code,stack)
         finally:
             stack.pop()
         code = code.replace(f'${{{match}}}',str(replacement),1)

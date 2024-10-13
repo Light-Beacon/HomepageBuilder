@@ -2,7 +2,6 @@
 import argparse
 from os import makedirs
 from os.path import sep, exists
-from Core.project import Project
 from Core.builder import Builder
 from Core import config
 from Debug import global_anlyzer as anl
