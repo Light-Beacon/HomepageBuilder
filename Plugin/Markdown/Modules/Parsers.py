@@ -133,8 +133,13 @@ class NodeBase(Node):
         return []
 
     def get_element_frame(self):
-        replace_list = self.get_replacement()
-        replace_str =  self.components.get(self.component_name).toxaml(replace_list, self.env)
+        replacement = self.get_replacement()
+        component_obj = self.components.get(self.component_name)
+        component_obj.mark_used_resources(replacement,self.env)
+        replace_str = str(component_obj)
+        if len(replacement) > 0:
+            for k,v in replacement.items():
+                replace_str = replace_str.replace(f'${{{k}}}',encode_escape(str(v)))
         return replace_str
     
     def parse_children(self):

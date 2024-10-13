@@ -1,9 +1,9 @@
 from abc import ABC,abstractmethod
-from typing import Dict, List, Set, TypedDict, Union, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from . import Builder
+    from . import Builder, BuildingEnvironment
     from Core.resource import Resource
     from Core.library import Library
     from Core.IO import File
