@@ -20,4 +20,4 @@ def children_presenter(children_code,**_):
 def mark_used_resources(used_resources,card,env:'BuildingEnvironment'):
     for res_ref in used_resources:
         res_ref = format_code(code = res_ref,data=card,env=env)
-        env.get('used_styles').add(res_ref)
+        env.get('used_resources').add(res_ref)

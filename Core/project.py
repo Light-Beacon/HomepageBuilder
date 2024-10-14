@@ -113,8 +113,9 @@ class Project(ProjectBase):
             raise PageNotFoundError(page_alias)
         env = self.get_environment_copy()
         env.update(setter=setter)
-        env.update(used_styles=set())
+        env.update(used_resources=set())
         xaml = self.pages[page_alias].generate(env = env)
+        logger.debug(env.get('used_resources'))
         return xaml
 
     def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None):

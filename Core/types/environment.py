@@ -21,4 +21,4 @@ class BuildingEnvironment(TypedDict):
     templates: Dict[str,Dict]
     styles: Dict[str,Union[str,Dict]]
     setter: PropertySetter
-    used_styles: Set[str] = set()
+    used_resources: Set[str] = set()

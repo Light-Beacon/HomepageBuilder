@@ -20,7 +20,7 @@ class Component:
     def mark_used_resources(self,card,env:'BuildingEnvironment'):
         for res_ref in self.used_resources:
             res_ref = format_code(code = res_ref,data=card,env=env)
-            env.get('used_styles').add(res_ref)
+            env.get('used_resources').add(res_ref)
 
     def __str__(self) -> str:
         return self.file.data
