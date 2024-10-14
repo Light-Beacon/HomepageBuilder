@@ -1,5 +1,7 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING
+
+from Core.types import BuildingEnvironment
 from .styles import get_style_code
 from .utils import PropertySetter
 from .utils.event import triggers

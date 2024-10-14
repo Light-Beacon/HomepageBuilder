@@ -114,7 +114,8 @@ class Project(ProjectBase):
         env = self.get_environment_copy()
         env.update(setter=setter)
         env.update(used_styles=set())
-        return self.pages[page_alias].generate(env = env)
+        xaml = self.pages[page_alias].generate(env = env)
+        return xaml
 
     def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None):
         if page_alias not in self.pages:

@@ -1,12 +1,9 @@
-import re
 from typing import List, TYPE_CHECKING
-from Core.utils import format_code
+from Core.utils import format_code,find_using_resources
 
 if TYPE_CHECKING:
     from Core.IO import File
     from Core.types import BuildingEnvironment
-
-RESOURCE_PATTERN = re.compile(r'Style\s*=\s*\"\s*{\s*StaticResource\s+([^\s]*)\s*}\s*\"')
 
 class Component:
     def __init__(self, file: 'File') -> None:
@@ -18,7 +15,7 @@ class Component:
         return format_code(code = self.file.data,data = card,env=env,children_code=children_code)
 
     def __findusedresources(self):
-        return RESOURCE_PATTERN.findall(self.file.data)
+        return find_using_resources(self.file)
 
     def mark_used_resources(self,card,env:'BuildingEnvironment'):
         for res_ref in self.used_resources:
