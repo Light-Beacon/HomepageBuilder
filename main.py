@@ -2,9 +2,9 @@
 import argparse
 from os import makedirs
 from os.path import sep, exists
-from Core.builder import Builder
-from Core import config
-from Debug import global_anlyzer as anl
+from Builder.Core.builder import Builder
+from Builder.Core import config
+from Builder.Debug import global_anlyzer as anl
 
 def build_and_output(project, page, output_path):
     xaml = project.get_page_xaml(page_alias=page)
@@ -42,7 +42,7 @@ def command_build(args):
     anl.summarize()
 
 def command_server(args):
-    from Server.main import Server
+    from Builder.Server.main import Server
     server = Server(args.project_path)
     server.run(args.port if args.port else 6608)
 

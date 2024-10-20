@@ -1,7 +1,7 @@
-from Core.utils import find_using_resources
-from Core.utils.formatter import format_code
-from Core.types import BuildingEnvironment
-from Interfaces import script
+from Builder.Core.utils import find_using_resources
+from Builder.Core.formatter import format_code
+from Builder.Core.types import BuildingEnvironment
+from Builder.Interfaces import script
 
 @script('RawPresenter')
 def raw_presenter(card,env:BuildingEnvironment,**_):

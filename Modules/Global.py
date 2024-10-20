@@ -1,4 +1,4 @@
-from Interfaces import script
+from Builder.Interfaces import script
 
 @script('Global')
 def global_vers(key,res,**kwarg):

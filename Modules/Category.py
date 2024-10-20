@@ -1,5 +1,5 @@
-from Core.project import Project
-from Interfaces import script
+from Builder.Core.types.project import Project
+from Builder.Interfaces import script
 
 @script('Category')
 def cats(cat_name,proj:Project,**kwargs):

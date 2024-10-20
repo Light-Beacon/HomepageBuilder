@@ -1,4 +1,4 @@
-from Interfaces import script,format_code
+from Builder.Interfaces import script, format_code
 
 @script('IF')
 def if_script(eq_expression:str,true_return,false_return='',**kwargs):
