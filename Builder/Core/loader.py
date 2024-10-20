@@ -30,21 +30,22 @@ class Loader():
     @classmethod
     def load_resources(cls,direpath):
         output = {}
-        if is_debugging():
-            return cls.__load_resources_unsafe(direpath)
         try:
-            cls.__load_resources_unsafe(direpath)
+            dire = Dire(direpath)
         except FileNotFoundError:
             return output
+        if is_debugging():
+            return cls.__load_resources_unsafe(dire)
+        try:
+            cls.__load_resources_unsafe(direpath)
         except Exception as ex:
             logger.error(ex)
             return {}
         return output
 
     @classmethod
-    def __load_resources_unsafe(cls,direpath):
+    def __load_resources_unsafe(cls,dire):
         output = {}
-        dire = Dire(direpath)
         files = dire.scan(patten=YAML_PATTERN,recur=True)
         files.extend(dire.scan(patten=XAML_PATTERN,recur=True))
         output.update(ResourceLoader.loadfiles(files))

@@ -11,7 +11,12 @@ NO_ERR_OUTPUT_WHILE_SCRIPT_NOTFOUND = config('System.Script.IgnoreError')
 scripts = {}
 
 def script(script_name):
-    '''(修饰器)注册该函数为脚本'''
+    '''(修饰器)注册该函数为脚本
+    ## 传入参数
+    *args 脚本参数
+    card 卡片
+    env 环境
+    '''
     def decorator(func):
         scripts[script_name] = func
         return func
@@ -20,8 +25,6 @@ def script(script_name):
 def invoke_script(script_name:str,env:'BuildingEnvironment',card:Dict[str,object],
               args:list,**kwargs):
     '''获取脚本输出结果'''
-    project = env.get('project')
-    resources = env.get('resource')
     script_code = scripts.get(script_name)
     if script_code is None:
         if NO_ERR_OUTPUT_WHILE_SCRIPT_NOTFOUND:
@@ -29,5 +32,5 @@ def invoke_script(script_name:str,env:'BuildingEnvironment',card:Dict[str,object
         else:
             logger.error(t('script.invoke.failed.notfound',name = script_name))
         return ''
-    result = scripts[script_name](*args,card=card,res=resources,env=env,proj=project,**kwargs)
+    result = scripts[script_name](*args,card=card,env=env,**kwargs)
     return result
