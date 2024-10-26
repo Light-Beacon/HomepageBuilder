@@ -27,7 +27,7 @@ setup(
     #data_files = [('src/resources', ['src/resources'])],
     entry_points = {
         'console_scripts': [
-            'builder = main:main'
+            'builder = homepagebuilder.main:main'
         ]
     }
 )
