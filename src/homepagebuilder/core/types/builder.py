@@ -4,8 +4,8 @@ from .environment import BuildingEnvironment
 
 if TYPE_CHECKING:
     from . import Project
-    from Core.resource import Resource
-    from Core.templates_manager import TemplateManager
+    from core.resource import Resource
+    from core.templates_manager import TemplateManager
 
 class Builder(ABC):
     """构建器核心"""

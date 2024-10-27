@@ -26,7 +26,7 @@ class Loader():
     @classmethod
     def load_page_tempaltes(cls,direpath):
         return cls.create_structure_mapping(direpath,XAML_PATTERN)
-    
+
     @classmethod
     def load_resources(cls,direpath):
         output = {}

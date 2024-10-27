@@ -69,8 +69,18 @@ def dfs_get_prop(current_tree,prop_path:str):
     if next_tree := current_tree.get(this_name):
         return dfs_get_prop(next_tree,next_path)
     else:
-        raise KeyError()
-    
+        raise PropNotFoundError(prop_path)
+
+class PropNotFoundError(Exception):
+    def __init__(self, key, *args,):
+        super().__init__(*args)
+        self.key = key
+
+class PropNotFormatedError(Exception):
+    def __init__(self, key, *args,):
+        super().__init__(*args)
+        self.key = key
+
 def split_args(string:str):
     '''分离参数'''
     args = []

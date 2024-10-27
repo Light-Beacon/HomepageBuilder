@@ -1,0 +1,7 @@
+# 用于导入纯 xaml
+components:
+ - $RawPresenter
+base: void
+filter:
+  file_exten:
+    - xaml

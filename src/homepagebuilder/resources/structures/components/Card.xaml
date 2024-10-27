@@ -1,0 +1,3 @@
+<local:MyCard Title="${title}" CanSwap="${canswap|True}" IsSwaped="${isswaped|False}" Style="{StaticResource Card}" >
+${$ChildrenPresenter}
+</local:MyCard>

@@ -1,0 +1,5 @@
+# 流文档卡片，卡片内容为一个流文档
+# 流文档概述：https://learn.microsoft.com/zh-cn/dotnet/desktop/wpf/advanced/flow-document-overview
+components:
+ - FlowDocumentViewer
+base: Card

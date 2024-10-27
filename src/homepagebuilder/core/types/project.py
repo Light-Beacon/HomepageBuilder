@@ -4,10 +4,10 @@ from typing import Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from . import Builder, BuildingEnvironment
-    from Core.resource import Resource
-    from Core.library import Library
-    from Core.IO import File
-    from Core.page import PageBase
+    from core.resource import Resource
+    from core.library import Library
+    from core.IO import File
+    from core.page import PageBase
 
 class Project(ABC):
     """工程类接口"""
@@ -26,6 +26,7 @@ class Project(ABC):
     def __init__(self,builder, path:str):
         self.builder:Builder = builder
         self.__env:'BuildingEnvironment' = builder.get_environment_copy()
+        self.__env['project'] = self
         self.base_library:Library = None
         self.base_path:str = None
         self.default_page:PageBase = None

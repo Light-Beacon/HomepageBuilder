@@ -1,0 +1,3 @@
+<BlockUIContainer> 
+    <local:MyHint Margin="0,4,0,8" IsWarn="${iswarn}" Text="${content}" />
+</BlockUIContainer> 

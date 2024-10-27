@@ -5,14 +5,14 @@ import os
 from .io import Dire,File
 from .logger import Logger
 from .i18n import locale as t
-from .utils.event import trigger_invoke,trigger_return,triggers
+from .utils.event import set_triggers
 from .utils.property import PropertySetter
 
 logger = Logger('Library')
 
 class Library:
     '''卡片库类'''
-    @triggers('library.init')
+    @set_triggers('library.init')
     def __init__(self,data:dict):
         self.name= data['name']
         logger.info(t('library.load',name=self.name))
@@ -36,6 +36,7 @@ class Library:
             libname, card_ref = card_ref.split(':',2)
         return self.get_card_from_mapping(card_ref,libname,is_original)
 
+    @set_triggers('library.getcard')
     def get_card(self,card_ref:str,is_original:bool):
         '''获取卡片'''
         target = self.__get_decoless_card(card_ref,is_original)
@@ -67,9 +68,7 @@ class Library:
                 raise exp
             return targetlib.get_card(card_ref,is_original)
 
-            
-    @trigger_invoke('card.creating')
-    @trigger_return('card.created',return_name='card')
+    @set_triggers('library.creatcard.fromfile')
     def add_card_from_file(self,file:File):
         '''通过文件添加卡片'''
         filename = file.name
@@ -87,6 +86,7 @@ class Library:
                                  'card_name':name,'file': file})
         return self.cards[name]
 
+    @set_triggers('library.subs.add')
     def add_sub_libraries(self,files):
         '''增加子库'''
         def add_sub_library(self,yamldata):
@@ -112,6 +112,7 @@ class Library:
             add_sub_library(self,files)
         # DEV NOTICE 如果映射的内存占用太大了就将每一个卡片和每一个子库的路径压成栈，交给根库来管理
 
+    @set_triggers('library.getallcard')
     def get_all_cards(self):
         '''获取该库的所有卡片'''
         result = [self.setter.decorate(card) for card in self.cards.values()]

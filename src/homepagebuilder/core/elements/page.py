@@ -2,7 +2,7 @@ from abc import abstractmethod
 from ..IO import File
 from ..styles import get_style_code
 from ..utils import PropertySetter
-from ..utils.event import triggers
+from ..utils.event import set_triggers
 from ..formatter import format_code
 from ..library import Library
 from ..logger import Logger
@@ -41,7 +41,7 @@ class CardStackPage(FileBasedPage):
     def display_name(self):
         return self.display_name_str
     
-    @triggers('page.generate')
+    @set_triggers('page.generate')
     def generate(self, env):
         xaml = self.getframe(env)
         xaml = xaml.replace('${animations}', '')  # TODO

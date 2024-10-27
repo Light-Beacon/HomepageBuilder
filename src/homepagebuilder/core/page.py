@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 from .types import BuildingEnvironment
 from .utils.property import PropertySetter
-from .utils.event import triggers
+from .utils.event import set_triggers
 from .formatter import format_code
 from .logger import Logger
 from .i18n import locale as t
@@ -33,6 +33,11 @@ class FileBasedPage(PageBase):
         super().__init__()
         self.file = file
 
+class CodeBasedPage():
+    "基于代码的页面，仅应用于继承"
+    def __init__(self, project) -> None:
+        super().__init__()
+        self.project = project
 class RawXamlPage(FileBasedPage):
     """纯XAML页面"""
     @property
@@ -57,7 +62,7 @@ class CardStackPage(FileBasedPage):
     def display_name(self):
         return self.display_name_str
     
-    @triggers('page.generate')
+    @set_triggers('page.generate')
     def generate(self, env):
         xaml = self.getframe(env)
         #xaml = xaml.replace('${animations}', '')  # TODO
@@ -112,4 +117,4 @@ class CardStackPage(FileBasedPage):
         return card
     
     def getframe(self,env:'BuildingEnvironment'):
-        return env.get('project').resources.page_templates['Default']
+        return env.get('page_templates')['Default']

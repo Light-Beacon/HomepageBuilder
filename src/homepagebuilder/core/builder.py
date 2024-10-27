@@ -23,11 +23,11 @@ class Builder(BuilderBase):
         anl.switch_in()
         anl.phase('加载基础资源')
         self.__init_env()
-        self.load_structure(getbuilderpath('Resources/Structures/'))
-        self.load_resources(getbuilderpath('Resources/Resources/'))
+        self.load_structure(getbuilderpath('resources/structures/'))
+        self.load_resources(getbuilderpath('resources/resources/'))
         self.template_manager = TemplateManager()
-        self.load_modules(getbuilderpath('Modules'))
-        self.load_plugins(getbuilderpath('Plugins'))
+        self.load_modules(getbuilderpath('modules'))
+        self.load_plugins(getbuilderpath('plugins'))
         self.current_project = None
         anl.switch_out()
 
@@ -44,11 +44,11 @@ class Builder(BuilderBase):
     def load_structure(self,dire_path):
         anl.phase('加载结构文件')
         self.__env['components'].update(
-            Loader.load_compoents(dire_path + 'Components'))
+            Loader.load_compoents(dire_path + 'components'))
         self.__env['templates'].update(
-            Loader.load_tempaltes(dire_path + 'Templates'))
+            Loader.load_tempaltes(dire_path + 'templates'))
         self.__env['page_templates'].update(
-            Loader.load_page_tempaltes(dire_path + 'PageTemplates'))
+            Loader.load_page_tempaltes(dire_path + 'pagetemplates'))
 
     def load_resources(self,dire_path):
         """加载构建器资源"""
@@ -75,11 +75,11 @@ class Builder(BuilderBase):
             anl.switch_in()
             dire = os.path.dirname(data['file_path'])
             anl.phase('加载插件结构')
-            self.load_structure(f'{dire}{PATH_SEP}Structures/')
+            self.load_structure(f'{dire}{PATH_SEP}structures/')
             anl.phase('加载插件资源')
-            self.load_resources(f'{dire}{PATH_SEP}Resources')
+            self.load_resources(f'{dire}{PATH_SEP}resources')
             anl.phase('加载插件模块')
-            load_module_dire(f'{dire}{PATH_SEP}Modules')
+            load_module_dire(f'{dire}{PATH_SEP}modules')
             anl.phase('加载插件本地化文件')
             append_locale(f'{dire}{PATH_SEP}i18n')
             anl.switch_out()

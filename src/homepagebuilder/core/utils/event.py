@@ -6,53 +6,26 @@ from ..i18n import locale
 events:Dict[str,List[callable]] = {}
 logger = Logger('Event')
 
-def trigger_invoke(event_name:str):
-    '''在函数开始时触发事件'''
-    def wrapper(func):
-        @functools.wraps(func)
-        def inner_wrapper(*args,**kwagrs):
-            trigger_event(event_name,*args,**kwagrs)
-            return func(*args,**kwagrs)
-        return inner_wrapper
-    return wrapper
-
-def trigger_return(event_name:str,return_name='result'):
-    '''在函数返回时触发事件'''
-    def wrapper(func):
-        @functools.wraps(func)
-        def inner_wrapper(*args,**kwagrs):
-            result = func(*args,**kwagrs)
-            kwagrs[return_name] = result
-            trigger_event(event_name,*args,**kwagrs)
-            return result
-        return inner_wrapper
-    return wrapper
-
-def trigger_failed(event_name:str, re_arise = True):
-    '''在函数出错时触发事件'''
-    def wrapper(func):
-        @functools.wraps(func)
-        def inner_wrapper(*args,**kwagrs):
-            try:
-                return func(*args,**kwagrs)
-            except Exception as ex:
-                kwagrs['exception'] = ex
-                trigger_event(event_name, *args,**kwagrs)
-                if re_arise:
-                    raise ex
-        return inner_wrapper
-    return wrapper
-
-def triggers(event_name:str):
+def set_triggers(event_name:str):
     '''在函数开始时、返回、和出错时触发事件'''
     def wrapper(func):
         @functools.wraps(func)
-        @trigger_invoke(event_name + '.start')
-        @trigger_return(event_name + '.return')
-        @trigger_failed(event_name + '.failed')
-        def inner_wrapper(*args,**kwagrs):
-            return func(*args,**kwagrs)
-        return inner_wrapper
+        def function_triggers(*args,**kwagrs):
+            try:
+                trigger_event(event_name + '.start',*args,**kwagrs)
+                result = func(*args,**kwagrs)
+                trigger_event(event_name + '.return',*args ,result = result, **kwagrs)
+                return result
+            except ResultOverride as ro:
+                return ro.result
+            except Exception as ex:
+                try:
+                    trigger_event(event_name + '.failed', *args,exception = ex, **kwagrs)
+                except ResultOverride as e:
+                    return e.result
+                finally:
+                    raise ex
+        return function_triggers
     return wrapper
 
 def listen_event(event_name:str):
@@ -70,3 +43,8 @@ def trigger_event(event_name:str,*args,**kwargs):
         return
     for action in actions_list:
         action(*args,**kwargs)
+
+class ResultOverride(Exception):
+    """在事件中抛出该异常以停止原函数以及尚未执行的触发器运行并输出结果"""
+    def __init__(self, result):
+        self.result = result

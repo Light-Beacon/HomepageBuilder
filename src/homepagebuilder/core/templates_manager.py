@@ -4,11 +4,12 @@
 import traceback
 from queue import Queue
 from typing import  TYPE_CHECKING
-from .formatter import format_code
+from .formatter import format_code, PropNotFormatedError
 from .module_manager import invoke_script
 from .logger import Logger
-from .utils.event import trigger_invoke, trigger_return
+from .utils.event import set_triggers
 from .utils.property import PropertySetter
+from .config import is_debugging
 
 if TYPE_CHECKING:
     from typing import List, Union
@@ -33,6 +34,8 @@ def __is_filter_value_match(rule:str,value:str):
 
 def filter_match(template,card):
     '''检测卡片是否符合模版筛选规则'''
+    if not template:
+        return False
     if 'filter' not in template:
         return True
     if template['filter'] == 'never':
@@ -64,13 +67,16 @@ class TemplateManager():
             q.put(key)
         while not q.empty():
             if tries > q.qsize():
-                logger.warning(f"检测到卡片中 {'、'.join(q.queue)} 属性无法被展开，跳过")
+                if is_debugging():
+                    raise ValueError(f"检测到卡片中 {'、'.join(q.queue)} 属性无法被展开")
+                else:
+                    logger.warning(f"检测到卡片中 {'、'.join(q.queue)} 属性无法被展开，跳过")
                 break
             key = q.get()
             try:
                 card[key] = format_code(card[key],card,env=env,children_code=children_code)
                 tries = 0
-            except KeyError:
+            except PropNotFormatedError:
                 q.put(key)
                 tries += 1
                 continue
@@ -123,16 +129,18 @@ class TemplateManager():
                         raise ValueError('容器路径中存在不存在的组件')
         return current_code
 
-    @trigger_invoke('card.building')
-    @trigger_return('card.builded')
+    @set_triggers('tm.buildcard')
     def build(self,card,env:'BuildingEnvironment'):
         '''构建卡片'''
         def try_build(self,card,template,env:'BuildingEnvironment'):
             try:
                 return self.build_with_template(card,template,'',env)
-            except Exception:
-                logger.warning(f'构建卡片时出现错误：\n{traceback.format_exc()}Skipped.')
-                return ''
+            except Exception as ex:
+                if is_debugging():
+                    raise ex
+                else:
+                    logger.warning(f'构建卡片时出现错误：\n{traceback.format_exc()}Skipped.')
+                    return ''
 
         attr = card['templates']
         templates = env.get('templates')
@@ -145,11 +153,12 @@ class TemplateManager():
                 return ''
         elif isinstance(attr,list):
             for template_name in card['templates']:
-                if template_name not in templates:
-                    continue
-                if filter_match(templates[template_name],card):
+                if filter_match(templates.get(template_name),card):
                     return try_build(self,card,template_name,env)
-            logger.warning('卡片没有匹配的配置模版，跳过')
+            if is_debugging():
+                raise ValueError('卡片没有匹配的配置模版')
+            else:
+                logger.warning('卡片没有匹配的配置模版，跳过')
             return ''
         else:
             logger.warning('[TemplateManager] 模版列表类型无效，跳过')
