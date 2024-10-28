@@ -8,7 +8,6 @@ from debug import global_anlyzer as anl
 
 def build_and_output(project, page, output_path):
     xaml = project.get_page_xaml(page_alias=page)
-    print(xaml)
     if output_path:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(xaml)

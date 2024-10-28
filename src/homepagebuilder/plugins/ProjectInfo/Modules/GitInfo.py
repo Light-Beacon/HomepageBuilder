@@ -67,7 +67,7 @@ def get_card_last_update_time(_tm,card,env,*args,**kwargs):
     file = card.get('file')
     if not file:
         return
-    timestamp = subprocess.check_output(r"git log -1 --format=%ct --follow -- " + file.abs_path ,cwd=file.direname, shell=True).decode("utf-8")
+    timestamp = subprocess.check_output(r"git log -1 --format=%ct -- " + file.abs_path ,cwd=file.direname, shell=True).decode("utf-8")
     if len(timestamp) == 0:
         return
     dt = datetime.datetime.fromtimestamp(int(timestamp[:-1]))
