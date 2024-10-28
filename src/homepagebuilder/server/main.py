@@ -1,13 +1,13 @@
 '''
 服务器主模块
 '''
-import traceback
 from flask import Flask, request, make_response
-from Core.project import PageNotFoundError
-from Core.logger import Logger
-from Server.project_updater import request_update
-from Server.project_api import ProjectAPI
-from Core.i18n import locale as t
+from core.project import PageNotFoundError
+from core.logger import Logger
+from server.project_updater import request_update
+from server.project_api import ProjectAPI
+from core.i18n import locale as t
+from core.config import config
 
 logger = Logger('Server')
 app = Flask(__name__)
@@ -30,7 +30,7 @@ class Server:
 def git_update():
     '''收到 github 更新信号更新工程文件'''
     status,data = request_update(request,projapi.project_dir,
-        projapi.config['github_secret'])
+        config('server.update.github.webhook.secret'))
     if status == 200:
         projapi.clear_cache()
     else:
@@ -44,6 +44,14 @@ def index_page():
         return getpage(projapi.default_page)
     else:
         return 'No Page Found',404
+
+def getpclver(request):
+    refer = request.headers.get('Referer','')
+    if refer and len(refer) == 23:
+        return int(refer[7:10])
+    else:
+        return None
+
 
 @app.route("/<path:alias>")
 def getpage(alias:str):
@@ -66,7 +74,7 @@ def getpage(alias:str):
             response_dict = projapi.get_page_json(alias)
             logger.debug(t("server.request.response.json",page=alias,args=args))
         else:
-            response_dict = projapi.get_page_response(alias,args)
+            response_dict = projapi.get_page_response(alias,getpclver(request=request),args)
             logger.debug(t("server.request.response.page",page=alias,args=args))
         response = make_response(response_dict['response'])
         response.headers['Content-Type'] = response_dict['content-type'] 

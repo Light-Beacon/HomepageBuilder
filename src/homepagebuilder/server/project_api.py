@@ -1,11 +1,12 @@
 import os
 import subprocess
 import gc
-from Core.project import Project
-from Core.IO import read_string, write_string
-from Core.IO.formats import read_yaml
-from Core.utils import PropertySetter
-from Core.logger import Logger
+from core.project import Project
+from core.builder import Builder
+from core.io import read_string, write_string
+from core.config import is_debugging
+from core.utils.property import PropertySetter
+from core.logger import Logger
 from os.path import sep as sep
 
 logger = Logger('Server')
@@ -16,21 +17,18 @@ class ProjectAPI:
         self.cache = {}
         if project_path:
             self.__set_project_path(project_path)
-            self.config_path = f"{self.project_dir}{sep}Config{sep}server_config.yml"
-            self.config = read_yaml(self.config_path)
         else:
-            envpath = os.path.dirname(os.path.dirname(__file__))
-            self.config_path = f"{envpath}{os.path.sep}server_config.yml"
-            self.config = read_yaml(self.config_path)
-            project_path = self.config['project_path']
-            self.__set_project_path(project_path)
+            raise NotImplementedError()
         try:
-            self.project = Project(self.project_file)
-            self.version_cache_path = f"{self.project_dir}{sep}Cache{sep}latest_version.cache"
+            self.builder = Builder()
+            self.project = Project(self.builder,self.project_file)
+            self.version_cache_path = f"{self.project_dir}{sep}cache{sep}latest_version.cache"
             self.default_page = self.project.default_page
             self.cache['version'] = self.write_latest_version_cache()
         except Exception as e:
             logger.fatal(e.args)
+            if is_debugging():
+                raise e
             exit()
 
     def __set_project_path(self,path):
@@ -86,10 +84,13 @@ class ProjectAPI:
         return {'response': f'{{"Title":"{self.cache[key]}"}}',
                 'content-type': 'application/json'}
 
-    def get_page_response(self,alias,args = None):
+    def get_page_response(self,alias,pclver,args = None):
         '''获取页面内容'''
         if (alias,args) not in self.cache:
+            setter = PropertySetter(None,args)
+            if pclver:
+                setter.override['pclver'] = pclver
             self.cache[(alias,args)] = {
-                'response':self.project.get_page_xaml(alias,setter = PropertySetter(None,args)),
-                'content-type' : self.project.get_page_content_type(alias,setter = PropertySetter(None,args)) }
+                'response':self.project.get_page_xaml(alias,setter=setter),
+                'content-type' : self.project.get_page_content_type(alias,setter=setter) }
         return self.cache[(alias,args)]

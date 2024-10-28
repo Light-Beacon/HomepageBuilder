@@ -43,7 +43,7 @@ def command_build(args):
     anl.summarize()
 
 def command_server(args):
-    from src.Server.main import Server
+    from server.main import Server
     server = Server(args.project_path)
     server.run(args.port if args.port else 6608)
 

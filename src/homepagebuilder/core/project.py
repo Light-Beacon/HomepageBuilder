@@ -13,7 +13,7 @@ from debug import global_anlyzer as anl
 from .page import CardStackPage, RawXamlPage
 from .loader import Loader
 from .types import Project as ProjectBase
-
+from .config import import_config_dire
 PATH_SEP = os.path.sep
 logger = Logger('Project')
 
@@ -30,6 +30,7 @@ class Project(ProjectBase):
         anl.switch_in()
         logger.info(t('project.import.start', path=path))
         self.__init_load_projectfile(path)
+        self.__init_import_configs()
         self.__init_import_modules()
         self.__init_import_structures()
         self.__init_import_resources()
@@ -47,6 +48,10 @@ class Project(ProjectBase):
         self.version = pack_info['version']
         self.default_page = pack_info.get('default_page')
         logger.info(t('project.import.pack.version', version=self.version))
+
+    def  __init_import_configs(self):
+        anl.phase('导入配置')
+        import_config_dire(fmtpath(self.base_path,'/configs'))
 
     @set_triggers('project.impoort.structures')
     def __init_import_structures(self):

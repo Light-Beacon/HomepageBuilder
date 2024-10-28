@@ -1,5 +1,6 @@
 import json
 import yaml
+from pathlib import Path
 from .accessor import file_reader,file_writer
 
 @file_reader('json')
@@ -28,5 +29,8 @@ def read_string(filepath:str):
 @file_writer(['txt','xaml'])
 def write_string(filepath:str,data:str):
     '''写入字符串文件'''
+    file = Path(filepath)
+    if not file.is_file():
+        file.touch()
     with open(filepath, "w",encoding="utf-8") as file:
         return file.write(data)

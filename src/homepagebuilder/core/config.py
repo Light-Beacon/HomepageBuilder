@@ -43,8 +43,12 @@ def __init_default() -> None:
 def init_full() -> None:
     """加载所有配置"""
     from .utils.paths import getbuilderpath
+    import_config_dire(getbuilderpath("resources/configs"))
+
+def import_config_dire(direpath) -> None:
+    """从文件夹路径加载配置"""
     from .io.structure import Dire
-    files = Dire(getbuilderpath("resources/configs")).scan(recur=True,patten=r'.*\.yml')
+    files = Dire(direpath).scan(recur=True,patten=r'.*\.yml')
     for file in files:
         CONFIG_DICT.update(file.data)
 
