@@ -7,6 +7,8 @@ from .formatter import format_code
 from .logger import Logger
 from .i18n import locale as t
 from .config import config
+from .resource import get_resources_code
+from debug import global_anlyzer as anl
 
 if TYPE_CHECKING:
     from .types import BuildingEnvironment
@@ -64,10 +66,16 @@ class CardStackPage(FileBasedPage):
     
     @set_triggers('page.generate')
     def generate(self, env):
+        anl.phase(self.name)
+        anl.switch_in()
         xaml = self.getframe(env)
         #xaml = xaml.replace('${animations}', '')  # TODO
+        anl.phase("内容")
+        anl.switch_in()
         xaml = xaml.replace('${content}', self.generate_content(env))
-        #xaml = xaml.replace('${styles}', get_style_code(env))
+        anl.switch_out()
+        xaml = xaml.replace('${styles}', get_resources_code(env))
+        anl.switch_out()
         return xaml
 
     def generate_content(self, env:'BuildingEnvironment'):
@@ -76,6 +84,7 @@ class CardStackPage(FileBasedPage):
         runtime_setter.attach(env.get('setter'))
         content = ''
         for card_ref in self.cardrefs:
+            anl.phase(card_ref)
             content += self.__getcardscontent(card_ref, env, setter = runtime_setter)
         return content
 

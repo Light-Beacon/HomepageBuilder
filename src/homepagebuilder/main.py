@@ -8,6 +8,7 @@ from debug import global_anlyzer as anl
 
 def build_and_output(project, page, output_path):
     xaml = project.get_page_xaml(page_alias=page)
+    print(xaml)
     if output_path:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(xaml)
@@ -18,6 +19,7 @@ def command_build(args):
     builder.load_proejct(args.project_file_path)
     output_path = args.output_path
     anl.phase('构建页面')
+    anl.switch_in()
     if args.all_page:
         if not exists(args.output_path):
             makedirs(args.output_path, exist_ok=True)
@@ -70,7 +72,7 @@ def main():
     parser_server.add_argument('project_path', type=str, help='project path')
     parser_server.add_argument('-p', '--port', type=str, help='project path')
     args = parser.parse_args()
-
+    
     command_func_mapping[args.command](args)
 
 

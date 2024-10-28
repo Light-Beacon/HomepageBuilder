@@ -213,6 +213,7 @@ class MarkdownListItem(LineNode):
                     continue
                 if not in_paragraph:
                     content += '<Paragraph Style="{StaticResource Lp}">'
+                    self.env.get('used_resources').add('Lp')
                     in_paragraph = True
             else:
                 if in_paragraph:

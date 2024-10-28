@@ -19,10 +19,10 @@ class Builder(BuilderBase):
     def __init__(self):
         super().__init__()
         self.envpath = os.path.dirname(os.path.dirname(__file__))
-        anl.phase('初始化构建器')
-        anl.switch_in()
-        anl.phase('加载基础资源')
+        anl.phase('初始化构建器环境')
         self.__init_env()
+        anl.phase('初始化构建器资源')
+        anl.switch_in()
         self.load_structure(getbuilderpath('resources/structures/'))
         self.load_resources(getbuilderpath('resources/resources/'))
         self.template_manager = TemplateManager()

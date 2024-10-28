@@ -6,7 +6,7 @@ from .logger import Logger
 from .module_manager import invoke_script
 
 if TYPE_CHECKING:
-    from Core.types import BuildingEnvironment
+    from core.types import BuildingEnvironment
 
 
 logger = Logger('Formatter')
