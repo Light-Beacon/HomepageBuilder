@@ -2,12 +2,12 @@
 服务器主模块
 '''
 from flask import Flask, request, make_response
-from core.project import PageNotFoundError
-from core.logger import Logger
-from server.project_updater import request_update
-from server.project_api import ProjectAPI
-from core.i18n import locale as t
-from core.config import config
+from ..core.project import PageNotFoundError
+from ..core.logger import Logger
+from .project_updater import request_update
+from .project_api import ProjectAPI
+from ..core.i18n import locale as t
+from ..core.config import config
 
 logger = Logger('Server')
 app = Flask(__name__)
@@ -29,6 +29,8 @@ class Server:
 @app.route("/pull",methods=['POST'])
 def git_update():
     '''收到 github 更新信号更新工程文件'''
+    if not config('process.update.github',False):
+        return 'pull not enabled',400
     status,data = request_update(request,projapi.project_dir,
         config('server.update.github.webhook.secret'))
     if status == 200:

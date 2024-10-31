@@ -1,13 +1,14 @@
 import os
 import subprocess
 import gc
-from core.project import Project
-from core.builder import Builder
-from core.io import read_string, write_string
-from core.config import is_debugging
-from core.utils.property import PropertySetter
-from core.logger import Logger
 from os.path import sep as sep
+from ..core.project import Project
+from ..core.builder import Builder
+from ..core.io import read_string, write_string
+from ..core.config import is_debugging
+from ..core.utils.property import PropertySetter
+from ..core.logger import Logger
+
 
 logger = Logger('Server')
 
