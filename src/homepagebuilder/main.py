@@ -63,10 +63,10 @@ def main():
     parser_build = subparsers.add_parser('build', help='Build homepage')
     parser_server = subparsers.add_parser('server', help='Start server')
     parser_build.add_argument('--project', type=str,
-                              default=os.getcwd() + os.pathsep+ 'Project.yml',
+                              default=os.getcwd() + os.path.sep + 'Project.yml',
                               help='project file path')
     parser_build.add_argument('--output-path', type=str,
-                              default= os.getcwd() + os.pathsep + 'output.xaml',
+                              default= os.getcwd() + os.path.sep + 'output.xaml',
                               help='generated file dest')
     parser_build.add_argument('-p', '--page', type=str, help='page name')
     parser_build.add_argument('-a', '--all-page', action='store_true', help='generate all page')
