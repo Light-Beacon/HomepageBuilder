@@ -137,7 +137,7 @@ class XamlResource(Resource):
         self.target = element.get('TargetType')
         self.basedon = element.get('BasedOn')
         self.__type = element.tag
-        if key := element.get(f'{{{NAMESPACES['x']}}}Key'):
+        if key := element.get(f"{{{NAMESPACES['x']}}}Key"):
             self.is_default = False
             self.key = key
         else:
