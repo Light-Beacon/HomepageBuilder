@@ -51,7 +51,10 @@ class Project(ProjectBase):
 
     def  __init_import_configs(self):
         anl.phase('导入配置')
-        import_config_dire(fmtpath(self.base_path,'/configs'))
+        try:
+            import_config_dire(fmtpath(self.base_path,'/configs'))
+        except FileNotFoundError:
+            pass
 
     @set_triggers('project.impoort.structures')
     def __init_import_structures(self):
