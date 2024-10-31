@@ -71,7 +71,9 @@ def main():
     parser_build.add_argument('-p', '--page', type=str, help='page name')
     parser_build.add_argument('-a', '--all-page', action='store_true', help='generate all page')
     parser_build.add_argument('--dry-run', action='store_true', help='dry run')
-    parser_server.add_argument('project_path', type=str, help='project path')
+    parser_server.add_argument('--project', type=str,
+                              default=os.getcwd() + os.path.sep + 'Project.yml',
+                              help='project file path')
     parser_server.add_argument('-p', '--port', type=str, help='project path')
     args = parser.parse_args()
 
