@@ -85,7 +85,7 @@ class Project(ProjectBase):
         anl.phase('导入卡片')
         logger.info(t('project.import.cards'))
         self.base_library = Library(File(
-            fmtpath(self.base_path,"/Libraries/__LIBRARY__.yml")).data)
+            fmtpath(self.base_path,"/libraries/__LIBRARY__.yml")).data)
 
     @set_triggers('project.import.resources')
     def __init_import_resources(self):
