@@ -9,7 +9,7 @@ from .templates_manager import TemplateManager
 from .types import Builder as BuilderBase
 from .loader import Loader
 from .utils.paths import getbuilderpath
-from debug import global_anlyzer as anl
+from ..debug import global_anlyzer as anl
 
 PATH_SEP = os.path.sep
 logger = Logger('Builder')

@@ -1,5 +1,5 @@
-from Server.main import Server
-from Core import config
+from server.main import Server
+from core import config
 config.fully_init()
 
 s = Server()

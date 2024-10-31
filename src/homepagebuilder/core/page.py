@@ -8,7 +8,7 @@ from .logger import Logger
 from .i18n import locale as t
 from .config import config
 from .resource import get_resources_code
-from debug import global_anlyzer as anl
+from ..debug import global_anlyzer as anl
 
 if TYPE_CHECKING:
     from .types import BuildingEnvironment

@@ -3,7 +3,7 @@ Markdown 读取模块
 '''
 import re
 import yaml
-from interfaces import file_reader, read_string
+from homepagebuilder.interfaces import file_reader, read_string
 
 # 提取列表项：(?:\[?\s*)(\".*?\"|\'.*?\'|[^,]*?)(?:\s*[,|\]])
 

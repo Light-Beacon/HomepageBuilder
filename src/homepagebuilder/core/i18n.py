@@ -1,4 +1,3 @@
-import os
 from locale import getdefaultlocale
 from string import Template
 from .config import config

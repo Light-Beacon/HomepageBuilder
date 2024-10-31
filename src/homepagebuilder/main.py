@@ -1,10 +1,11 @@
 """构建器主入口"""
 import argparse
+import os
 from os import makedirs
 from os.path import sep, exists
-from core.builder import Builder
-from core.config import init_full
-from debug import global_anlyzer as anl
+from .core.builder import Builder
+from .core.config import init_full
+from .debug import global_anlyzer as anl
 
 def build_and_output(project, page, output_path):
     xaml = project.get_page_xaml(page_alias=page)
@@ -15,7 +16,7 @@ def build_and_output(project, page, output_path):
 
 def command_build(args):
     builder = Builder()
-    builder.load_proejct(args.project_file_path)
+    builder.load_proejct(args.project)
     output_path = args.output_path
     anl.phase('构建页面')
     anl.switch_in()
@@ -43,8 +44,8 @@ def command_build(args):
     anl.summarize()
 
 def command_server(args):
-    from server.main import Server
-    server = Server(args.project_path)
+    from .server.main import Server
+    server = Server(args.project)
     server.run(args.port if args.port else 6608)
 
 
@@ -61,20 +62,21 @@ def main():
     subparsers = parser.add_subparsers(help='Command', dest='command')
     parser_build = subparsers.add_parser('build', help='Build homepage')
     parser_server = subparsers.add_parser('server', help='Start server')
-
-    parser_build.add_argument('project_file_path', type=str, help='project file path')
-    parser_build.add_argument('output_path', type=str, help='generated file dest')
+    parser_build.add_argument('--project', type=str,
+                              default=os.getcwd() + os.pathsep+ 'Project.yml',
+                              help='project file path')
+    parser_build.add_argument('--output-path', type=str,
+                              default= os.getcwd() + os.pathsep + 'output.xaml',
+                              help='generated file dest')
     parser_build.add_argument('-p', '--page', type=str, help='page name')
     parser_build.add_argument('-a', '--all-page', action='store_true', help='generate all page')
     parser_build.add_argument('--dry-run', action='store_true', help='dry run')
-
     parser_server.add_argument('project_path', type=str, help='project path')
     parser_server.add_argument('-p', '--port', type=str, help='project path')
     args = parser.parse_args()
-    
+
     command_func_mapping[args.command](args)
 
 
 if __name__ == '__main__':
-    anl.phase('初始化构建器代码')
     main()

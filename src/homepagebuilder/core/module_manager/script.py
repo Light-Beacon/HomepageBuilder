@@ -4,7 +4,7 @@ from ..logger import Logger
 from ..i18n import locale as t
 
 if TYPE_CHECKING:
-    from core.types import BuildingEnvironment
+    from ...core.types import BuildingEnvironment
 
 logger = Logger('ScriptsManager')
 NO_ERR_OUTPUT_WHILE_SCRIPT_NOTFOUND = config('System.Script.IgnoreError')

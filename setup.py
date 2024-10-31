@@ -9,7 +9,7 @@ setup(
     description = "A tool to generate homepage code for PCL2",
     keywords = ['PCL'],
     classifiers=[
-    'Development Status :: 3 - Alpha',
+    'Development Status :: 4 - Beta',
     'Environment :: Console',
     'Topic :: Scientific/Engineering :: Artificial Intelligence',
     'License :: OSI Approved :: GNU Affero General Public License v3',
@@ -24,7 +24,6 @@ setup(
     package_dir = {"":"src"},
     include_package_data=True,
     license='AGPL-3.0',
-    #data_files = [('src/resources', ['src/resources'])],
     entry_points = {
         'console_scripts': [
             'builder = homepagebuilder.main:main'

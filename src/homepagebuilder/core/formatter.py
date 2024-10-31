@@ -1,12 +1,12 @@
 """
 该模块用于格式化代码
 """
-from typing import Dict, TYPE_CHECKING, Annotated
+from typing import Dict, TYPE_CHECKING
 from .logger import Logger
 from .module_manager import invoke_script
 
 if TYPE_CHECKING:
-    from core.types import BuildingEnvironment
+    from .types import BuildingEnvironment
 
 
 logger = Logger('Formatter')

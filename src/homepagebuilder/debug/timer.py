@@ -1,7 +1,7 @@
 import time
-from core.i18n import locale
-from core.logger import Logger
-from core.config import config
+from ..core.i18n import locale
+from ..core.logger import Logger
+from ..core.config import config
 
 logger = Logger('Timer')
 count = 0

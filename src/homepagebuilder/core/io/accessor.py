@@ -1,5 +1,5 @@
 import os
-from core.logger import Logger
+from ..logger import Logger
 from typing import Iterable
 logger = Logger('IO')
 

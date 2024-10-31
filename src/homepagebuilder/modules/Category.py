@@ -1,5 +1,5 @@
-from core.types.project import Project
-from interfaces import script
+from homepagebuilder.core.types.project import Project
+from homepagebuilder.interfaces import script
 
 @script('Category')
 def cats(cat_name,proj:Project,**kwargs):

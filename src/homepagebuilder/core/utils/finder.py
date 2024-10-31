@@ -1,6 +1,6 @@
 import re
 from typing import List
-from core.io import File
+from ..io import File
 
 RESOURCE_PATTERN = re.compile(r'\"\s*{\s*StaticResource\s+([^\s]*)\s*}\s*\"')
 #RESOURCE_PATTERN = re.compile(r'Style\s*=\s*\"\s*{\s*StaticResource\s+([^\s]*)\s*}\s*\"')

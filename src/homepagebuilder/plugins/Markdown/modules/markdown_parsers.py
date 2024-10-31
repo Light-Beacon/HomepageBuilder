@@ -1,7 +1,7 @@
 from typing import Union,List,Literal
 from abc import abstractmethod,ABC
 import re 
-from interfaces import encode_escape,Logger
+from homepagebuilder.interfaces import encode_escape,Logger
 
 logger = Logger('Markdown')
 FIRSTLINE_SPACES = '    '

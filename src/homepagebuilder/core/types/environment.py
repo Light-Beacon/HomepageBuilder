@@ -1,10 +1,10 @@
 from typing import Dict, Set, TypedDict, TYPE_CHECKING
-from core.utils.property import PropertySetter
-from core.resource import Resource
+from ..utils.property import PropertySetter
+from ..resource import Resource
 
 if TYPE_CHECKING:
     from . import Builder, Project
-    from core.elements import Component
+    from ...core.elements import Component
 
 class BuildingEnvironment(TypedDict):
     """构建时环境"""

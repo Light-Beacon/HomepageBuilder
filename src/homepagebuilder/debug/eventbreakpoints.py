@@ -1,5 +1,5 @@
-from core.utils.event import listen_event
-from core.config import is_debugging
+from ..core.utils.event import listen_event
+from ..core.config import is_debugging
 
 breakpoints = []
 

@@ -1,7 +1,7 @@
-from core.utils.finder import find_using_resources
-from core.formatter import format_code
-from core.types import BuildingEnvironment
-from interfaces import script
+from homepagebuilder.core.utils.finder import find_using_resources
+from homepagebuilder.core.formatter import format_code
+from homepagebuilder.core.types import BuildingEnvironment
+from homepagebuilder.interfaces import script
 
 @script('RawPresenter')
 def raw_presenter(card,env:BuildingEnvironment,**_):

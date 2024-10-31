@@ -1,1 +1,1 @@
-from core.utils.event import set_triggers, listen_event as on
+from ...core.utils.event import set_triggers, listen_event as on

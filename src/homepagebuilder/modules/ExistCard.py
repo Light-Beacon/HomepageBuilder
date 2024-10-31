@@ -1,5 +1,5 @@
-from core.types.project import Project
-from interfaces import script, format_code
+from homepagebuilder.core.types.project import Project
+from homepagebuilder.interfaces import script, format_code
 
 @script('ExistCard')
 def exist_card(card_name,env,card,**kwargs):

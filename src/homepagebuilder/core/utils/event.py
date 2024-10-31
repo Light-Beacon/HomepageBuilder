@@ -1,7 +1,7 @@
 import functools
 from typing import Dict, List
 from ..logger import Logger
-from ..i18n import locale
+# from ..i18n import locale
 
 events:Dict[str,List[callable]] = {}
 logger = Logger('Event')

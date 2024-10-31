@@ -9,7 +9,7 @@ from .i18n import locale as t
 from .module_manager import load_module_dire,get_check_list
 from .utils.event import set_triggers
 from .utils.paths import fmtpath
-from debug import global_anlyzer as anl
+from ..debug import global_anlyzer as anl
 from .page import CardStackPage, RawXamlPage
 from .loader import Loader
 from .types import Project as ProjectBase

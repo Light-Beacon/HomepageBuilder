@@ -1,9 +1,9 @@
 import subprocess
 import datetime
-from core.logger import Logger
-from core.i18n import locale
-from interfaces.Events import on
-from interfaces import enable_by_config, config as sys_config, enable_by
+from homepagebuilder.core.logger import Logger
+from homepagebuilder.core.i18n import locale
+from homepagebuilder.interfaces.Events import on
+from homepagebuilder.interfaces import enable_by_config, config as sys_config, enable_by
 
 def gitinfo_config(key):
     return sys_config('ProjectInfo.GitInfo.' + key)

@@ -1,8 +1,10 @@
 import re
 import markdown
 from bs4 import BeautifulSoup
-from interfaces import script,Logger
-from Parsers import create_node
+from homepagebuilder.interfaces import script, require
+
+parsers_module = require('markdown_parsers')
+create_node= parsers_module.create_node
 
 def html2xaml(html,env):
     '''html转为xaml代码'''

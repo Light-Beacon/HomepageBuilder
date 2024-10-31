@@ -4,10 +4,10 @@ from typing import Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from . import Builder, BuildingEnvironment
-    from core.resource import Resource
-    from core.library import Library
-    from core.IO import File
-    from core.page import PageBase
+    from ..resource import Resource
+    from ..library import Library
+    from ..io import File
+    from ..page import PageBase
 
 class Project(ABC):
     """工程类接口"""
