@@ -93,12 +93,12 @@ class ProjectAPI:
                 setter.attach(client.getsetter())
                 return self.get_response_dict(alias,setter,client)
             else:
-                if rsp := self.cache.get((alias,client.version)):
+                if rsp := self.cache.get((alias,client.pclver)):
                     return rsp
                 else:
                     setter.attach(client.getsetter())
-                    self.cache[(alias,client.version)] = self.get_response_dict(alias,setter,client)
-                    return self.cache[(alias,client.version)]
+                    self.cache[(alias,client.pclver)] = self.get_response_dict(alias,setter,client)
+                    return self.cache[(alias,client.pclver)]
                 
     
     def get_response_dict(self,alias,setter,client):
