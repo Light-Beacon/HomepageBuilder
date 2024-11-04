@@ -73,7 +73,7 @@ def getpage(alias:str):
             response_dict = projapi.get_page_json(alias)
             logger.debug(t("server.request.response.json",page=alias,args=args))
         else:
-            response_dict = projapi.get_page_response(alias,client=ClientArgs(request),args)
+            response_dict = projapi.get_page_response(alias,client=ClientArgs(request),args=args)
             logger.debug(t("server.request.response.page",page=alias,args=args))
         response = make_response(response_dict['response'])
         response.headers['Content-Type'] = response_dict['content-type'] 
