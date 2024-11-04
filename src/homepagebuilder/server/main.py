@@ -133,10 +133,10 @@ class ClientArgs:
     def getsetter(self):
         d = {
             'client':{
-                'is-pcl': self.is_pcl,
-                'is-open': self.is_open,
+                'ispcl': self.is_pcl,
+                'isopensource': self.is_open,
                 'version': self.pclver,
-                'version-id': self.pclver_id
+                'versionid': self.pclver_id
             }
         }
         return PropertySetter(override=d)
