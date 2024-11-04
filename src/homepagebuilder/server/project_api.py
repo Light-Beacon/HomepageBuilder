@@ -88,7 +88,7 @@ class ProjectAPI:
     def get_page_response(self,alias,client,args = None):
         '''获取页面内容'''
         if (alias,args) not in self.cache:
-            setter = PropertySetter(None,args)
+            setter = PropertySetter(None,args,False)
             if len(setter) > 0:
                 setter.attach(client.getsetter())
                 return self.get_response_dict(alias,setter,client)

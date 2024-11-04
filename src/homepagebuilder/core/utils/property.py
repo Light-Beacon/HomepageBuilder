@@ -3,14 +3,14 @@ class ReadOnlySetterException(Exception):
     pass
 
 class PropertySetter():
-    def __init__(self,fill = None,override = None):
+    def __init__(self,fill = None,override = None, frozen = True):
         self.fill:Dict = dict(fill) if fill else {}
         self.override:Dict = dict(override) if override else {}
-        self.frozen = True
+        self.__frozen = frozen
     
     def attach(self,sticker_setter:Union['PropertySetter', None]):
         """向 Setter 上附上另一层 Setter"""
-        if self.frozen:
+        if self.__frozen:
             raise ReadOnlySetterException()
         if not sticker_setter:
             return
@@ -21,7 +21,7 @@ class PropertySetter():
     
     def clone(self):
         new_setter = PropertySetter(self.fill, self.override)
-        new_setter.frozen = False
+        new_setter.__frozen = False
         return new_setter
     
     def toProperties(self):
@@ -35,6 +35,13 @@ class PropertySetter():
         new_property.update(self.override)
         return new_property
     
+    def froze(self):
+        self.__frozen = True
+
+    @property
+    def isfrozen(self):
+        return self.__frozen
+
     def __len__(self):
         return len(self.fill) + len(self.override)
     
