@@ -2,10 +2,12 @@
 服务器主模块
 '''
 from flask import Flask, request, make_response
+from typing import Tuple, Union
 from ..core.project import PageNotFoundError
 from ..core.logger import Logger
 from .project_updater import request_update
 from .project_api import ProjectAPI
+from ..core.utils.property import PropertySetter
 from ..core.i18n import locale as t
 from ..core.config import config
 
@@ -47,12 +49,7 @@ def index_page():
     else:
         return 'No Page Found',404
 
-def getpclver(request):
-    refer = request.headers.get('Referer','')
-    if refer and len(refer) == 23:
-        return int(refer[7:10])
-    else:
-        return None
+
 
 
 @app.route("/<path:alias>")
@@ -76,7 +73,7 @@ def getpage(alias:str):
             response_dict = projapi.get_page_json(alias)
             logger.debug(t("server.request.response.json",page=alias,args=args))
         else:
-            response_dict = projapi.get_page_response(alias,getpclver(request=request),args)
+            response_dict = projapi.get_page_response(alias,client=ClientArgs(request),args)
             logger.debug(t("server.request.response.page",page=alias,args=args))
         response = make_response(response_dict['response'])
         response.headers['Content-Type'] = response_dict['content-type'] 
@@ -103,6 +100,46 @@ def process_not_found(alias,mode):
 def process_err_page_json(err_code):
     '''处理发生错误的 JSON 请求'''
     return f'{{"Title":"{err_code}"}}'
+
+class ClientArgs:
+    def __init__(self,web_request):
+        self.is_pcl, self.is_open = self.__getpcltype(web_request=web_request)
+        self.pclver = self.__getpclver(web_request=web_request)
+        self.pclver_id = self.__getpclverid(web_request=web_request)
+
+    def __getpcltype(self,web_request) -> Tuple[bool,Union[bool|None]]:
+        refer = web_request.headers.get('Referer','')
+        if refer.endswith('pcl2.server/'):
+            return True, False
+        if refer.endswith('pcl2.open.server/'):
+            return True, True
+        return False, None
+    
+    def __getpclverid(self,web_request):
+        refer = web_request.headers.get('Referer','')
+        if not self.is_pcl:
+            return None
+        return int(refer[7:10])
+
+    def __getpclver(self,web_request):
+        uas = web_request.headers.get('User-Agent','')
+        uas = uas.split()
+        if len(uas) >= 1:
+            if pclver := uas[0].split('/'):
+                if pclver[0] == 'PCL2':
+                    return pclver[1]
+        return None
+    
+    def getsetter(self):
+        d = {
+            'client':{
+                'is-pcl': self.is_pcl,
+                'is-open': self.is_open,
+                'version': self.pclver,
+                'version-id': self.pclver_id
+            }
+        }
+        return PropertySetter(override=d)
 
 
 if __name__ == "__main__":

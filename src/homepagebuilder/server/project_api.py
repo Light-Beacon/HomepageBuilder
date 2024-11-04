@@ -85,13 +85,23 @@ class ProjectAPI:
         return {'response': f'{{"Title":"{self.cache[key]}"}}',
                 'content-type': 'application/json'}
 
-    def get_page_response(self,alias,pclver,args = None):
+    def get_page_response(self,alias,client,args = None):
         '''获取页面内容'''
         if (alias,args) not in self.cache:
             setter = PropertySetter(None,args)
-            if pclver:
-                setter.override['pclver'] = pclver
-            self.cache[(alias,args)] = {
-                'response':self.project.get_page_xaml(alias,setter=setter),
+            if len(setter) > 0:
+                setter.attach(client.getsetter())
+                return self.get_response_dict(alias,setter,client)
+            else:
+                if rsp := self.cache.get((alias,client.version)):
+                    return rsp
+                else:
+                    setter.attach(client.getsetter())
+                    self.cache[(alias,client.version)] = self.get_response_dict(alias,setter,client)
+                    return self.cache[(alias,client.version)]
+                
+    
+    def get_response_dict(self,alias,setter,client):
+        setter.attach(client.getsetter())
+        return {'response':self.project.get_page_xaml(alias,setter=setter),
                 'content-type' : self.project.get_page_content_type(alias,setter=setter) }
-        return self.cache[(alias,args)]

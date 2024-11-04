@@ -35,6 +35,9 @@ class PropertySetter():
         new_property.update(self.override)
         return new_property
     
+    def __len__(self):
+        return len(self.fill) + len(self.override)
+    
     @classmethod
     def fromargs(cls,args:List[str]):
         override = {}
