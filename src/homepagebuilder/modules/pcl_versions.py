@@ -6,10 +6,10 @@ logger = Logger('PCLVersionScript')
 def newer_script(versionid,content,env,**_kwargs):
     vid = format_code('${client.versionid}',{},env=env)
     gtid = int(versionid)
-    if not vid or isinstance(vid,int):
+    if not vid or not str.isalnum(vid):
         logger.warning('Cannot get version of pcl')
         return ''
-    if vid >= gtid:
+    if int(vid) >= gtid:
         return content
     return ''
 
@@ -17,9 +17,9 @@ def newer_script(versionid,content,env,**_kwargs):
 def lower_script(versionid,content,env,**_kwargs):
     vid = format_code('${client.versionid}',{},env=env)
     ltid = int(versionid)
-    if not vid or isinstance(vid,int):
+    if not vid or not str.isalnum(vid):
         logger.warning('Cannot get version of pcl')
         return ''
-    if vid < ltid:
+    if int(vid) < ltid:
         return content
     return ''
