@@ -99,8 +99,7 @@ class ProjectAPI:
                     setter.attach(client.getsetter())
                     self.cache[(alias,client.pclver)] = self.get_response_dict(alias,setter,client)
                     return self.cache[(alias,client.pclver)]
-                
-    
+
     def get_response_dict(self,alias,setter,client):
         setter.attach(client.getsetter())
         return {'response':self.project.get_page_xaml(alias,setter=setter),

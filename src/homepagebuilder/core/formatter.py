@@ -1,7 +1,7 @@
 """
 该模块用于格式化代码
 """
-from typing import Dict, TYPE_CHECKING
+from typing import Dict,Union, TYPE_CHECKING
 from .logger import Logger
 from .module_manager import invoke_script
 
@@ -11,12 +11,14 @@ if TYPE_CHECKING:
 
 logger = Logger('Formatter')
 def format_code(code: str,
-                data: Dict[str,object],
+                data: Union[Dict[str,object]|None] = None,
                 env: 'BuildingEnvironment',
                 children_code: str = '',
                 stack:list = None,
                 err_output = None):
     '''格式化代码'''
+    if not data:
+        data = {}
     if not isinstance(code,str):
         return code
     if not stack:
