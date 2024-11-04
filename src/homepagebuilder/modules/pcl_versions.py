@@ -3,8 +3,8 @@ from homepagebuilder.interfaces import script, format_code, Logger
 logger = Logger('PCLVersionScript')
 
 @script('IF_PCLNewerThan')
-def newer_script(versionid,content,env,**_kwargs):
-    vid = format_code('${client.versionid}',{},env=env)
+def newer_script(versionid,content,card,env,**_kwargs):
+    vid = format_code('${client.versionid}',card,env=env)
     gtid = int(versionid)
     if not vid or not str.isalnum(vid):
         logger.warning('Cannot get version of pcl')
@@ -14,8 +14,8 @@ def newer_script(versionid,content,env,**_kwargs):
     return ''
 
 @script('IF_PCLOlderThan')
-def lower_script(versionid,content,env,**_kwargs):
-    vid = format_code('${client.versionid}',{},env=env)
+def lower_script(versionid,content,card,env,**_kwargs):
+    vid = format_code('${client.versionid}',card,env=env)
     ltid = int(versionid)
     if not vid or not str.isalnum(vid):
         logger.warning('Cannot get version of pcl')
