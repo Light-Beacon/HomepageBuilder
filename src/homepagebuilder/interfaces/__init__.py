@@ -7,4 +7,4 @@ from ..core.formatter import format_code
 from ..core.i18n import locale
 from ..core.utils.decos import enable_by
 from ..core.page import PageBase, FileBasedPage
-from ..core.config import enable_by_config,DisabledByConfig, config
+from ..core.config import enable_by_config, DisabledByConfig, config
