@@ -37,7 +37,7 @@ class Loader():
         if is_debugging():
             return cls.__load_resources_unsafe(dire)
         try:
-            cls.__load_resources_unsafe(direpath)
+            cls.__load_resources_unsafe(dire)
         except Exception as ex:
             logger.error(ex)
             return {}
@@ -50,7 +50,7 @@ class Loader():
         files.extend(dire.scan(patten=XAML_PATTERN,recur=True))
         output.update(ResourceLoader.loadfiles(files))
         return output
-    
+
     @classmethod
     def create_structure_mapping(cls,path:str,patten = None,item_type=None):
         output = {}

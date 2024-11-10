@@ -5,9 +5,9 @@ System.EnablePlugins: True
 # 是否忽略由脚本引起的错误
 System.Script.IgnoreError: False
 
-Logging.Level: 30
+Logging.Level: 20
 # 是否启用 Debug
-Debug.Enable: True
+Debug.Enable: False
 Debug.Logging.Level: 10
 Debug.Logging.FileOutput.Enable: False
 
