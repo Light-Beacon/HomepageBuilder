@@ -119,3 +119,14 @@ class Library:
         for lib in self.sub_libraries.values():
             result += [self.setter.decorate(card) for card in lib.get_all_cards()]
         return result
+
+    def get_library(self,name):
+        if name in self.sub_libraries:
+            return self.sub_libraries[name]
+        if nextlib := self.libs_mapping.get(name):
+            return nextlib.get_library(name)
+        else:
+            raise LibraryNotFoundError()
+
+class LibraryNotFoundError(Exception):
+    """页面未找到错误"""
