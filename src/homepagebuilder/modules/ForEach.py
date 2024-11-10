@@ -1,4 +1,4 @@
-from Interfaces import script,format_code, get_card_prop
+from homepagebuilder.interfaces import script,format_code, get_card_prop
 
 @script('ForEach')
 def for_each_script(store_name,iter_item_name,itemoutput,**kwargs):
