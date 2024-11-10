@@ -5,6 +5,8 @@ logger = Logger('PCLVersionScript')
 @script('IF_PCLNewerThan')
 def newer_script(versionid,content,card,env,**_kwargs):
     vid = format_code('${client.versionid}',card,env=env)
+    if not vid:
+        return
     gtid = int(versionid)
     if not vid or not str.isalnum(vid):
         logger.warning('Cannot get version of pcl')
@@ -16,6 +18,8 @@ def newer_script(versionid,content,card,env,**_kwargs):
 @script('IF_PCLOlderThan')
 def lower_script(versionid,content,card,env,**_kwargs):
     vid = format_code('${client.versionid}',card,env=env)
+    if not vid:
+        return
     ltid = int(versionid)
     if not vid or not str.isalnum(vid):
         logger.warning('Cannot get version of pcl')

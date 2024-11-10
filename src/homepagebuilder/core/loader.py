@@ -37,7 +37,7 @@ class Loader():
         if is_debugging():
             return cls.__load_resources_unsafe(dire)
         try:
-            cls.__load_resources_unsafe(dire)
+            output = cls.__load_resources_unsafe(dire)
         except Exception as ex:
             logger.error(ex)
             return {}
