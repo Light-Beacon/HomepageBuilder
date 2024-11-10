@@ -166,11 +166,15 @@ class XamlResource(Resource):
         return self.xaml
 
 def get_resources_code(env:'BuildingEnvironment'):
-    resset:Set[Resource] = set(env['resources'][res] for res in env['used_resources'])
-    for usedres in env['used_resources']:
-        if baseon := env['resources'][usedres].basedon:
-            resset.add(env['resources'][baseon])
-    for _k,res in env['resources'].items():
-        if res.is_default:
-            resset.add(res)
-    return ''.join([res.getxaml() for res in resset])
+    try:
+        resset:Set[Resource] = set(env['resources'][res] for res in env['used_resources'])
+        for usedres in env['used_resources']:
+            if baseon := env['resources'][usedres].basedon:
+                resset.add(env['resources'][baseon])
+        for _k,res in env['resources'].items():
+            if res.is_default:
+                resset.add(res)
+        return ''.join([res.getxaml() for res in resset])
+    except KeyError as e:
+        logger.error(locale('resource.nullreferce',ex=e))
+        raise e

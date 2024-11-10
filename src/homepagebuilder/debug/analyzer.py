@@ -163,6 +163,8 @@ class Analyzer():
             self.__print_phase(subphase,total_time,deepth+1)
 
     def summarize(self):
+        if self.__disabled:
+            return
         total_time = self.get_total_time()
         print(repeat('=',26))
         print('TIME COUSUMING SUMMERY:')

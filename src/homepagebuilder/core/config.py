@@ -2,6 +2,8 @@ import os
 import yaml
 
 CONFIG_DICT = {}
+FORCE_DEBUGGING = False
+SUBSCRIBE_DEBUG_CHANGING_LIST = []
 
 def config(key:str,default = None) -> object:
     """获取配置"""
@@ -12,7 +14,7 @@ class DisabledByConfig(Exception):
 
 def is_debugging() -> bool:
     """在调试模式状态下"""
-    return config('Debug.Enable')
+    return FORCE_DEBUGGING or config('Debug.Enable')
 
 def enable_by_config(key:str,default_output=None,
                      raise_error=False):
@@ -51,6 +53,19 @@ def import_config_dire(direpath) -> None:
     files = Dire(direpath).scan(recur=True,patten=r'.*\.yml')
     for file in files:
         CONFIG_DICT.update(file.data)
+
+def subscribe_debug_changing(func):
+    SUBSCRIBE_DEBUG_CHANGING_LIST.append(func)
+
+def trigger_debug_changing():
+    for func in SUBSCRIBE_DEBUG_CHANGING_LIST:
+        func()
+
+def force_debug() -> None:
+    print('DEBUGMODE ON')
+    global FORCE_DEBUGGING
+    FORCE_DEBUGGING = True
+    trigger_debug_changing()
 
 ##ON IMPORTED
 __init_default()

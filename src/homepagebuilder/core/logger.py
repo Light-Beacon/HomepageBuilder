@@ -5,7 +5,7 @@ import logging
 import os.path
 import sys
 import time
-from .config import config
+from .config import config, is_debugging, subscribe_debug_changing
 
 TAB_TEXT = '    '
 CONSOLE_CLEAR = '\033[0m'
@@ -79,17 +79,27 @@ def init_file_handler():
                 datefmt='%m/%d|%H:%M:%S'))
     return handler
 
-IS_DEBUG_ENABLE = config('Debug.Enable')
-LOGGING_LEVEL = config('Debug.Logging.Level') if IS_DEBUG_ENABLE else config('Logging.Level')
+CONSOLE_HANDLER = None
+FILE_HANDLER = None
+if config('Debug.Logging.ConsoleOutput.Enable', True):
+    CONSOLE_HANDLER = LogConsoleHandler()
 
-CONSOLE_HANDLER = LogConsoleHandler()
-CONSOLE_HANDLER.setLevel(LOGGING_LEVEL)
-
-if config('Debug.Logging.FileOutput.Enable'):
+if config('Debug.Logging.FileOutput.Enable', False):
     FILE_HANDLER = init_file_handler()
-    FILE_HANDLER.setLevel(LOGGING_LEVEL)
-else:
-    FILE_HANDLER = None
+
+IS_DEBUG_ENABLE = None
+LOGGING_LEVEL = None
+def set_logging_level():
+    global IS_DEBUG_ENABLE, LOGGING_LEVEL
+    IS_DEBUG_ENABLE = is_debugging()
+    LOGGING_LEVEL = config('Debug.Logging.Level') if IS_DEBUG_ENABLE else config('Logging.Level')
+    if CONSOLE_HANDLER:
+        CONSOLE_HANDLER.setLevel(LOGGING_LEVEL)
+    if FILE_HANDLER:
+         CONSOLE_HANDLER.setLevel(LOGGING_LEVEL)
+
+subscribe_debug_changing(set_logging_level)
+set_logging_level()
 
 logging.basicConfig(level=logging.INFO)
 

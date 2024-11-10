@@ -3,8 +3,7 @@ import argparse
 import os
 from os import makedirs
 from os.path import sep, exists
-from .core.builder import Builder
-from .core.config import init_full
+from .core.config import init_full, force_debug
 from .debug import global_anlyzer as anl
 
 def build_and_output(project, page, output_path):
@@ -15,6 +14,7 @@ def build_and_output(project, page, output_path):
 
 
 def command_build(args):
+    from .core.builder import Builder
     builder = Builder()
     builder.load_proejct(args.project)
     output_path = args.output_path
@@ -59,6 +59,7 @@ def main():
     anl.phase('初始化构建器配置')
     init_full()
     parser = argparse.ArgumentParser()
+    parser.add_argument('--debug', action='store_true', help='start debug mode')
     subparsers = parser.add_subparsers(help='Command', dest='command')
     parser_build = subparsers.add_parser('build', help='Build homepage')
     parser_server = subparsers.add_parser('server', help='Start server')
@@ -76,7 +77,8 @@ def main():
                               help='project file path')
     parser_server.add_argument('-p', '--port', type=str, help='project path')
     args = parser.parse_args()
-
+    if args.debug:
+        force_debug()
     command_func_mapping[args.command](args)
 
 
