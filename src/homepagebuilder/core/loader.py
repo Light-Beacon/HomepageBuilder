@@ -72,10 +72,10 @@ class Loader():
             name = prefix + file.name
             if item_type:
                 output[name] = item_type(file=file)
-                logger.debug(locale('loader.regist.withtype',type_name=item_type.__name__,name=name))
+                logger.debug(locale('loader.regist.structure.withtype',type_name=item_type.__name__,name=name))
             else:
                 output[name] = file.data
-                logger.debug(locale('loader.regist',name=name))
+                logger.debug(locale('loader.regist.structure',name=name))
         elif isinstance(file_or_dire,Dire):
             dire = file_or_dire
             for node in dire.scan(patten,include_dires=True):

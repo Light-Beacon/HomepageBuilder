@@ -2,6 +2,8 @@
 import time
 from typing import List
 
+ANLDEBUGGING = False
+
 def repeat(string,times:int):
     s = ''
     for _ in range(0,times):
@@ -109,20 +111,25 @@ class PhaseEndedError(Exception):
     pass
 
 class Analyzer():
-    def __init__(self) -> None:
+    def __init__(self, disabled = False) -> None:
         self.__start_time = time.time()
         self.mainphase = Phase('Main')
         self.ancesotrphase = self.mainphase
         self.currentphase = None
         self.mainphase.start()
+        self.__disabled = disabled
 
     def switch_in(self):
+        if self.__disabled:
+            return
         if not self.currentphase:
             return
         self.ancesotrphase = self.currentphase
         self.currentphase = None
 
     def switch_out(self):
+        if self.__disabled:
+            return
         if not self.currentphase.ancesotr:
             raise ReferenceError()
         if not self.currentphase.is_ended():
@@ -132,6 +139,8 @@ class Analyzer():
 
     def phase(self,name) -> Phase:
         '''阶段'''
+        if self.__disabled:
+            return None
         self.currentphase = self.ancesotrphase.start_new_subphase(name)
     
     def stop(self):
@@ -162,5 +171,8 @@ class Analyzer():
         print(repeat('-',26))
         print(f'TOTAL: {round(self.mainphase.timespan,4)}s {round(self.mainphase.timespan * 100 / total_time,4)}%')
         print(repeat('=',26))
+    
+    def disable(self):
+        self.__disabled = True
 
-global_anlyzer = Analyzer()
+global_anlyzer = Analyzer(True)

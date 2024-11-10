@@ -69,11 +69,11 @@ def load_module(module_path:str,queue_load:bool=False):
     name,_ = os.path.splitext(file_name)
     if name in modules :
         # Module already exist
-        logger.info(t('module.reload',name=name))
+        logger.debug(t('module.reload',name=name))
         module = importlib.reload(modules[name])
     else:
         if not queue_load:
-            logger.info(t('module.load',name=name))
+            logger.debug(t('module.load',name=name))
         # Add module
         sys.path.append(path_to)
         try:
@@ -82,7 +82,7 @@ def load_module(module_path:str,queue_load:bool=False):
             # 如果请求加载某些模块
             dependency_manager.require(rd,module_path)
             return UnLoadedFunction(module_path)
-        logger.info(t('module.load.success',name=name))
+        logger.debug(t('module.load.success',name=name))
         modules[name] = module
         for module in dependency_manager.satisfied(name):
             # 依赖已经成功加载需要重新加载的模块
