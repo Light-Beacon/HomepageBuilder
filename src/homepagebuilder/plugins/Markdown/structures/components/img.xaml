@@ -1,0 +1,3 @@
+<BlockUIContainer>
+<Image Style="{StaticResource InnerImage}" Source="${source}"/>
+</BlockUIContainer>

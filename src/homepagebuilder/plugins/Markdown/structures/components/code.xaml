@@ -1,0 +1,1 @@
+<TextBox Style="{StaticResource InlineCode}">${content}</TextBox>

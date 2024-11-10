@@ -1,0 +1,3 @@
+graft src/homepagebuilder/modules
+graft src/homepagebuilder/plugins
+graft src/homepagebuilder/resources

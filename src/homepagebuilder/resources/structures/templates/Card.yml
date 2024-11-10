@@ -1,0 +1,4 @@
+# 具有一个 StackPanel 的卡片
+components:
+ - CardContentStack
+base: CardFrame

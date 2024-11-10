@@ -1,0 +1,7 @@
+# 卡片内容为纯 xaml 的卡片
+components:
+ - $RawPresenter
+base: CardFrame
+filter:
+  file_exten:
+    - xaml

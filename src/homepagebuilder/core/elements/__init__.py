@@ -1,0 +1,1 @@
+from .compoent import Component
