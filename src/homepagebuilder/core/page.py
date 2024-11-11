@@ -59,11 +59,11 @@ class CardStackPage(FileBasedPage):
         self.display_name_str = data.get('display_name', self.name)
         self.cardrefs = data.get('cards',{})
         self.alias = data.get('alias', [])
-    
+
     @property
     def display_name(self):
         return self.display_name_str
-    
+
     @set_triggers('page.generate')
     def generate(self, env):
         anl.phase(self.name)
@@ -110,7 +110,7 @@ class CardStackPage(FileBasedPage):
         if not card:
             return ''
         return env.get('builder').template_manager.build(card,env)
-    
+
     def __getcard(self,ref,env:'BuildingEnvironment',setter):
         if config('Debug.Enable'):
             return self.__getcardunsafe(ref, env, setter)
@@ -119,11 +119,11 @@ class CardStackPage(FileBasedPage):
         except Exception as ex:
             logger.warning(t('project.get_card.failed', ex=ex))
             return None 
-    
+
     def __getcardunsafe(self,ref:str,env:'BuildingEnvironment',setter):
         card = env.get('project').base_library.get_card(ref, False)
         card = setter.decorate(card)
         return card
-    
+
     def getframe(self,env:'BuildingEnvironment'):
         return env.get('page_templates')['Default']

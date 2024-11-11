@@ -11,6 +11,8 @@ Debug.Enable: False
 Debug.Logging.Level: 10
 Debug.Logging.FileOutput.Enable: False
 
+Server.Version.By: Time
+
 # 是否忽略以 IO.IngorePrefix 开头和以 IO.IngoreSuffix 结尾的文件
 # 这项文件禁用给构建器工程提供了方便的禁用手段
 IO.EnableIngore: True
