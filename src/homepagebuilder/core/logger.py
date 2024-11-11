@@ -34,9 +34,19 @@ LEVEL_NAMES = {
     40: "ERROR",
     50: "CRITICAL"}
 
+
+def supports_color():
+    # 检查是否为 Windows 系统
+    if os.name == 'nt':
+        return 'ANSICON' in os.environ or 'WT_SESSION' in os.environ
+    # 对于其他系统，检查是否连接到终端
+    return hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
+
 TIME_PART_FMT = "[%(asctime)s.%(msecs)03d]"
 COLORED_TIME_PART_FMT = CONSOLE_WHITE + TIME_PART_FMT + CONSOLE_CLEAR
 LOC_PART_FMT = "[%(name)s|%(filename)s:%(lineno)d]"
+IS_CONSOLE_SUPPORTS_COLOR = supports_color()
+
 
 class ColorConsoleFormater(logging.Formatter):
     def __init__(self):
@@ -45,7 +55,9 @@ class ColorConsoleFormater(logging.Formatter):
             datefmt='%m/%d|%H:%M:%S')
 
     def format(self, record):
-        level_color_console_str = LEVEL_COLORES.get(record.levelno, CONSOLE_CLEAR)
+        level_color_console_str = ''
+        if IS_CONSOLE_SUPPORTS_COLOR:
+            level_color_console_str = LEVEL_COLORES.get(record.levelno, CONSOLE_CLEAR)
         level_name = LEVEL_NAMES.get(record.levelno, "UNKNOWN")
         return f"{level_color_console_str}[{level_name}]{CONSOLE_CLEAR}" + self.super_formatter.format(record)
 
