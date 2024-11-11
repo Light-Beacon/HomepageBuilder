@@ -1,16 +1,21 @@
 import os
-import subprocess
 import gc
-from os.path import sep as sep
+from multiprocessing import Manager
+from os.path import sep
+from time import time
 from ..core.project import Project
 from ..core.builder import Builder
-from ..core.io import read_string, write_string
-from ..core.config import is_debugging
+from ..core.config import config, is_debugging
 from ..core.utils.property import PropertySetter
 from ..core.logger import Logger
 
+manager = Manager()
+CROSS_PROCESS_CACHE = None
+if config('server.cache.cross', True):
+    CROSS_PROCESS_CACHE = manager.dict()
 
 logger = Logger('Server')
+VERSION_GETTER_CLASSES = {}
 
 class ProjectAPI:
     '''api类'''
@@ -23,9 +28,12 @@ class ProjectAPI:
         try:
             self.builder = Builder()
             self.project = Project(self.builder,self.project_file)
-            self.version_cache_path = f"{self.project_dir}{sep}cache{sep}latest_version.cache"
             self.default_page = self.project.default_page
-            self.cache['version'] = self.write_latest_version_cache()
+            self.version_getter: VersionGetter = VERSION_GETTER_CLASSES.get(
+                config('server.version.by','time'), VersionGetter)(self)
+            self.__run_time_version = 0
+            self.trigger_project_update()
+
         except Exception as e:
             logger.fatal(e.args)
             if is_debugging():
@@ -40,42 +48,39 @@ class ProjectAPI:
             self.project_file = path
             self.project_dir  = os.path.dirname(path)
 
-    def clear_cache(self):
-        '''清除构建器页面缓存'''
+    def reload_project(self):
+        '''重载工程'''
         del self.project
         gc.collect()
-        self.project = Project(self.project_file)
+        self.project = Project(self.builder,self.project_file)
         self.cache.clear()
-        self.write_latest_version_cache()
-        logger.info('[Server] Cache cleared.')
+        self.trigger_project_update()
+        logger.info('[Server] Project Reloaded.')
 
-    def get_latest_version_cache(self):
-        '''获取最新的主页版本字符串缓存'''
-        return read_string(self.version_cache_path)
+    def trigger_project_update(self):
+        ''' 触发 project 更新信号'''
+        self.__run_time_version += 1
+        if CROSS_PROCESS_CACHE:
+            CROSS_PROCESS_CACHE['project.version'] = self.__run_time_version
 
-    def write_latest_version_cache(self):
-        ''' 将 commit hash 写入缓存并返回其值 '''
-        version_hash = self.get_githash()
-        write_string(self.version_cache_path,version_hash)
-        return version_hash
+    def __check_project_update(self):
+        if CROSS_PROCESS_CACHE:
+            version = CROSS_PROCESS_CACHE.get('project.version')
+            if version > self.__run_time_version:
+                self.reload_project()
 
-    def get_githash(self):
-        '''获取 commit hash'''
-        githash = subprocess.check_output('git rev-parse HEAD',cwd = self.project_dir, shell=True)
-        return githash.decode("utf-8")
-
-    def get_version(self):
+    def get_version(self,alias,request):
         '''获取主页版本'''
-        if 'version' not in self.cache:
-            self.cache['version'] = self.get_githash()
-        latest_version = self.get_latest_version_cache()
-        if self.cache['version'] != latest_version:
-            self.clear_cache()
-            self.cache['version'] = self.get_githash()
-        return self.cache['version']
+        self.__check_project_update()
+        if self.version_getter.require_request:
+            return self.version_getter.get_page_version(alias,request)
+        if ('__version', alias) not in self.cache:
+            self.cache[('__version', alias)] = self.version_getter.get_page_version(alias,request)
+        return self.cache[('__version', alias)]
 
     def get_page_json(self,alias):
         '''获取页面json文件'''
+        self.__check_project_update()
         key = alias + '.json'
         if key not in self.cache:
             name = self.project.get_page_displayname(alias)
@@ -87,6 +92,7 @@ class ProjectAPI:
 
     def get_page_response(self,alias,client,args = None):
         '''获取页面内容'''
+        self.__check_project_update()
         if (alias,args) not in self.cache:
             setter = PropertySetter(None,args,False)
             if len(setter) > 0:
@@ -104,3 +110,50 @@ class ProjectAPI:
         setter.attach(client.getsetter())
         return {'response':self.project.get_page_xaml(alias,setter=setter),
                 'content-type' : self.project.get_page_content_type(alias,setter=setter) }
+
+class VersionGetter():
+    '''
+    用于实现版本号获取的类
+    ## 用法
+    继承该类，指定 `name`，并实现 `get_page_version` 方法'''
+
+    name:str = None
+    '''名称'''
+
+    require_request: bool = False
+    '''标识版本是否与请求内容有关'''
+
+    api: ProjectAPI
+    '''项目 API'''
+
+    def __init__(self,api):
+        self.api = api
+
+    @classmethod
+    def get_page_version(self, alias :str, request):
+        """
+        获取页面版本号
+        ### 参数
+        * `alias` 待获取的页面路径
+        * `request` 获取版本号时时发送的 HTTP 请求
+            * 如需使用本项，请将派生类的 `require_request` 设置为 `True` 以禁用版本号缓存
+        """
+        raise NotImplementedError()
+
+    def __init_subclass__(cls, **kwargs):
+        if name := cls.name:
+            VERSION_GETTER_CLASSES[name] = cls
+        else:
+            raise ValueError()
+
+class VersionTimeGetter(VersionGetter):
+    name = 'time'
+    @classmethod
+    def get_page_version(self, _alias :str, _request):
+        return str(time())
+
+class VersionStaticGetter(VersionGetter):
+    name = 'static'
+    @classmethod
+    def get_page_version(self, _alias :str, _request):
+        return str(config('server.version.value'))

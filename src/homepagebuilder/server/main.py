@@ -49,14 +49,11 @@ def index_page():
     else:
         return 'No Page Found',404
 
-
-
-
 @app.route("/<path:alias>")
 def getpage(alias:str):
     '''默认页面'''
     if alias.endswith('/version') or alias == 'version':
-        return projapi.get_version() # 获取版本号
+        return projapi.get_version(alias,request) # 获取版本号
     args = request.args # 获取参数
     logger.debug(t("server.request.received",page=alias,args=args))
     while alias.endswith('/'):
@@ -114,7 +111,7 @@ class ClientArgs:
         if refer.endswith('pcl2.open.server/'):
             return True, True
         return False, None
-    
+
     def __getpclverid(self,web_request):
         refer = web_request.headers.get('Referer','')
         if not self.is_pcl:
@@ -129,7 +126,7 @@ class ClientArgs:
                 if pclver[0] == 'PCL2':
                     return pclver[1]
         return None
-    
+
     def getsetter(self):
         d = {
             'client':{

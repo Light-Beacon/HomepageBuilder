@@ -4,6 +4,7 @@ from homepagebuilder.core.logger import Logger
 from homepagebuilder.core.i18n import locale
 from homepagebuilder.interfaces.Events import on
 from homepagebuilder.interfaces import enable_by_config, config as sys_config, enable_by
+from homepagebuilder.server.project_api import VersionGetter
 
 def gitinfo_config(key):
     return sys_config('ProjectInfo.GitInfo.' + key)
@@ -72,3 +73,10 @@ def get_card_last_update_time(_tm,card,env,*args,**kwargs):
         return
     dt = datetime.datetime.fromtimestamp(int(timestamp[:-1]))
     card['last_update'] = dt.date()
+
+
+class GitVersionGetter(VersionGetter):
+    name = 'githash'
+    def get_page_version(self, alias, request):
+        githash = subprocess.check_output('git rev-parse HEAD',cwd = self.api.project_dir, shell=True)
+        return githash.decode("utf-8")

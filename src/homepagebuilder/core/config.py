@@ -1,13 +1,13 @@
 import os
 import yaml
 
-CONFIG_DICT = {}
+__CONFIG_DICT = {}
 FORCE_DEBUGGING = False
 SUBSCRIBE_DEBUG_CHANGING_LIST = []
 
 def config(key:str,default = None) -> object:
     """获取配置"""
-    return CONFIG_DICT.get(key,default)
+    return __CONFIG_DICT.get(key,default)
 
 class DisabledByConfig(Exception):
     """被配置禁用"""
@@ -40,7 +40,7 @@ def __init_default() -> None:
         raise FileNotFoundError(f'Config file {filepath} not exist! Please re-install the program')
     with open(filepath,encoding='utf-8') as f:
         data:dict = yaml.load(f,Loader=yaml.FullLoader)
-    CONFIG_DICT.update(data)
+    __CONFIG_DICT.update(data)
 
 def init_full() -> None:
     """加载所有配置"""
@@ -52,7 +52,7 @@ def import_config_dire(direpath) -> None:
     from .io.structure import Dire
     files = Dire(direpath).scan(recur=True,patten=r'.*\.yml')
     for file in files:
-        CONFIG_DICT.update(file.data)
+        __CONFIG_DICT.update(file.data)
 
 def subscribe_debug_changing(func):
     SUBSCRIBE_DEBUG_CHANGING_LIST.append(func)
