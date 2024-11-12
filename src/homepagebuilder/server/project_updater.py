@@ -4,9 +4,11 @@
 import hmac
 import hashlib
 import subprocess
-import traceback
+from ..core.logger import Logger
 
 GIT_PULL = 'git pull -f'
+
+logger = Logger('ProjectUpdater')
 
 class GitHubAuthError(Exception):
     '''GitHub 验证错误'''
@@ -33,5 +35,6 @@ def request_update(request,project_dir,secret):
         return (200,__update(request,project_dir,secret))
     except GitHubAuthError as e:
         return (401, str(e))
-    except Exception:
-        return (500, f"An Error occured while updating the project:\n {traceback.format_exc()}")
+    except Exception as e:
+        logger.exception(e)
+        return (500, "An Error occured while updating the project")
