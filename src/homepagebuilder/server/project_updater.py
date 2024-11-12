@@ -4,6 +4,7 @@
 import hmac
 import hashlib
 import subprocess
+import traceback
 from ..core.logger import Logger
 
 GIT_PULL = 'git pull -f'
@@ -33,8 +34,8 @@ def request_update(request,project_dir,secret):
     '''请求更新'''
     try:
         return (200,__update(request,project_dir,secret))
-    except GitHubAuthError as e:
-        return (401, str(e))
+    except GitHubAuthError:
+        return (401, "Auth Failed.")
     except Exception as e:
-        logger.exception(e)
+        logger.error("An Error occured while updating the project: %s\n %s",e,traceback.format_exc())
         return (500, "An Error occured while updating the project")
