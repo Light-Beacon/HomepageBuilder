@@ -156,4 +156,4 @@ class VersionStaticGetter(VersionGetter):
     name = 'static'
     @classmethod
     def get_page_version(self, _alias :str, _request):
-        return str(config('server.version.value'))
+        return str(config('Server.Version.StaticValue'))
