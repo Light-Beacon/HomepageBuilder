@@ -50,17 +50,24 @@ IS_CONSOLE_SUPPORTS_COLOR = supports_color()
 
 class ColorConsoleFormater(logging.Formatter):
     def __init__(self):
-        self.super_formatter = logging.Formatter(
-            fmt=f'{COLORED_TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
-            datefmt='%m/%d|%H:%M:%S')
+        if IS_CONSOLE_SUPPORTS_COLOR:
+            self.super_formatter = logging.Formatter(
+                fmt=f'{COLORED_TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
+                datefmt='%m/%d|%H:%M:%S')
+        else:
+            self.super_formatter = logging.Formatter(
+                fmt=f'{TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
+                datefmt='%m/%d|%H:%M:%S')
 
     def format(self, record):
         level_color_console_str = ''
+        level_name = LEVEL_NAMES.get(record.levelno, "UNKNOWN")
         if IS_CONSOLE_SUPPORTS_COLOR:
             level_color_console_str = LEVEL_COLORES.get(record.levelno, CONSOLE_CLEAR)
-        level_name = LEVEL_NAMES.get(record.levelno, "UNKNOWN")
-        return f"{level_color_console_str}[{level_name}]{CONSOLE_CLEAR}" + self.super_formatter.format(record)
-
+            return f"{level_color_console_str}[{level_name}]{CONSOLE_CLEAR}" + self.super_formatter.format(record)
+        else:
+            return f"[{level_name}]{self.super_formatter.format(record)}"
+        
 CONSOLE_FORMATTER = ColorConsoleFormater()
 
 class LogConsoleHandler(logging.Handler):
