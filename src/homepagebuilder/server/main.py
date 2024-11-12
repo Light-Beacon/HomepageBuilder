@@ -31,10 +31,10 @@ class Server:
 @app.route("/pull",methods=['POST'])
 def git_update():
     '''收到 github 更新信号更新工程文件'''
-    if not config('Process.Update.Github',False):
+    if not config('Server.Update.GitHub.Webhook.Enable',False):
         return 'pull not enabled',400
     status,data = request_update(request,projapi.project_dir,
-        config('server.update.github.webhook.secret'))
+        config('Server.Update.GitHub.Webhook.Secret'))
     if status == 200:
         projapi.reload_project()
     else:
