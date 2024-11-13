@@ -116,6 +116,8 @@ class StyleResource(Resource):
         xaml = '<Style '
         if not self.is_default:
             xaml += f'x:Key="{self.key}" '
+        if self.basedon:
+            xaml += f'BasedOn="{{StaticResource {self.basedon}}}" '
         xaml += f'TargetType="{self.target}">'
         for property_name,value in self.setters.items():
             xaml += f'<Setter Property="{property_name}" Value="{value}"/>'

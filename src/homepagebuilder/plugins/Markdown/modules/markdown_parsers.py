@@ -1,4 +1,4 @@
-from typing import Union,List,Literal
+from typing import Union,List,Literal,Dict
 from abc import abstractmethod,ABC
 import re 
 from homepagebuilder.interfaces import encode_escape,Logger
@@ -80,8 +80,8 @@ class Node():
         return self.name
     
     @abstractmethod
-    def get_replacement(self) -> Union[List|None]:
-        '''获取替换框架占位符的字符串列表'''
+    def get_replacement(self) -> Union[Dict|None]:
+        '''获取替换框架占位符的字符串字典'''
 
     @abstractmethod
     def get_element_frame(self) -> str:
@@ -130,8 +130,8 @@ class NodeBase(Node):
             self.attrs = tag.attrs
             self.parse_children()
     
-    def get_replacement(self) -> Union[List]:
-        return []
+    def get_replacement(self) -> Dict:
+        return {}
 
     def get_element_frame(self):
         replacement = self.get_replacement()
@@ -237,6 +237,7 @@ class ListItemParagraph(Paragraph):
     @property
     def component_name(self):
         return 'listitempara'
+
 @handles('li')
 class MarkdownListItem(LineNode):
     children_paragraph_class = ListItemParagraph
