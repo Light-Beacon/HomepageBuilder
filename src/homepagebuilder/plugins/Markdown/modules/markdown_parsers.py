@@ -1,5 +1,6 @@
 from typing import Union,List,Literal,Dict
 from abc import abstractmethod,ABC
+from enum import Enum
 import re 
 from homepagebuilder.interfaces import encode_escape,Logger
 
@@ -46,17 +47,25 @@ def to_plain_str(node:'Node') -> str:
             content += to_plain_str(child)
     return content
 
+class NodeType(Enum):
+    ANY = -1
+    UNDEFINED = 0
+    PLAINTEXT = 1
+    BLOCK = 2
+    INLINE = 3
+    UIELEMENT = 4
+
 class Node():
     def __init__(self,tag,env,parent_stack):
         self.env = env
         self.components = env.get('components')
-        self.name = None
+        self.name:str = None
         self.attrs = None
         self.tag = tag
-        self.children = None
-        self.parent_stack = parent_stack
-        self.expose = False
-        self.self_break = False
+        self.children:List['Node'] = None
+        self.parent_stack:List['Node'] = parent_stack
+        self.expose:bool = False
+        self.self_break:bool = False
         self.parse_children()
 
     @property
@@ -67,18 +76,10 @@ class Node():
             return None
 
     @property
-    def inline(self) -> bool:
-        raise NotImplementedError()
-
-    @property
-    def isblock(self) -> bool:
-        return False
-
-    @property
     def component_name(self) -> str:
         '''对应组件的名称'''
         return self.name
-    
+
     @abstractmethod
     def get_replacement(self) -> Union[Dict|None]:
         '''获取替换框架占位符的字符串字典'''
@@ -94,14 +95,24 @@ class Node():
     @abstractmethod
     def add_child_node(self,child_node:'Node') -> None:
         '''增加子节点'''
-    
+
     @abstractmethod
     def convert_children(self) -> str:
         '''获取子节点的xaml代码'''
-    
+
     @abstractmethod
     def convert(self) -> str:
         '''获取本节点的xaml代码'''
+
+    @property
+    def contain_type(self) -> NodeType:
+        '''本节点的子元素类型'''
+        return NodeType.UNDEFINED
+
+    @property
+    def node_type(self) -> NodeType:
+        '''本节点的类型'''
+        raise NodeType.UNDEFINED
 
 class VoidNode(Node):
     def get_replacement(self):
@@ -109,13 +120,13 @@ class VoidNode(Node):
 
     def get_element_frame(self):
         return ''
-    
+
     def parse_children(self):
         pass
-        
+
     def add_child_node(self,_):
         raise NotImplementedError()
-    
+
     def convert_children(self):
         return ''
 
@@ -129,7 +140,7 @@ class NodeBase(Node):
             self.name = tag.name
             self.attrs = tag.attrs
             self.parse_children()
-    
+
     def get_replacement(self) -> Dict:
         return {}
 
@@ -153,13 +164,13 @@ class NodeBase(Node):
         if child_node.expose:
             self.self_break = True
         self.children.append(child_node)
-    
+
     def convert_children(self):
         content = ''
         for child in self.children:
             content += child.convert()
         return content
-    
+
     def convert(self):
         content = self.convert_children() if self.children else ''
         if self.self_break:
@@ -167,64 +178,91 @@ class NodeBase(Node):
         element_frame:str = self.get_element_frame()
         return element_frame.replace('${content}',content)
 
-@handles('em','strong','code','del','br') 
 class InlineNode(NodeBase):
+    """行内元素"""
     @property
-    def inline(self):
-        return True
+    def node_type(self):
+        return NodeType.INLINE
 
-@handles('ul','ol')    
-class LineNode(NodeBase):
+class BlockNode(NodeBase):
+    """块元素"""
     @property
-    def inline(self):
-        return False
+    def node_type(self):
+        return NodeType.BLOCK
 
-@handles('hr') 
-class BlockNode(LineNode):
+class InlineNodeContainer(NodeBase):
+    """行内元素容器"""
     @property
-    def isblock(self):
-        return True
+    def contain_type(self):
+        return NodeType.INLINE
+
+class BlockNodeContainer(NodeBase):
+    """块元素容器"""
+    @property
+    def contain_type(self):
+        return NodeType.BLOCK
+
+class WPFUIElement(NodeBase):
+    """WPF UI 元素"""
+    @property
+    def node_type(self):
+        return NodeType.UIELEMENT
+
+class WPFUIContainer(NodeBase):
+    """WPF UI 自动容器"""
+    @property
+    def node_type(self):
+        return NodeType.ANY
+
+    def convert(self):
+        if self.ancestor.contain_type == NodeType.INLINE:
+            return "<InlineUIContainer>" + super().convert() + "</InlineUIContainer>"
+        elif self.ancestor.contain_type == NodeType.BLOCK:
+            return "<BlockUIContainer>" + super().convert() + "</BlockUIContainer>"
+        else:
+            raise TypeError
+
+@handles('em','strong','code','del','br')
+class CommonInlineNode(InlineNode, InlineNodeContainer):
+    """通用行内元素"""
+
+@handles('hr','ul','ol')
+class CommonBlockNode(BlockNode, InlineNodeContainer):
+    """通用块元素"""
 
 class Text(VoidNode):
     def __init__(self,tag,*args,**kwargs):
         super().__init__(tag,*args,**kwargs)
         self.content = str(tag)
-    
-    @property
-    def inline(self) -> Literal[True]:
-        return True
-    
+
     def convert(self):
         return encode_escape(self.content)
 
     def isempty(self):
         return len(self.content) == 0
 
+    def isblank(self):
+        return len(self.content
+                   .replace(" ",'')
+                   .replace("\n",'')
+                   .replace("\r",'')
+                   .replace("\t",'')) == 0
+    
+    @property
+    def node_type(self):
+        return NodeType.PLAINTEXT
+
     def __eq__(self,cmp):
         return cmp == self.content
 
-@handles('p')
-class Paragraph(LineNode):
-    def __init__(self, tag, *args, **kwargs):
-        super().__init__(tag, *args, **kwargs)
-        self.self_break = True
+    def __format__(self, format_spec):
+        return f'<MarkdownText content="{self.content}">'
 
-    def convert_children(self):
-        inblock = True
-        content = FIRSTLINE_SPACES
-        for child in self.children:
-            if child.isblock:
-                if not inblock:
-                    inblock = True
-                    content += '</Paragraph>'
-            else:
-                if inblock:
-                    inblock = False
-                    content += '<Paragraph>'
-            content += child.convert()
-        if not inblock:
-            content += '</Paragraph>'
-        return content
+    def __str__(self):
+        return f'<MarkdownText content="{self.content}">'
+@handles('p')
+class Paragraph(BlockNode, InlineNodeContainer):
+    pass
 
 class ListItemParagraph(Paragraph):
     def __init__(self,children,env, parent_stack ):
@@ -239,21 +277,24 @@ class ListItemParagraph(Paragraph):
         return 'listitempara'
 
 @handles('li')
-class MarkdownListItem(LineNode):
+class MarkdownListItem(BlockNode, BlockNodeContainer):
     children_paragraph_class = ListItemParagraph
     def parse_children(self):
         super().parse_children()
         inline_children_buffer = []
         new_children = []
         for child in self.children:
-            if child.inline:
-                if child == '\n':
+            if child.node_type == NodeType.PLAINTEXT:
+                if isinstance(child,Text) and child.isblank():
                     continue
                 inline_children_buffer.append(child)
+            elif child.node_type == NodeType.INLINE:
+                inline_children_buffer.append(child)
             else:
-                new_children.append(self.children_paragraph_class(
-                    inline_children_buffer,env = self.env,
-                    parent_stack = self.parent_stack + [self]))
+                if len(inline_children_buffer) > 0:
+                    new_children.append(self.children_paragraph_class(
+                        inline_children_buffer,env = self.env,
+                        parent_stack = self.parent_stack + [self]))
                 new_children.append(child)
         if len(inline_children_buffer) > 0:
             new_children.append(self.children_paragraph_class(
@@ -274,8 +315,9 @@ QUOTE_TYPE_ISWARN_MAPPING = {
     'info': False,
     'warn': True,
 }
+
 @handles('blockquote')
-class Quote(LineNode):
+class Quote(BlockNode, BlockNodeContainer):
     def __init__(self, tag, *args, **kwargs):
         super().__init__(tag, *args, **kwargs)
         quote_type = find_first_text(self,regex = QUOTE_TYPE_PATTERN,remove=True)
@@ -305,15 +347,10 @@ class Quote(LineNode):
             content = to_plain_str(self)
         else:
             content = super().convert_children()
-            #for child in self.children:
-            #    if child.name != 'p':
-            #        continue
-            #    for grand_child in child.children:
-            #        content += grand_child.convert()
         return content
 
 @handles('h1','h2','h3','h4','h5')
-class Heading(LineNode):
+class Heading(BlockNode):
     @property
     def component_name(self) -> str:
         return 'heading'
@@ -322,7 +359,7 @@ class Heading(LineNode):
         return {'level': self.name[1:]}
 
 @handles('a')
-class Link(InlineNode):
+class Link(InlineNode, InlineNodeContainer):
     def get_replacement(self) -> Union[List|None]:
         reps = {'link': self.attrs['href']}
         ancestor = self.ancestor
@@ -333,7 +370,7 @@ class Link(InlineNode):
         return reps
 
 @handles('img')
-class MarkdownImage(BlockNode):
+class MarkdownImage(WPFUIContainer):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
         self.title = self.attrs.get('title')
