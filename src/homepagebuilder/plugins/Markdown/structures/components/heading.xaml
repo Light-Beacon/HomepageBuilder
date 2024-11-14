@@ -1,1 +1,0 @@
-<Paragraph Style="{StaticResource H${level}}">${content}</Paragraph>

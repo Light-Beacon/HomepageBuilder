@@ -1,9 +1,0 @@
-<Section Style="{StaticResource ${type}Quote}">
-  <Paragraph FontWeight="Bold">
-    ${typename}
-    <Paragraph.Foreground>
-      <Binding Path="BorderBrush" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Section}" />
-    </Paragraph.Foreground>
-  </Paragraph>
-  ${content}
-</Section>
