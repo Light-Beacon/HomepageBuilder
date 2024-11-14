@@ -64,14 +64,29 @@ class Node():
         self.tag = tag
         self.children:List['Node'] = None
         self.parent_stack:List['Node'] = parent_stack
-        self.expose:bool = False
-        self.self_break:bool = False
+        self.expose_children:bool = False
+        """隐藏本元素，将子元素设为与本元素同级"""
         self.parse_children()
 
     @property
     def ancestor(self) -> 'Node':
+        """逻辑祖先"""
         if len(self.parent_stack) > 0:
             return self.parent_stack[-1]
+        else:
+            return None
+
+    @property
+    def actual_ancestor(self) -> 'Node':
+        """**实际在xaml中体现的祖先**
+        
+        若逻辑祖先的 `expose_children` 为 true，则返回逻辑祖先的实际祖先
+        """
+        if ancestor := self.ancestor:
+            if ancestor.expose_children:
+                return ancestor.actual_ancestor
+            else:
+                return ancestor
         else:
             return None
 
@@ -161,8 +176,6 @@ class NodeBase(Node):
                 self.add_child_node(create_node(child,self.env,self.parent_stack + [self]))
 
     def add_child_node(self,child_node:Node):
-        if child_node.expose:
-            self.self_break = True
         self.children.append(child_node)
 
     def convert_children(self):
@@ -173,7 +186,7 @@ class NodeBase(Node):
 
     def convert(self):
         content = self.convert_children() if self.children else ''
-        if self.self_break:
+        if self.expose_children:
             return content
         element_frame:str = self.get_element_frame()
         return element_frame.replace('${content}',content)
@@ -215,10 +228,11 @@ class WPFUIContainer(NodeBase):
         return NodeType.ANY
 
     def convert(self):
-        if self.ancestor.contain_type == NodeType.INLINE:
-            return "<InlineUIContainer>" + super().convert() + "</InlineUIContainer>"
-        elif self.ancestor.contain_type == NodeType.BLOCK:
+        if not self.actual_ancestor or \
+            self.actual_ancestor.contain_type in [NodeType.BLOCK, NodeType.ANY]:
             return "<BlockUIContainer>" + super().convert() + "</BlockUIContainer>"
+        elif self.actual_ancestor.contain_type == NodeType.INLINE:
+            return "<InlineUIContainer>" + super().convert() + "</InlineUIContainer>"
         else:
             raise TypeError
 
@@ -262,7 +276,11 @@ class Text(VoidNode):
         return f'<MarkdownText content="{self.content}">'
 @handles('p')
 class Paragraph(BlockNode, InlineNodeContainer):
-    pass
+    def parse_children(self,*args,**kwargs):
+        super().parse_children(*args,**kwargs)
+        if len(self.children) == 1 and self.children[0].node_type == NodeType.ANY:
+            # 尽量让子元素以块状呈现
+            self.expose_children = True
 
 class ListItemParagraph(Paragraph):
     def __init__(self,children,env, parent_stack ):
