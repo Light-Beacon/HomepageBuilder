@@ -13,14 +13,19 @@ def __bind_all_command(subparsers):
 
 def main():
     """构建器主入口"""
-    init_full()
-    parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(help='Command', dest='command')
-    __bind_all_command(subparsers)
-    args = parser.parse_args()
-    if args.debug:
-        force_debug()
-    COMMAND_BINGDING[args.command].process(args)
+    try:
+        init_full()
+        parser = argparse.ArgumentParser()
+        subparsers = parser.add_subparsers(help='Command', dest='command')
+        __bind_all_command(subparsers)
+        args = parser.parse_args()
+        if args.debug:
+            force_debug()
+        COMMAND_BINGDING[args.command].process(args)
+    except Exception as e:
+        print(f"{e.__class__.__name__}: {e}")
+        return 1
+    return 0
 
 if __name__ == '__main__':
     main()

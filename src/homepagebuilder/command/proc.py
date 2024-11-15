@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 class CommandProcesser:
     """命令处理类"""
 
@@ -9,14 +10,14 @@ class CommandProcesser:
     def __init__(self,subparsers) -> None:
         if not self.name:
             raise NotImplementedError()
-        self.parser = subparsers.add_parser(self.name, help=self.help)
+        self.parser:ArgumentParser = subparsers.add_parser(self.name, help=self.help)
         self.__common_init_subpraser(self.parser)
         self.init_subpraser(self.parser)
 
     def __common_init_subpraser(self,parser):
         parser.add_argument('--debug', action='store_true', help='start debug mode')
 
-    def init_subpraser(self,parser):
+    def init_subpraser(self,parser:ArgumentParser):
         """初始化解析器"""
         raise NotImplementedError()
 

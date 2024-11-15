@@ -8,7 +8,7 @@ write_func_mapping = {}
 
 class FileFormatUnsupportedError(Exception):
     def __init__(self,file, *args: object) -> None:
-        from Core.i18n import locale
+        from ..i18n import locale
         super().__init__(*args)
         self.file = file
         self.msg = locale('io.format.unsupported',path=file.abs_path,exten = file.extention)
