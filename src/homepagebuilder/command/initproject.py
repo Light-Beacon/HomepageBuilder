@@ -34,7 +34,7 @@ def copy_installed_package_folder(folder_name, dest_folder):
         raise FileNotFoundError(src_folder)
 
     if bool(os.listdir(dest_folder)):
-        print('The folder is not empty! Creating a new proejct may damage your files')
+        print('The folder is not empty! Creating a new proejct may damage your files!')
         for _ in range(3):
             inputstr = input('Do you still want to creat a new project in this folder? [y/n] ')
             if inputstr.lower() in ['y', 'yes' ,'true' ,'oui' ,'si' ,'是']:
