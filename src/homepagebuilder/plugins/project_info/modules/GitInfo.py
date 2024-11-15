@@ -18,7 +18,7 @@ def is_git_installed() -> bool:
         return True
     except Exception:
         return False
-    
+
 def check_git_installtion() -> bool:
     if not gitinfo_config('Enable'):
         return False
@@ -37,9 +37,9 @@ def is_git_repo(directory):
     except Exception:
         return False
 
-@on('project.load.return')
 @enable_by_config('ProjectInfo.GitInfo.Enable')
 @enable_by(IS_GIT_INSTALLED)
+@on('project.load.return')
 def set_githash(proj,*_,**__):
     proj.set_env_data('git.isrepo', is_git_repo(proj.base_path))
     if not proj.get_env_data('git.isrepo'):

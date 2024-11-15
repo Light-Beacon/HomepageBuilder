@@ -86,6 +86,7 @@ class CardStackPage(FileBasedPage):
         for card_ref in self.cardrefs:
             anl.phase(card_ref)
             content += self.__getcardscontent(card_ref, env, setter = runtime_setter)
+        logger.info(t('page.generate.done', page=self.name))
         return content
 
     def __getcardscontent(self, ref:str, env:'BuildingEnvironment', setter:PropertySetter):
@@ -102,10 +103,10 @@ class CardStackPage(FileBasedPage):
         real_ref = ref[0]
         args = ref[1:] if len(ref) > 1 else []
         if real_ref  == '':
-            logger.info(t('project.get_card.null'))
+            logger.info(t('page.get_card.null'))
             return ''
         setter.attach(PropertySetter.fromargs(args))
-        logger.info(t('project.get_card', card_ref=real_ref))
+        logger.info(t('page.get_card', card_ref=real_ref))
         card = self.__getcard(real_ref,env,setter)
         if not card:
             return ''
@@ -117,7 +118,7 @@ class CardStackPage(FileBasedPage):
         try:
             return self.__getcardunsafe(ref, env, setter)
         except Exception as ex:
-            logger.warning(t('project.get_card.failed', ex=ex))
+            logger.warning(t('page.get_card.failed', ex=ex))
             return None 
 
     def __getcardunsafe(self,ref:str,env:'BuildingEnvironment',setter):

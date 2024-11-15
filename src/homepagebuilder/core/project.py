@@ -26,8 +26,6 @@ class Project(ProjectBase):
     @set_triggers('project.import')
     def import_pack(self, path):
         """导入工程包"""
-        anl.phase('加载工程包')
-        anl.switch_in()
         logger.info(t('project.import.start', path=path))
         self.__init_load_projectfile(path)
         self.__init_import_configs()
@@ -37,12 +35,10 @@ class Project(ProjectBase):
         self.__init_import_cards()
         self.__init_import_pages()
         self.__init_import_data()
-        anl.switch_out()
         logger.info(t('project.import.success'))
 
     @set_triggers('project.import.projectfile')
     def __init_load_projectfile(self,path):
-        anl.phase('读取工程文件')
         pack_info = File(path).read()
         self.base_path = os.path.dirname(path)
         self.version = pack_info['version']
@@ -50,7 +46,6 @@ class Project(ProjectBase):
         logger.info(t('project.import.pack.version', version=self.version))
 
     def  __init_import_configs(self):
-        anl.phase('导入配置')
         try:
             import_config_dire(fmtpath(self.base_path,'/configs'))
         except FileNotFoundError:
@@ -58,56 +53,46 @@ class Project(ProjectBase):
 
     @set_triggers('project.impoort.structures')
     def __init_import_structures(self):
-        anl.phase('导入构件')
         self.__env['components'].update(Loader.load_compoents(
             fmtpath(self.base_path,'/structures/components')))
-        anl.phase('导入卡片模版')
         self.__env['templates'].update(Loader.load_tempaltes(
             fmtpath(self.base_path,'/structures/templates')))
-        anl.phase('导入页面模版')
         self.__env['page_templates'].update(Loader.load_page_tempaltes(
             fmtpath(self.base_path,'/structures/pagetemplates')))
 
     def __init_import_data(self):
-        anl.phase('读取数据文件')
         self.__env['data'].update(Loader.create_structure_mapping(
             fmtpath(self.base_path,'/data')))
 
     @set_triggers('project.import.modules')
     def __init_import_modules(self):
-        anl.phase('导入模块')
         logger.info(t('project.import.modules'))
         load_module_dire(fmtpath(self.base_path,'/modules'), self)
         self.__checkModuleWaitList()
     
     @set_triggers('project.import.cards')
     def __init_import_cards(self):
-        anl.phase('导入卡片')
         logger.info(t('project.import.cards'))
         self.base_library = Library(File(
             fmtpath(self.base_path,"/libraries/__LIBRARY__.yml")).data)
 
     @set_triggers('project.import.resources')
     def __init_import_resources(self):
-        anl.phase('导入资源')
         logger.info(t('project.import.resources'))
         self.__env['resources'].update(Loader.load_resources(
             fmtpath(self.base_path,'/resources')))
-    
+
     @set_triggers('project.import.pages')
     def __init_import_pages(self):
-        anl.phase('导入页面')
         logger.info(t('project.import.pages'))
         for pagefile in Dire(fmtpath(self.base_path,'/pages')).scan(recur=True):
             self.import_page_from_file(pagefile)
 
     @set_triggers('project.load')
     def __init__(self,builder, path):
-        anl.phase('初始化仓库类')
         logger.info(t('project.init'))
         super().__init__(builder=builder,path=path)
         logger.info(t('project.load.success'))
-        anl.pause()
 
     def import_page_from_file(self, page_file: File):
         """导入页面"""
@@ -151,7 +136,7 @@ class Project(ProjectBase):
                 logger.error(t('project.gen_page.failed.notfound', page=page_alias))
             raise PageNotFoundError(page_alias)
         return self.pages[page_alias].get_content_type(setter = setter)
-    
+
     def get_page_displayname(self, page_alias):
         """获取页面显示名"""
         page = self.pages.get(page_alias)

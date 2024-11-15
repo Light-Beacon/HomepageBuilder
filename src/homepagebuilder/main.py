@@ -3,7 +3,6 @@ import argparse
 from typing import Dict
 from .core.config import init_full, force_debug
 from .command import *
-from .debug import global_anlyzer as anl
 
 COMMAND_BINGDING:Dict[str, CommandProcesser] = {}
 
