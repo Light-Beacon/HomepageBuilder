@@ -1,0 +1,25 @@
+class CommandProcesser:
+    """命令处理类"""
+
+    name: str
+    """命令的执行名称"""
+    help: str
+    """命令的帮助文档"""
+
+    def __init__(self,subparsers) -> None:
+        if not self.name:
+            raise NotImplementedError()
+        self.parser = subparsers.add_parser(self.name, help=self.help)
+        self.__common_init_subpraser(self.parser)
+        self.init_subpraser(self.parser)
+
+    def __common_init_subpraser(self,parser):
+        parser.add_argument('--debug', action='store_true', help='start debug mode')
+
+    def init_subpraser(self,parser):
+        """初始化解析器"""
+        raise NotImplementedError()
+
+    def process(self,args) -> None:
+        """处理指令"""
+        raise NotImplementedError
