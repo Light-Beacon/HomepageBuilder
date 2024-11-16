@@ -85,7 +85,6 @@ class LogConsoleHandler(logging.Handler):
         else:
             self.outStreamHandler.emit(record)
 
-
 def init_file_handler():
     current_time = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
     log_pos = os.path.abspath("Log/")

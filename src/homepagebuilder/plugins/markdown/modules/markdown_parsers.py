@@ -256,11 +256,7 @@ class Text(VoidNode):
         return len(self.content) == 0
 
     def isblank(self):
-        return len(self.content
-                   .replace(" ",'')
-                   .replace("\n",'')
-                   .replace("\r",'')
-                   .replace("\t",'')) == 0
+        return len(self.content.strip()) == 0
     
     @property
     def node_type(self):
@@ -274,6 +270,7 @@ class Text(VoidNode):
 
     def __str__(self):
         return f'<MarkdownText content="{self.content}">'
+
 @handles('p')
 class Paragraph(BlockNode, InlineNodeContainer):
     def parse_children(self,*args,**kwargs):
