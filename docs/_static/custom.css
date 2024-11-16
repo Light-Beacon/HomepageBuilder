@@ -1,0 +1,21 @@
+body{
+    --color-brand-content: #1f212f
+}
+
+body:not([data-theme=light]){
+    --color-background-primary: #13181B;
+    --color-background-secondary: #1A1F25;
+}
+
+.highlight{
+    border-radius: 6px;
+    padding: 6px;
+}
+
+body:not([data-theme="light"]) .highlight{
+    background: #202326;
+}
+
+button.copybtn.success::after {
+    color: rgb(26, 159, 26);
+}
