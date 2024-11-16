@@ -15,7 +15,7 @@ def newer_script(versionid,content,card,env,**_kwargs):
         return content
     return ''
 
-@script('IF_PCLOlderThan')
+@script('IF_PCLLowerThan')
 def lower_script(versionid,content,card,env,**_kwargs):
     vid = format_code('${client.versionid}',card,env=env)
     if not vid:

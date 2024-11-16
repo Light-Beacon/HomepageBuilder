@@ -46,7 +46,7 @@ html_theme_options = {
             "name": "GitHub",
             "url": "https://github.com/Light-Beacon/HomepageBuilder",
             "html": "",
-            "class": "fa-brands fa-solid fa-github fa-2x",
+            "class": "fa-brands fa-solid fa-github fa-2x footer-icon",
         },
     ],
 }

@@ -19,3 +19,7 @@ body:not([data-theme="light"]) .highlight{
 button.copybtn.success::after {
     color: rgb(26, 159, 26);
 }
+
+a.footer-icon{
+    color: var(--color-foreground-primary) !important
+}
