@@ -2,7 +2,7 @@ body{
     --color-brand-content: #1f212f
 }
 
-body:not([data-theme=light]){
+body[data-theme=dark]{
     --color-background-primary: #13181B;
     --color-background-secondary: #1A1F25;
 }
@@ -12,7 +12,7 @@ body:not([data-theme=light]){
     padding: 6px;
 }
 
-body:not([data-theme="light"]) .highlight{
+body[data-theme=dark].highlight{
     background: #202326;
 }
 
@@ -22,4 +22,8 @@ button.copybtn.success::after {
 
 a.footer-icon{
     color: var(--color-foreground-primary) !important
+}
+
+img{
+    border-radius: 1em;
 }

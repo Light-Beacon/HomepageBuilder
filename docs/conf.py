@@ -9,7 +9,7 @@
 project = 'HomepageBuilder'
 copyright = '2024, Light-Beacon'
 author = 'Light-Beacon'
-release = '0.14.0'
+release = ''
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -27,7 +27,7 @@ html_css_files = [
     'custom.css'
 ]
 
-language = 'zh-cn'
+language = 'zh'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

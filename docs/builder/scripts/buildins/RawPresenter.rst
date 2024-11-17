@@ -20,6 +20,6 @@ RawPresenter
 .. code-block:: yaml
 
     components:
-        - ${@RawPresenter}
+        - $RawPresenter
 
 

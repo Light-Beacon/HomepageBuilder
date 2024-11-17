@@ -2,8 +2,8 @@ ChildrenPresenter
 =====================
 
 .. automodule:: homepagebuilder.modules.Presenters
-    :no-index:
     :undoc-members:
+    :no-index:
     :members: children_presenter
    
 
@@ -13,13 +13,13 @@ ChildrenPresenter
 
 使用
 -------------
-在模版中列表中使用该脚本
+在构件中使用该脚本
 
 例：
 
-.. code-block:: yaml
+.. code-block:: xml
 
-    components:
-        - ${@ChildrenPresenter}
-
+    <Border>
+        ${@ChildrenPresenter}
+    </border>
 
