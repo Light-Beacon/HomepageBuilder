@@ -45,7 +45,11 @@ def trigger_event(event_name:str,*args,**kwargs):
     if not actions_list:
         return
     for action in actions_list:
-        action(*args,**kwargs)
+        try:
+            action(*args,**kwargs)
+        except Exception as ex:
+            logger.error('event.error',eventname=event_name, ex=ex)
+            raise ex
 
 class ResultOverride(Exception):
     """在事件中抛出该异常以停止原函数以及尚未执行的触发器运行并输出结果"""
