@@ -12,7 +12,7 @@ from .utils.funcs import transform
 import xml.etree.ElementTree as ET
 
 if TYPE_CHECKING:
-    from .types import BuildingEnvironment
+    from .types import Context
 
 logger = Logger('Resource')
 YML_PATTERN = re.compile(r'.*\.yml$')
@@ -167,13 +167,13 @@ class XamlResource(Resource):
     def getxaml(self):
         return self.xaml
 
-def get_resources_code(env:'BuildingEnvironment'):
+def get_resources_code(context:'Context'):
     try:
-        resset:Set[Resource] = set(env['resources'][res] for res in env['used_resources'])
-        for usedres in env['used_resources']:
-            if baseon := env['resources'][usedres].basedon:
-                resset.add(env['resources'][baseon])
-        for _k,res in env['resources'].items():
+        resset:Set[Resource] = set(context.resources[res] for res in context.used_resources)
+        for usedres in context.used_resources:
+            if baseon := context.resources[usedres].basedon:
+                resset.add(context.resources[baseon])
+        for _k,res in context.resources.items():
             if res.is_default:
                 resset.add(res)
         return ''.join([res.getxaml() for res in resset])

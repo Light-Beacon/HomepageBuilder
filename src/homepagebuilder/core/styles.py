@@ -4,9 +4,9 @@
 
 from typing import Dict
 
-def get_style_code(env) -> str:
+def get_style_code(context) -> str:
     '''获取样式代码'''
-    styles:Dict[str,object] = env.get('styles')
+    styles:Dict[str,object] = context.styles
     xaml = ''
     for item in styles.values():
         if isinstance(item,str):

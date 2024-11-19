@@ -6,13 +6,13 @@ from .logger import Logger
 from .module_manager import invoke_script
 
 if TYPE_CHECKING:
-    from .types import BuildingEnvironment
+    from .types import Context
 
 
 logger = Logger('Formatter')
 def format_code(code: str,
                 data: Dict[str,object],
-                env: 'BuildingEnvironment',
+                context: 'Context',
                 children_code: str = '',
                 stack:list = None,
                 err_output = None):
@@ -21,7 +21,7 @@ def format_code(code: str,
         return code
     if not stack:
         stack = []
-    project = env.get('project')
+    project = context.project
     code = str(code)
     matches = findall_placeholders(code)
     for match in matches:
@@ -38,7 +38,7 @@ def format_code(code: str,
         if attr_name.startswith('$') or attr_name.startswith('@'):
             script_name=qurey_tuple[0][1:]
             replacement = invoke_script(script_name=script_name,
-                                    project=project,env=env,card=data,args=qurey_tuple[1:],
+                                    project=project,context=context,card=data,args=qurey_tuple[1:],
                                     children_code=children_code)
         else:
             try:
@@ -53,7 +53,7 @@ def format_code(code: str,
                     continue
         stack.append(code)
         try:
-            replacement = format_code(replacement,data,env,children_code,stack)
+            replacement = format_code(replacement,data,context,children_code,stack)
         finally:
             stack.pop()
         code = code.replace(f'${{{match}}}',str(replacement),1)

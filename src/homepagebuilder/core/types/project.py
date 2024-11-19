@@ -3,7 +3,7 @@ from typing import Dict, List, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from . import Builder, BuildingEnvironment
+    from . import Builder, Context
     from ..resource import Resource
     from ..library import Library
     from ..io import File
@@ -25,8 +25,8 @@ class Project(ABC):
 
     def __init__(self,builder, path:str):
         self.builder:Builder = builder
-        self.__env:'BuildingEnvironment' = builder.get_environment_copy()
-        self.__env['project'] = self
+        self.__context:'Context' = builder.get_context_copy()
+        self.__context.project = self
         self.base_library:Library = None
         self.base_path:str = None
         self.default_page:PageBase = None
@@ -51,6 +51,6 @@ class Project(ABC):
     def get_page_displayname(self, page_alias) -> str:
         """获取页面显示名"""
 
-    def get_environment_copy(self) -> 'BuildingEnvironment':
+    def get_context_copy(self) -> 'Context':
         """获取环境拷贝"""
-        return self.__env.copy()
+        return self.__context.copy(self.__context)

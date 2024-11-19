@@ -56,9 +56,9 @@ class NodeType(Enum):
     UIELEMENT = 4
 
 class Node():
-    def __init__(self,tag,env,parent_stack):
-        self.env = env
-        self.components = env.get('components')
+    def __init__(self,tag,context,parent_stack):
+        self.context = context
+        self.components = context.components
         self.name:str = None
         self.attrs = None
         self.tag = tag
@@ -162,7 +162,7 @@ class NodeBase(Node):
     def get_element_frame(self):
         replacement = self.get_replacement()
         component_obj = self.components.get(self.component_name)
-        component_obj.mark_used_resources(replacement,self.env)
+        component_obj.mark_used_resources(replacement,self.context)
         replace_str = str(component_obj)
         if len(replacement) > 0:
             for k,v in replacement.items():
@@ -173,7 +173,7 @@ class NodeBase(Node):
         if self.tag.contents:
             self.children = []
             for child in self.tag.contents:
-                self.add_child_node(create_node(child,self.env,self.parent_stack + [self]))
+                self.add_child_node(create_node(child,self.context,self.parent_stack + [self]))
 
     def add_child_node(self,child_node:Node):
         self.children.append(child_node)
@@ -280,8 +280,8 @@ class Paragraph(BlockNode, InlineNodeContainer):
             self.expose_children = True
 
 class ListItemParagraph(Paragraph):
-    def __init__(self,children,env, parent_stack ):
-        super().__init__(tag = None, env = env, parent_stack=parent_stack)
+    def __init__(self,children,context, parent_stack ):
+        super().__init__(tag = None, context = context, parent_stack=parent_stack)
         self.children = children
 
     def parse_children(self,*args,**kwargs):
@@ -308,12 +308,12 @@ class MarkdownListItem(BlockNode, BlockNodeContainer):
             else:
                 if len(inline_children_buffer) > 0:
                     new_children.append(self.children_paragraph_class(
-                        inline_children_buffer,env = self.env,
+                        inline_children_buffer,context = self.context,
                         parent_stack = self.parent_stack + [self]))
                 new_children.append(child)
         if len(inline_children_buffer) > 0:
             new_children.append(self.children_paragraph_class(
-                inline_children_buffer,env = self.env,
+                inline_children_buffer,context = self.context,
                 parent_stack = self.parent_stack + [self]))
         self.children = new_children
 
@@ -400,8 +400,8 @@ class MarkdownImage(WPFUIContainer):
             replacements['title'] = self.title
         return replacements
 
-def create_node(tag,env,parent_stack):
+def create_node(tag,context,parent_stack):
     if isinstance(tag,str):
-        return Text(tag,env=env,parent_stack=parent_stack)
+        return Text(tag,context=context,parent_stack=parent_stack)
     else:
-        return TAG_PARSER_MAPPING[tag.name](tag=tag,env=env,parent_stack=parent_stack)
+        return TAG_PARSER_MAPPING[tag.name](tag=tag,context=context,parent_stack=parent_stack)

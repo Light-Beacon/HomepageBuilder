@@ -13,7 +13,7 @@ from .config import is_debugging
 
 if TYPE_CHECKING:
     from typing import List, Union
-    from .types import BuildingEnvironment
+    from .types import Context
 
 logger = Logger('Template')
 
@@ -59,7 +59,7 @@ def filter_match(template,card):
 
 class TemplateManager():
     '''模版管理器类'''
-    def expend_card_placeholders(self,card:dict,children_code,env):
+    def expend_card_placeholders(self,card:dict,children_code,context):
         '''展开卡片属性内所有占位符'''
         q = Queue()
         tries = 0
@@ -74,7 +74,7 @@ class TemplateManager():
                 break
             key = q.get()
             try:
-                card[key] = format_code(card[key],card,env=env,children_code=children_code)
+                card[key] = format_code(card[key],card,context=context,children_code=children_code)
                 tries = 0
             except PropNotFormatedError:
                 q.put(key)
@@ -82,29 +82,29 @@ class TemplateManager():
                 continue
         return card
 
-    def build_with_template(self,card,template_name,children_code,env:'BuildingEnvironment') -> str:
+    def build_with_template(self,card,template_name,children_code,context:'Context') -> str:
         '''使用指定模版构建卡片'''
         if (not template_name) or template_name == 'void':
             return children_code
-        target_template = env.get('templates')[template_name]
+        target_template = context.templates[template_name]
         code = ''
         card = PropertySetter(target_template.get('fill'),target_template.get('cover')).decorate(card)
-        card = self.expend_card_placeholders(card,children_code,env)
+        card = self.expend_card_placeholders(card,children_code,context)
         for cpn in target_template['components']:
-            cpn = format_code(cpn,card,env,'')
-            if cpnobj := env.get('components').get(cpn):
-                code += cpnobj.toxaml(card,env,children_code)
+            cpn = format_code(cpn,card,context,'')
+            if cpnobj := context.components.get(cpn):
+                code += cpnobj.toxaml(card,context,children_code)
             elif cpn.startswith('$') or cpn.startswith('@'):
                 args = cpn[1:].split('|')
-                code += invoke_script(args[0],env=env,card=card,args=args[1:],children_code=children_code)
+                code += invoke_script(args[0],context=context,card=card,args=args[1:],children_code=children_code)
             elif not cpn == '':
                 logger.warning(f'{template_name}模版中调用了未载入的构件{cpn}，跳过')
         if 'containers' in target_template:
             tree_path = target_template['containers']
-            code = self.packin_containers(tree_path,card,code,env)
-        return self.build_with_template(card,target_template.get('base'),code,env)
+            code = self.packin_containers(tree_path,card,code,context)
+        return self.build_with_template(card,target_template.get('base'),code,context)
 
-    def packin_containers(self,tree_path:'Union[str,List[str]]',card,code:str,env:'BuildingEnvironment'):
+    def packin_containers(self,tree_path:'Union[str,List[str]]',card,code:str,context:'Context'):
         '''按照容器组件路径包装'''
         containers:list = []
         if isinstance(tree_path,str):
@@ -122,19 +122,19 @@ class TemplateManager():
                 case 'base':
                     break
                 case _:
-                    if container in env.get('components'):
-                        current_code = format_code(env.get('components')[container],
-                                            card,env.get('project'),current_code)
+                    if container in context.components:
+                        current_code = format_code(context.components[container],
+                                            card,context.project,current_code)
                     else:
                         raise ValueError('容器路径中存在不存在的组件')
         return current_code
 
     @set_triggers('tm.buildcard')
-    def build(self,card,env:'BuildingEnvironment'):
+    def build(self,card,context:'Context'):
         '''构建卡片'''
-        def try_build(self,card,template,env:'BuildingEnvironment'):
+        def try_build(self,card,template,context:'Context'):
             try:
-                return self.build_with_template(card,template,'',env)
+                return self.build_with_template(card,template,'',context)
             except Exception as ex:
                 if is_debugging():
                     raise ex
@@ -143,18 +143,18 @@ class TemplateManager():
                     return ''
 
         attr = card['templates']
-        templates = env.get('templates')
+        templates = context.templates
         if isinstance(attr,str):
             template = templates[attr]
             if filter_match(template,card):
-                return try_build(self,card,attr,env)
+                return try_build(self,card,attr,context)
             else:
                 logger.warning('卡片与其配置的模版要求不符，跳过')
                 return ''
         elif isinstance(attr,list):
             for template_name in card['templates']:
                 if filter_match(templates.get(template_name),card):
-                    return try_build(self,card,template_name,env)
+                    return try_build(self,card,template_name,context)
             if is_debugging():
                 raise ValueError('卡片没有匹配的配置模版')
             else:

@@ -1,17 +1,17 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING
-from .types import BuildingEnvironment
+from .types import Context
 from .utils.property import PropertySetter
 from .utils.event import set_triggers
 from .formatter import format_code
 from .logger import Logger
 from .i18n import locale as t
-from .config import config
+from .config import config, is_debugging
 from .resource import get_resources_code
 from ..debug import global_anlyzer as anl
 
 if TYPE_CHECKING:
-    from .types import BuildingEnvironment
+    from .types import Context
     from .io import File
 
 logger = Logger('Page')
@@ -19,7 +19,7 @@ logger = Logger('Page')
 class PageBase():
     "页面基类"
     @abstractmethod
-    def generate(self, env:'BuildingEnvironment'):
+    def generate(self, context:'Context'):
         "获取页面 XAML 代码"
     
     @property
@@ -46,7 +46,7 @@ class RawXamlPage(FileBasedPage):
     def display_name(self):
         return self.file.name
 
-    def generate(self, env):
+    def generate(self, context):
         return self.file.data
 
 class CardStackPage(FileBasedPage):
@@ -65,39 +65,39 @@ class CardStackPage(FileBasedPage):
         return self.display_name_str
 
     @set_triggers('page.generate')
-    def generate(self, env):
+    def generate(self, context):
         anl.phase(self.name)
         anl.switch_in()
-        xaml = self.getframe(env)
+        xaml = self.getframe(context)
         #xaml = xaml.replace('${animations}', '')  # TODO
         anl.phase("内容")
         anl.switch_in()
-        xaml = xaml.replace('${content}', self.generate_content(env))
+        xaml = xaml.replace('${content}', self.generate_content(context))
         anl.switch_out()
-        xaml = xaml.replace('${styles}', get_resources_code(env))
+        xaml = xaml.replace('${styles}', get_resources_code(context))
         anl.switch_out()
         return xaml
 
-    def generate_content(self, env:'BuildingEnvironment'):
+    def generate_content(self, context:'Context'):
         """生成页面主要内容"""
         runtime_setter = self.setter.clone()
-        runtime_setter.attach(env.get('setter'))
+        runtime_setter.attach(context.setter)
         content = ''
         for card_ref in self.cardrefs:
             anl.phase(card_ref)
-            content += self.__getcardscontent(card_ref, env, setter = runtime_setter)
+            content += self.__getcardscontent(card_ref, context, setter = runtime_setter)
         logger.info(t('page.generate.done', page=self.name))
         return content
 
-    def __getcardscontent(self, ref:str, env:'BuildingEnvironment', setter:PropertySetter):
+    def __getcardscontent(self, ref:str, context:'Context', setter:PropertySetter):
         """一行可能有多个卡片，本方法处理整行"""
-        ref = format_code(code=ref, data=setter.toProperties(), env=env)
+        ref = format_code(code=ref, data=setter.toProperties(), context=context)
         code = ''
         for each_card_ref in ref.split(';'):
-            code += self.__getonecardcontent(each_card_ref, env, setter.clone())
+            code += self.__getonecardcontent(each_card_ref, context, setter.clone())
         return code
 
-    def __getonecardcontent(self, ref, env:'BuildingEnvironment', setter:PropertySetter):
+    def __getonecardcontent(self, ref, context:Context, setter:PropertySetter):
         """一行可能有多个卡片，本方法处理单个卡片"""
         ref = ref.replace(' ', '').split('|')
         real_ref = ref[0]
@@ -107,24 +107,24 @@ class CardStackPage(FileBasedPage):
             return ''
         setter.attach(PropertySetter.fromargs(args))
         logger.info(t('page.get_card', card_ref=real_ref))
-        card = self.__getcard(real_ref,env,setter)
+        card = self.__getcard(real_ref,context,setter)
         if not card:
             return ''
-        return env.get('builder').template_manager.build(card,env)
+        return context.builder.template_manager.build(card,context)
 
-    def __getcard(self,ref,env:'BuildingEnvironment',setter):
-        if config('Debug.Enable'):
-            return self.__getcardunsafe(ref, env, setter)
+    def __getcard(self,ref,context:Context,setter):
+        if is_debugging():
+            return self.__getcardunsafe(ref, context, setter)
         try:
-            return self.__getcardunsafe(ref, env, setter)
+            return self.__getcardunsafe(ref, context, setter)
         except Exception as ex:
             logger.warning(t('page.get_card.failed', ex=ex))
             return None 
 
-    def __getcardunsafe(self,ref:str,env:'BuildingEnvironment',setter):
-        card = env.get('project').base_library.get_card(ref, False)
+    def __getcardunsafe(self,ref:str,context:Context,setter):
+        card = context.project.base_library.get_card(ref, False)
         card = setter.decorate(card)
         return card
 
-    def getframe(self,env:'BuildingEnvironment'):
-        return env.get('page_templates')['Default']
+    def getframe(self,context:Context):
+        return context.page_templates['Default']

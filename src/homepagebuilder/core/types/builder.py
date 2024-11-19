@@ -1,6 +1,6 @@
 from abc import ABC,abstractmethod
 from typing import TYPE_CHECKING
-from .environment import BuildingEnvironment
+from .context import Context
 
 if TYPE_CHECKING:
     from . import Project
@@ -14,9 +14,8 @@ class Builder(ABC):
         self.resources: Resource
         self.template_manager: TemplateManager
         self.current_project: Project
-        self.__env:BuildingEnvironment = BuildingEnvironment(
-            builder=self
-        )
+        self.__context:Context = Context
+        self.__context.builder = self
 
     @abstractmethod
     def load_resources(self,dire_path) -> None:
@@ -34,6 +33,6 @@ class Builder(ABC):
     def load_proejct(self,project_path) -> None:
         """加载工程"""
 
-    def get_environment_copy(self) -> 'BuildingEnvironment':
+    def get_context_copy(self) -> 'Context':
         """获取环境拷贝"""
-        return self.__env.copy()
+        return self.__context.copy(self.__context)

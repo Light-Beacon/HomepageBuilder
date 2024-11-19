@@ -1,7 +1,7 @@
 """构建器主入口"""
 import argparse
 from typing import Dict
-from .core.config import init_full, force_debug
+from .core.config import is_debugging, init_full, force_debug
 from .command import *
 
 COMMAND_BINGDING:Dict[str, CommandProcesser] = {}
@@ -24,6 +24,8 @@ def main():
         COMMAND_BINGDING[args.command].process(args)
     except Exception as e:
         print(f"{e.__class__.__name__}: {e}")
+        if is_debugging():
+            raise e
         return 1
     return 0
 

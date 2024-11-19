@@ -53,15 +53,15 @@ class Project(ProjectBase):
 
     @set_triggers('project.impoort.structures')
     def __init_import_structures(self):
-        self.__env['components'].update(Loader.load_compoents(
+        self.__context.components.update(Loader.load_compoents(
             fmtpath(self.base_path,'/structures/components')))
-        self.__env['templates'].update(Loader.load_tempaltes(
+        self.__context.templates.update(Loader.load_tempaltes(
             fmtpath(self.base_path,'/structures/templates')))
-        self.__env['page_templates'].update(Loader.load_page_tempaltes(
+        self.__context.page_templates.update(Loader.load_page_tempaltes(
             fmtpath(self.base_path,'/structures/pagetemplates')))
 
     def __init_import_data(self):
-        self.__env['data'].update(Loader.create_structure_mapping(
+        self.__context.data.update(Loader.create_structure_mapping(
             fmtpath(self.base_path,'/data')))
 
     @set_triggers('project.import.modules')
@@ -79,7 +79,7 @@ class Project(ProjectBase):
     @set_triggers('project.import.resources')
     def __init_import_resources(self):
         logger.info(t('project.import.resources'))
-        self.__env['resources'].update(Loader.load_resources(
+        self.__context.resources.update(Loader.load_resources(
             fmtpath(self.base_path,'/resources')))
 
     @set_triggers('project.import.pages')
@@ -124,10 +124,10 @@ class Project(ProjectBase):
             if not no_not_found_err_logging:
                 logger.error(t('project.gen_page.failed.notfound', page=page_alias))
             raise PageNotFoundError(page_alias)
-        env = self.get_environment_copy()
-        env.update(setter=setter)
-        env.update(used_resources=set())
-        xaml = self.pages[page_alias].generate(env = env)
+        context = self.get_context_copy()
+        context.setter=setter
+        context.used_resources=set()
+        xaml = self.pages[page_alias].generate(context = context)
         return xaml
 
     def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None):
@@ -144,10 +144,10 @@ class Project(ProjectBase):
             raise PageNotFoundError(t('page.not_found',page = page_alias))
         return page.display_name
 
-    def set_env_data(self,key,value):
-        self.__env['data'][key] = value
+    def set_context_data(self,key,value):
+        self.__context.data[key] = value
     
-    def get_env_data(self,key):
-        return self.__env['data'].get(key)
+    def get_context_data(self,key):
+        return self.__context.data.get(key)
 class PageNotFoundError(Exception):
     """页面未找到错误"""

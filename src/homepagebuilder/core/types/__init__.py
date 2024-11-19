@@ -1,3 +1,3 @@
 from .builder import Builder
-from .environment import BuildingEnvironment
+from .context import Context
 from .project import Project

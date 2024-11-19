@@ -20,7 +20,7 @@ class Builder(BuilderBase):
         super().__init__()
         self.envpath = os.path.dirname(os.path.dirname(__file__))
         anl.phase('初始化构建器环境')
-        self.__init_env()
+        self.__init_context()
         anl.phase('初始化构建器资源')
         anl.switch_in()
         self.load_structure(getbuilderpath('resources/structures/'))
@@ -31,30 +31,30 @@ class Builder(BuilderBase):
         self.current_project = None
         anl.switch_out()
 
-    def __init_env(self):
-        self.__env['components'] = {}
-        self.__env['builder'] = self
-        self.__env['data'] = {}
-        self.__env['page_templates'] = {}
-        self.__env['templates'] = {}
-        self.__env['project'] = None
-        self.__env['resources'] = {}
-        self.__env['setter'] = None
+    def __init_context(self):
+        self.__context.components = {}
+        self.__context.builder = self
+        self.__context.data = {}
+        self.__context.page_templates = {}
+        self.__context.templates = {}
+        self.__context.project = None
+        self.__context.resources = {}
+        self.__context.setter = None
 
     def load_structure(self,dire_path):
         anl.phase('加载结构文件')
-        self.__env['components'].update(
+        self.__context.components.update(
             Loader.load_compoents(dire_path + 'components'))
-        self.__env['templates'].update(
+        self.__context.templates.update(
             Loader.load_tempaltes(dire_path + 'templates'))
-        self.__env['page_templates'].update(
+        self.__context.page_templates.update(
             Loader.load_page_tempaltes(dire_path + 'pagetemplates'))
 
     def load_resources(self,dire_path):
         """加载构建器资源"""
         anl.phase('加载资源文件')
         logger.info(t('builder.load.resources'))
-        self.__env['resources'].update(
+        self.__context.resources.update(
             Loader.load_resources(dire_path))
 
     def load_modules(self,dire_path):

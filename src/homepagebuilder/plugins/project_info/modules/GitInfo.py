@@ -41,16 +41,16 @@ def is_git_repo(directory):
 @enable_by(IS_GIT_INSTALLED)
 @on('project.load.return')
 def set_githash(proj,*_,**__):
-    proj.set_env_data('git.isrepo', is_git_repo(proj.base_path))
-    if not proj.get_env_data('git.isrepo'):
+    proj.set_context_data('git.isrepo', is_git_repo(proj.base_path))
+    if not proj.get_context_data('git.isrepo'):
         if not gitinfo_config('NoProduceNotRepoWarning'):
             logger.warning(locale('projectinfo.git.isnotrepo'))
             logger.warning(locale('projectinfo.git.disablehint', hide_config_key = 'NoProduceNotRepoWarning'))
         return
     githash = get_githash(proj.base_path).removesuffix('\n')
     logger.info(locale('projectinfo.git.version',version=githash))
-    proj.set_env_data('git.commit.hash',githash)
-    proj.set_env_data('git.commit.id',githash[:7])
+    proj.set_context_data('git.commit.hash',githash)
+    proj.set_context_data('git.commit.id',githash[:7])
 
 def get_githash(path):
     githash = subprocess.check_output('git rev-parse HEAD',cwd = path, shell=True)
@@ -59,8 +59,8 @@ def get_githash(path):
 @on('tm.buildcard.start')
 @enable_by_config('ProjectInfo.GitInfo.Enable')
 @enable_by(IS_GIT_INSTALLED)
-def get_card_last_update_time(_tm,card,env,*args,**kwargs):
-    data = env.get('data')
+def get_card_last_update_time(_tm,card,context,*args,**kwargs):
+    data = context.data
     if not data['git.isrepo']:
         return
     if 'last_update' in card:
