@@ -10,3 +10,4 @@ venv
 Log
 build
 *.egg-info/
+docs/_build

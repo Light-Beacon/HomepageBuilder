@@ -1,0 +1,29 @@
+body{
+    --color-brand-content: #1f212f
+}
+
+body[data-theme=dark]{
+    --color-background-primary: #13181B;
+    --color-background-secondary: #1A1F25;
+}
+
+.highlight{
+    border-radius: 6px;
+    padding: 6px;
+}
+
+body[data-theme=dark].highlight{
+    background: #202326;
+}
+
+button.copybtn.success::after {
+    color: rgb(26, 159, 26);
+}
+
+a.footer-icon{
+    color: var(--color-foreground-primary) !important
+}
+
+img{
+    border-radius: 1em;
+}
