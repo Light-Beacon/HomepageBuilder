@@ -3,6 +3,7 @@
 '''
 from flask import Flask, request, make_response
 from typing import Tuple, Union
+from werkzeug.middleware.proxy_fix import ProxyFix
 from ..core.project import PageNotFoundError
 from ..core.logger import Logger
 from .project_updater import request_update
@@ -11,8 +12,11 @@ from ..core.utils.property import PropertySetter
 from ..core.i18n import locale as t
 from ..core.config import config
 
+
 logger = Logger('Server')
 app = Flask(__name__)
+if config('server.proxyfix'):
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 projapi = None
 
 class Server:
