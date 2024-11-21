@@ -56,13 +56,13 @@ def index_page():
 @app.route("/<path:alias>")
 def getpage(alias:str):
     '''默认页面'''
-    if alias.endswith('/version') or alias == 'version':
-        return projapi.get_version(alias,request) # 获取版本号
     args = request.args # 获取参数
     if is_debugging():
         logger.debug(t("server.request.received",page=alias,args=args))
         if realip := request.headers.get('X-Real-IP'):
             logger.debug(f"x_real_ip: {realip}")
+    if alias.endswith('/version') or alias == 'version':
+        return projapi.get_version(alias,request) # 获取版本号
     while alias.endswith('/'):
         alias = alias[:-1]
     mode = None
