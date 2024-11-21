@@ -47,6 +47,8 @@ def trigger_event(event_name:str,*args,**kwargs):
     for action in actions_list:
         try:
             action(*args,**kwargs)
+        except ResultOverride as ro:
+            raise ro
         except Exception as ex:
             logger.error(locale('event.error',eventname=event_name, ex=ex))
             raise ex
