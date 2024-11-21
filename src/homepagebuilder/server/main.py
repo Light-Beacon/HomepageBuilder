@@ -12,11 +12,9 @@ from ..core.utils.property import PropertySetter
 from ..core.i18n import locale as t
 from ..core.config import config, is_debugging
 
-
 logger = Logger('Server')
 app = Flask(__name__)
-if config('Server.ProxyFix'):
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
+
 projapi = None
 
 class Server:
@@ -24,10 +22,21 @@ class Server:
         global projapi
         logger.info(t('server.init'))
         projapi = ProjectAPI(project_path)
+        self.limiter = None
+        self.init_server_config()
 
-    def run(self,port):
+    def init_server_config(self):
+        if config('Server.ProxyFix'):
+            app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
+        if config('Server.RateLimit.Enable', False):
+            from flask_limiter import Limiter
+            from flask_limiter.util import get_remote_address
+            self.limiter = Limiter(get_remote_address, app = app,
+                            default_limits=config('Server.RateLimit.Rate.Default', ["10 per minute"]))
+
+    def run(self,port,flask_debug):
         logger.info(t('server.start',port=port))
-        app.run(port=port)
+        app.run(port=port,debug=flask_debug)
 
     def get_flask_app(self):
         return app
