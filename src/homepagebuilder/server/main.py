@@ -10,7 +10,7 @@ from .project_updater import request_update
 from .project_api import ProjectAPI
 from ..core.utils.property import PropertySetter
 from ..core.i18n import locale as t
-from ..core.config import config
+from ..core.config import config, is_debugging
 
 
 logger = Logger('Server')
@@ -59,7 +59,10 @@ def getpage(alias:str):
     if alias.endswith('/version') or alias == 'version':
         return projapi.get_version(alias,request) # 获取版本号
     args = request.args # 获取参数
-    logger.debug(t("server.request.received",page=alias,args=args))
+    if is_debugging():
+        logger.debug(t("server.request.received",page=alias,args=args))
+        if realip := request.headers.get('X-Real-IP'):
+            logger.debug(f"x_real_ip: {realip}")
     while alias.endswith('/'):
         alias = alias[:-1]
     mode = None
