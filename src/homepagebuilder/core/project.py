@@ -9,6 +9,7 @@ from .i18n import locale as t
 from .module_manager import load_module_dire,get_check_list
 from .utils.event import set_triggers
 from .utils.paths import fmtpath
+from .utils.checking import Version
 from ..debug import global_anlyzer as anl
 from .page import CardStackPage, RawXamlPage
 from .loader import Loader
@@ -41,11 +42,29 @@ class Project(ProjectBase):
     def __init_load_projectfile(self,path):
         pack_info = File(path).read()
         self.base_path = os.path.dirname(path)
-        self.version = pack_info['version']
+        self.version = Version.from_string(pack_info['version'])
         self.default_page = pack_info.get('default_page')
-        logger.info(t('project.import.pack.version', version=self.version))
+        self.__check_version()
 
-    def  __init_import_configs(self):
+    def __check_version(self):
+        builder_version = Version.builder_version()
+        pack_version = self.version
+        if pack_version >> builder_version:
+            logger.warning(t('project.import.pack.version.too.new',
+                             packversion = pack_version,builderversion = builder_version))
+        elif pack_version << builder_version:
+            logger.warning(t('project.import.pack.version.too.old',
+                             packversion = pack_version,builderversion = builder_version))
+        elif pack_version > builder_version:
+            logger.info(t('project.import.pack.version.new',
+                          packversion = pack_version,builderversion = builder_version))
+        elif pack_version < builder_version:
+            logger.info(t('project.import.pack.version.old',
+                          packversion = pack_version,builderversion = builder_version))
+        else:
+            logger.info(t('project.import.pack.version', packversion=self.version))
+
+    def __init_import_configs(self):
         try:
             import_config_dire(fmtpath(self.base_path,'/configs'))
         except FileNotFoundError:

@@ -28,7 +28,11 @@ project.load.modules: "正在加载模块"
 project.load.plugins: "正在加载插件"
 project.load.success: "工程加载完毕！"
 project.import.start: "正在导入工程包: ${path}"
-project.import.pack.version: "工程包版本: ${version}"
+project.import.pack.version.too.new: "工程包的构建器版本(${packversion})相比已安装的构建器版本(${builderversion})过新，很大概率无法正常使用"
+project.import.pack.version.too.old: "工程包的构建器版本(${packversion})相比已安装的构建器版本(${builderversion})过旧，很大概率无法正常使用"
+project.import.pack.version.new: "工程包的构建器版本(${packversion})相比已安装的构建器版本(${builderversion})更新，一些功能可能无法支持"
+project.import.pack.version.old: "工程包的构建器版本(${packversion})相比已安装的构建器版本(${builderversion})更旧"
+project.import.pack.version: "工程包版本: ${packversion}，符合当前安装的构建器版本"
 project.import.cards: '导入卡片中'
 project.import.resources: '导入资源中'
 project.import.pages: '导入页面中'

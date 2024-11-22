@@ -35,7 +35,7 @@ class ProjectAPI:
             self.trigger_project_update()
 
         except Exception as e:
-            logger.fatal(e.args)
+            logger.fatal("%s:%s",e.__class__.__name__,e)
             if is_debugging():
                 raise e
             exit()

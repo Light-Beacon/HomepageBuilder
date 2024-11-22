@@ -28,7 +28,11 @@ project.load.modules: "Loading modules"
 project.load.plugins: "Loading plugins"
 project.load.success: "Pack loaded successful!"
 project.import.start: "Start to import pack at: ${path}"
-project.import.pack.version: "Pack version: ${version}"
+project.import.pack.version.too.new: "Pack version(${packversion}) is too newer than builder version(${packversion})"
+project.import.pack.version.too.old: "Pack version(${packversion}) is too older than builder version(${packversion})"
+project.import.pack.version.new: "Pack version(${packversion}) is newer than builder version(${packversion})"
+project.import.pack.version.old: "Pack version(${packversion}) is newer than builder version(${packversion})"
+project.import.pack.version: "Pack version: ${packversion}"
 project.import.cards: 'Loading cards'
 project.import.resources: 'Importing resources'
 project.import.pages: 'Loading pages'
