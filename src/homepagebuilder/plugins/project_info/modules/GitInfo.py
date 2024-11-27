@@ -41,6 +41,7 @@ def is_git_repo(directory):
 @enable_by(IS_GIT_INSTALLED)
 @on('project.load.return')
 def set_githash(proj,*_,**__):
+    
     proj.set_context_data('git.isrepo', is_git_repo(proj.base_path))
     if not proj.get_context_data('git.isrepo'):
         if not gitinfo_config('NoProduceNotRepoWarning'):
