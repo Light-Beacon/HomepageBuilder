@@ -37,8 +37,11 @@ jobs:
         run: |
             pip install -r requirements.txt
             pip install .
+      - name: Configure Sphinx
+        run: |
             pip install sphinx
             pip install furo
+            pip install sphinx-copybutton
       - name: Make Pages
         run: |
             cd docs
