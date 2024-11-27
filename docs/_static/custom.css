@@ -12,8 +12,8 @@ body[data-theme=dark]{
     padding: 6px;
 }
 
-body[data-theme=dark].highlight{
-    background: #202326;
+body[data-theme="dark"] .highlight {
+    background: #202329 !important;
 }
 
 button.copybtn.success::after {

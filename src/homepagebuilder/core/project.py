@@ -10,7 +10,6 @@ from .module_manager import load_module_dire,get_check_list
 from .utils.event import set_triggers
 from .utils.paths import fmtpath
 from .utils.checking import Version
-from ..debug import global_anlyzer as anl
 from .page import CardStackPage, RawXamlPage
 from .loader import Loader
 from .types import Project as ProjectBase
@@ -88,7 +87,7 @@ class Project(ProjectBase):
         logger.info(t('project.import.modules'))
         load_module_dire(fmtpath(self.base_path,'/modules'), self)
         self.__checkModuleWaitList()
-    
+
     @set_triggers('project.import.cards')
     def __init_import_cards(self):
         logger.info(t('project.import.cards'))

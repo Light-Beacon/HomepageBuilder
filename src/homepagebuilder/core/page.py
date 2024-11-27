@@ -35,11 +35,12 @@ class FileBasedPage(PageBase):
         super().__init__()
         self.file = file
 
-class CodeBasedPage():
+class CodeBasedPage(PageBase):
     "基于代码的页面，仅应用于继承"
     def __init__(self, project) -> None:
         super().__init__()
         self.project = project
+
 class RawXamlPage(FileBasedPage):
     """纯XAML页面"""
     @property

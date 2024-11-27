@@ -14,11 +14,11 @@ PY_PATTERN = re.compile(r'.*\.py$')
 logger = Logger('Loader')
 
 class Loader():
-    
+
     @classmethod
     def load_compoents(cls,direpath):
         return cls.create_structure_mapping(direpath,XAML_PATTERN,Component)
-    
+
     @classmethod
     def load_tempaltes(cls,direpath):
         return cls.create_structure_mapping(direpath,YAML_PATTERN)
