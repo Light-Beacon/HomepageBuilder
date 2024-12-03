@@ -15,15 +15,27 @@ if TYPE_CHECKING:
     from typing import List, Union
     from .types import Context
 
+SPECAIL_RULES = {
+    'HASVALUE': lambda x: x and len(x) > 0,
+    'EMPTY': lambda x: not x or len(x) == 0,
+    'NEVER': lambda _: False,
+}
+
+def add_special_rule(name, func):
+    '''添加特殊规则'''
+    if name in SPECAIL_RULES:
+        raise ValueError('Rule name already exists')
+    SPECAIL_RULES[name] = func
+
 logger = Logger('Template')
 
-def __is_filter_value_match(rule:str,value:str):
+def __is_filter_value_match(rule,value):
+    rule = str(rule)
+    value = str(value)
     if rule.startswith('$'):
         rule = rule[1:]
-        if rule == 'HASVALUE' and value and len(value) > 0:
-            return True
-        if rule == 'EMPTY' and (value or len(value) == 0):
-            return True
+        if rule_matcher := SPECAIL_RULES.get(rule):
+            return rule_matcher(value)
         return False
     else:
         if not value:
@@ -38,12 +50,12 @@ def filter_match(template,card):
         return False
     if 'filter' not in template:
         return True
-    if template['filter'] == 'never':
+    if template['filter'] == '$NEVER':
         return False
     for keyword in template['filter']:
         rules = template['filter'][keyword]
         if isinstance(rules,(str,int,bool,float)):
-            if __is_filter_value_match(rule=str(rules),value = card.get(keyword)):
+            if __is_filter_value_match(rule=rules,value = card.get(keyword)):
                 return True
             else:
                 return False
