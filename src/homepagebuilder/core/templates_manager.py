@@ -31,13 +31,13 @@ logger = Logger('Template')
 
 def __is_filter_value_match(rule,value):
     rule = str(rule)
-    value = str(value)
     if rule.startswith('$'):
         rule = rule[1:]
         if rule_matcher := SPECAIL_RULES.get(rule):
             return rule_matcher(value)
         return False
     else:
+        value = str(value)
         if not value:
             return False
         rule = rule.lower()
