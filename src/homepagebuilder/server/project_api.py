@@ -7,6 +7,7 @@ from ..core.project import Project
 from ..core.builder import Builder
 from ..core.config import config, is_debugging
 from ..core.utils.property import PropertySetter
+from ..core.utils.event import set_triggers
 from ..core.logger import Logger
 
 manager = Manager()
@@ -48,6 +49,7 @@ class ProjectAPI:
             self.project_file = path
             self.project_dir  = os.path.dirname(path)
 
+    @set_triggers('server.project.reload')
     def reload_project(self):
         '''重载工程'''
         del self.project
@@ -69,6 +71,7 @@ class ProjectAPI:
             if version > self.__run_time_version:
                 self.reload_project()
 
+    @set_triggers('server.get.version')
     def get_version(self,alias,request):
         '''获取主页版本'''
         self.__check_project_update()
@@ -90,6 +93,7 @@ class ProjectAPI:
         return {'response': f'{{"Title":"{self.cache[key]}"}}',
                 'content-type': 'application/json'}
 
+    @set_triggers('server.get.page')
     def get_page_response(self,alias,client,args = None):
         '''获取页面内容'''
         self.__check_project_update()

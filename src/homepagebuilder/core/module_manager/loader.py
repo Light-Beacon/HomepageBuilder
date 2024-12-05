@@ -121,6 +121,6 @@ def load_module_dire(dire,*args,**kwargs):
             return
     if not isinstance(dire,Dire):
         raise TypeError()
-    for file in dire.scan(PY_PATTERN):
+    for file in dire.scan(PY_PATTERN,recur=True):
         modulelist.append(file.read())
     init_modules(modulelist,*args,**kwargs)
