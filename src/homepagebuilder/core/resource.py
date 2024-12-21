@@ -25,7 +25,7 @@ xmlns:pb="lr-namespace:PageBuilder"
 xmlns:sys="clr-namespace:System;assembly=mscorlib"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:local="clr-namespace:PCL;assembly=Plain Craft Launcher 2">
-{chindren}
+{children}
 </Root>
 '''
 
@@ -66,7 +66,7 @@ class ResourceLoader:
     def __loadxamlfile(cls,file:Annotated[File,is_xaml]):
         """加载xaml资源文件"""
         output = {}
-        data = XML_ROOT.replace('{chindren}', file.data)
+        data = XML_ROOT.replace('{children}', file.data)
         root = ET.fromstring(data)
         for element in root:
             res = XamlResource(element)
