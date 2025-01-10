@@ -66,7 +66,6 @@ class Node():
         self.parent_stack:List['Node'] = parent_stack
         self.expose_children:bool = False
         """隐藏本元素，将子元素设为与本元素同级"""
-        self.parse_children()
 
     @property
     def ancestor(self) -> 'Node':
@@ -257,7 +256,7 @@ class Text(VoidNode):
 
     def isblank(self):
         return len(self.content.strip()) == 0
-    
+
     @property
     def node_type(self):
         return NodeType.PLAINTEXT
@@ -310,13 +309,13 @@ class MarkdownListItem(BlockNode, BlockNodeContainer):
                     new_children.append(self.children_paragraph_class(
                         inline_children_buffer,context = self.context,
                         parent_stack = self.parent_stack + [self]))
+                    inline_children_buffer = []
                 new_children.append(child)
         if len(inline_children_buffer) > 0:
             new_children.append(self.children_paragraph_class(
                 inline_children_buffer,context = self.context,
                 parent_stack = self.parent_stack + [self]))
         self.children = new_children
-
 
 QUOTE_TYPE_PATTERN = re.compile(r'^\[!(.*)\]')
 QUOTE_TYPE_NAMES = {

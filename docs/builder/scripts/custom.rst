@@ -10,7 +10,6 @@
     def what_ever_you_want(env, card, arg1, arg2 = 'default_value', ...,  *args, **kwargs):
         return your_code(card, arg1, ...)
 
-
 构建器不会关心函数的名称，你可以随意取名
 
 * **env**: 当前环境 BuildingEnvironment
