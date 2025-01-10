@@ -67,16 +67,11 @@ class CardStackPage(FileBasedPage):
 
     @set_triggers('page.generate')
     def generate(self, context):
-        anl.phase(self.name)
-        anl.switch_in()
         xaml = self.getframe(context)
         #xaml = xaml.replace('${animations}', '')  # TODO
-        anl.phase("内容")
-        anl.switch_in()
         xaml = xaml.replace('${content}', self.generate_content(context))
-        anl.switch_out()
         xaml = xaml.replace('${styles}', get_resources_code(context))
-        anl.switch_out()
+        logger.info(t('page.generate.done', page=self.name))
         return xaml
 
     def generate_content(self, context:'Context'):
@@ -87,7 +82,6 @@ class CardStackPage(FileBasedPage):
         for card_ref in self.cardrefs:
             anl.phase(card_ref)
             content += self.__getcardscontent(card_ref, context, setter = runtime_setter)
-        logger.info(t('page.generate.done', page=self.name))
         return content
 
     def __getcardscontent(self, ref:str, context:'Context', setter:PropertySetter):
