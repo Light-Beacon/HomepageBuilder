@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "homepagebuilder",
-    version = "0.14.0",
+    version = "0.14.1",
     author = "Nattiden",
     author_email = "lightbeacon@bugjump.net",
     url = "https://github.com/Light-Beacon/HomepageBuilder",

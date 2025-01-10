@@ -11,3 +11,4 @@ Log
 build
 *.egg-info/
 docs/_build
+src/output.xaml
