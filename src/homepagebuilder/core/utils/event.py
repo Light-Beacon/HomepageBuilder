@@ -50,7 +50,7 @@ def trigger_event(event_name:str,*args,**kwargs):
         except ResultOverride as ro:
             raise ro
         except Exception as ex:
-            logger.error(locale('event.error',eventname=event_name, ex=ex))
+            logger.error(locale('event.error',event_name=event_name, ex=ex))
             raise ex
 
 class ResultOverride(Exception):

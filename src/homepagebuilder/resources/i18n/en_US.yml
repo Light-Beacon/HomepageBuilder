@@ -1,4 +1,5 @@
 builder.load.resources: 'Loading builder resources'
+command.build.done: 'Build done, files saved to ${path}'
 debug.timer.start: '${func}(${count}) Timer Started'
 debug.timer.stop: '${func}(${count}) Timer Stopped, Time used: ${time}s'
 event.subscribe: '${func} subcribed event ${name}'
