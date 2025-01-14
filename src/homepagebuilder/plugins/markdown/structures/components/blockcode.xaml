@@ -1,0 +1,8 @@
+<BlockUIContainer>
+<Border Style="{StaticResource BlockCodeBorder}" >
+<StackPanel Margin="0,2,0,0">
+<TextBlock Foreground="White" FontSize="14" Text="${language}" Margin="10,4"/>
+<TextBox Style="{StaticResource BlockCode}" Text="${code}"/>
+</StackPanel>
+</Border>
+</BlockUIContainer>

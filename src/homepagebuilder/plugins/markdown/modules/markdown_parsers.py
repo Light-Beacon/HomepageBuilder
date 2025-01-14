@@ -150,11 +150,13 @@ class VoidNode(Node):
 class NodeBase(Node): 
     def __init__(self, tag, *args, **kwargs):
         super().__init__(tag, *args, **kwargs)
+        self.escaping_special_chars: bool = False
+        """是否转义 \\n \\r \\t"""
         if tag:
             self.name = tag.name
             self.attrs = tag.attrs
             self.parse_children()
-
+    
     def get_replacement(self) -> Dict:
         return {}
 
@@ -165,7 +167,7 @@ class NodeBase(Node):
         replace_str = str(component_obj)
         if len(replacement) > 0:
             for k,v in replacement.items():
-                replace_str = replace_str.replace(f'${{{k}}}',encode_escape(str(v)))
+                replace_str = replace_str.replace(f'${{{k}}}',encode_escape(str(v),with_special=self.escaping_special_chars))
         return replace_str
 
     def parse_children(self):
@@ -274,7 +276,7 @@ class Text(VoidNode):
 class Paragraph(BlockNode, InlineNodeContainer):
     def parse_children(self,*args,**kwargs):
         super().parse_children(*args,**kwargs)
-        if len(self.children) == 1 and self.children[0].node_type == NodeType.ANY:
+        if len(self.children) == 1 and self.children[0].node_type in [NodeType.ANY, NodeType.BLOCK]:
             # 尽量让子元素以块状呈现
             self.expose_children = True
 
@@ -329,6 +331,23 @@ QUOTE_TYPE_ISWARN_MAPPING = {
     'info': False,
     'warn': True,
 }
+
+@handles('blockcode')
+class BlockCode(BlockNode):
+    """块状代码块"""
+    def __init__(self, tag, *args, **kwargs):
+        super().__init__(tag, *args, **kwargs)
+        self.escaping_special_chars = True
+    
+    @property
+    def component_name(self) -> str:
+        return 'blockcode'
+    
+    def get_replacement(self) -> Union[List|None]:
+        replacements = {'language': self.attrs['lang'],
+                        'code': self.attrs['code']}
+        return replacements
+    
 
 @handles('blockquote')
 class Quote(BlockNode, BlockNodeContainer):

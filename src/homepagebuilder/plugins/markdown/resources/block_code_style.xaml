@@ -1,0 +1,14 @@
+<Style TargetType="TextBox" x:Key="BlockCode">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="IsReadOnly" Value="True" />
+    <Setter Property="FontFamily" Value="Consolas" />
+    <Setter Property="Template">
+        <Setter.Value>
+            <ControlTemplate TargetType="TextBox">
+                <Border Background="{DynamicResource ColorBrush7}" Opacity="0.8" BorderBrush="{DynamicResource ColorBrush4}" BorderThickness="0" CornerRadius="0,0,5,5" Padding="16,8,16,12"> 
+                    <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" />
+                </Border>
+            </ControlTemplate>
+        </Setter.Value>
+    </Setter>
+</Style>
