@@ -19,7 +19,12 @@ setup(
     'Programming Language :: Python :: 3.9',
     'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
-
+    install_requires=[
+        'beautifulsoup4>=4.12.3',
+        'Markdown>=3.5.2',
+        'PyYAML>=6.0.1',
+        'flask>=3.0.3',
+    ],
     packages = find_packages(where="src"),
     package_dir = {"":"src"},
     include_package_data=True,
