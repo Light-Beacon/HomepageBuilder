@@ -12,6 +12,7 @@ def read_markdown(filepath:str):
     '''读取markdown文件方法'''
     string = read_string(filepath=filepath)
     string, card = sep_attr(string)
+    card['markdown'] = string
     return card
 
 ATTR_PATTERN = re.compile(r'^\-{3,}\n((?:.*\n)+)\-{3,}(?:\n|$)')
