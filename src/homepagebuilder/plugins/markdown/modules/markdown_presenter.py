@@ -20,12 +20,12 @@ class MarkdownPresenter:
     def add_pre_processor(self, processor):
         self.pre_process_pipeline.append(processor)
     
-    def pre_process(self,markdown:str) -> str:
+    def pre_process(self, markdown:str) -> str:
         for processor in self.pre_process_pipeline:
             markdown = processor.process(markdown)
         return markdown
     
-    def html2xaml(html,context):
+    def html2xaml(self, html, context):
         '''html转为xaml代码'''
         soup = BeautifulSoup(html,'html.parser')
         xaml = ''
