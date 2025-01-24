@@ -6,7 +6,7 @@ from homepagebuilder.core.config import config
 
 class PreProcessor(ABC):
     """Markdown 文档预处理器"""
-    def process(markdown) -> Annotated[str , "Processed markdown document"]:
+    def process(self, markdown) -> Annotated[str , "Processed markdown document"]:
         """处理 markdown 文档"""
 
 class RegexSubPreProcessor(PreProcessor):
@@ -15,8 +15,8 @@ class RegexSubPreProcessor(PreProcessor):
         self.patten = patten if patten is re.Pattern else re.compile(patten)
         self.repl = repl
     
-    def process(markdown):
-        return super().process()
+    def process(self, markdown):
+        return re.sub(pattern=self.patten, repl=self.repl, string=markdown)
     
 DELETE_LINE_PROCESSOR = RegexSubPreProcessor(
     patten = r'~~(.*)~~',
