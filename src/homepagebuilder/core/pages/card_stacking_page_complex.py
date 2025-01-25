@@ -1,69 +1,48 @@
-from abc import abstractmethod
-from typing import TYPE_CHECKING
-from .types import Context
-from .utils.property import PropertySetter
-from .utils.event import set_triggers
-from .formatter import format_code
-from .logger import Logger
-from .i18n import locale as t
-from .config import config, is_debugging
-from .resource import get_resources_code
-from ..debug import global_anlyzer as anl
-
+from .bases import FileBasedPage
+from ..types.context import Context
+from typing import TYPE_CHECKING, Dict, List
 if TYPE_CHECKING:
-    from .types import Context
-    from .io import File
+    from ..types import Context
+    from ..io import File
 
-logger = Logger('Page')
-
-class PageBase():
-    "页面基类"
-    @abstractmethod
-    def generate(self, context:'Context'):
-        "获取页面 XAML 代码"
-    
-    @property
-    def display_name(self):
-        raise NotImplementedError()
-    
-    def get_content_type(self, setter:PropertySetter):
-        return 'application/xml'
-
-class FileBasedPage(PageBase):
-    "基于文件的页面，仅应用于继承"
-    def __init__(self, file: 'File') -> None:
-        super().__init__()
-        self.file = file
-
-class CodeBasedPage(PageBase):
-    "基于代码的页面，仅应用于继承"
-    def __init__(self, project) -> None:
-        super().__init__()
-        self.project = project
-
-class RawXamlPage(FileBasedPage):
-    """纯XAML页面"""
-    @property
-    def display_name(self):
-        return self.file.name
-
-    def generate(self, context):
-        return self.file.data
-
-class CardStackPage(FileBasedPage):
-    """卡片堆叠页面"""
+class NewCardStackPage(FileBasedPage):
+    """新版卡片堆叠页面"""
     def __init__(self, file: 'File') -> None:
         super().__init__(file)
         data = file.data
-        self.setter = PropertySetter(data.get('fill'), data.get('override'))
+        self.cards: List = []
         self.name = data.get('name', file.name)
-        self.display_name_str = data.get('display_name', self.name)
-        self.cardrefs = data.get('cards',{})
+        self.display_name = data.get('display_name', self.name)
         self.alias = data.get('alias', [])
+        self.accept_args = []
 
+    def __import(self, attr, source):
+        setattr(self, attr, source)
+
+    def generate(self, context:Context):
+        xaml = ''
+        context = context.copy()
+        context.page = Fomatter.format(self.todict(), context)
+        for card in self.cards:
+            xaml += card.generate(context)
+            
+    
+    @property
+    def alias(self):
+        return self.env.get('alias', [])
+    
     @property
     def display_name(self):
-        return self.display_name_str
+        return self.env.get('display_name', self.name)
+
+    def todict(self):
+        return self.env.copy().update({
+            "name": self.name,
+            "display_name": self.display_name,
+            "alias": self.alias,
+            "accept_args": self.accept_args,
+            "cards": self.cards
+        })
 
     @set_triggers('page.generate')
     def generate(self, context):

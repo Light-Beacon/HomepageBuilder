@@ -3,6 +3,7 @@ import copy
 
 if TYPE_CHECKING:
     from . import Builder, Project
+    from ..pages import PageBase
     from ...core.elements import Component
     from ..utils.property import PropertySetter
     from ..resource import Resource
@@ -32,3 +33,6 @@ class Context():
     """设置器"""
     used_resources: Set[str] = set()
     """使用过的资源"""
+    env: Dict = {}
+    """环境字典"""
+    page: PageBase
