@@ -36,7 +36,6 @@ jobs:
           python-version: '3.12'
       - name: Install Builder
         run: |
-            pip install -r requirements.txt
             pip install .
       - name: Configure Sphinx
         run: |

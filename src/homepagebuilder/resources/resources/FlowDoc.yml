@@ -10,3 +10,4 @@ Styles:
       FontFamily: Microsoft YaHei UI
       FontSize: 14
       TextAlignment: Left
+      Foreground: "{DynamicResource ColorBrush1}"
