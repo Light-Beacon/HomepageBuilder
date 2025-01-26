@@ -24,15 +24,15 @@ class IndexingOption(IntEnum):
     """子库本身以及所有子内容均不加入索引"""
     
     @classmethod
-    def indexing_sublibs(option: 'IndexingOption'):
+    def indexing_sublibs(cls, option: 'IndexingOption'):
         return bool(option.value & 1)
     
     @classmethod
-    def indexing_subfiles(option: 'IndexingOption'):
+    def indexing_subfiles(cls, option: 'IndexingOption'):
         return bool(option.value & 2)
     
     @classmethod
-    def indexing_self(option: 'IndexingOption'):
+    def indexing_self(cls, option: 'IndexingOption'):
         return bool(option.value & 4)
 
 class Library:

@@ -13,7 +13,6 @@
    
 .. code-block:: shell
     
-    pip install -r requirement.txt
     pip install .
 
 

@@ -3,6 +3,7 @@
     <Setter Property="IsReadOnly" Value="True" />
     <Setter Property="Margin" Value="2,0,2,-4" />
     <Setter Property="FontFamily" Value="Consolas"/>
+    <Setter Property="Foreground" Value="{DynamicResource ColorBrush1}"/>
     <Setter Property="Height" Value="18"/>
     <Setter Property="Template">
         <Setter.Value>
