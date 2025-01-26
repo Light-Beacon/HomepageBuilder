@@ -17,7 +17,7 @@ Styles:
       TextWrapping: Wrap
       HorizontalAlignment: Left
       FontSize: 14
-      Foreground: Black
+      Foreground: "{DynamicResource ColorBrush1}"
 
  - Target: Paragraph
    Setters:
@@ -40,7 +40,7 @@ Styles:
 
  - Target: ListItem
    Setters:
-     Foreground: Black
+     Foreground: "{DynamicResource ColorBrush1}"
      Margin: 0,4
 
  - Key: Hr
