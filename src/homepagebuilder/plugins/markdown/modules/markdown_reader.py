@@ -15,7 +15,7 @@ def read_markdown(filepath:str):
     card['markdown'] = string
     return card
 
-ATTR_PATTERN = re.compile(r'^\-{3,}\n((?:.*\n)+)\-{3,}(?:\n|$)')
+ATTR_PATTERN = re.compile(r'^\-{3,}\n((?:.*\n)+?)\-{3,}(?:\n|$)')
 def sep_attr(md):
     '''分离markdwon正文与文档属性'''
     attr = {}
