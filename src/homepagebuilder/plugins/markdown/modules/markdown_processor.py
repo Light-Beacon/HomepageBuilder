@@ -25,7 +25,7 @@ DELETE_LINE_PROCESSOR = RegexSubPreProcessor(
 
 # 注意：bs4 会将转义字符先反转义一次
 BLOCK_CODE_PROCESSOR = RegexSubPreProcessor(
-    patten = re.compile(r'`{3,}\s*(\S*)\s*\n(.*?)\n`{3,}', flags=re.RegexFlag.DOTALL),
+    patten = re.compile(r'`{3,}[\t ]*(\S*)\s*\n(.*?)\n`{3,}', flags=re.RegexFlag.DOTALL),
     repl = lambda matchobj : f'<blockcode lang="{matchobj.group(1).upper()}" code="{encode_escape(matchobj.group(2), with_special=True)}"/>')
 """块状代码块转义器"""
 

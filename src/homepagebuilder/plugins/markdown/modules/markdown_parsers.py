@@ -163,6 +163,8 @@ class NodeBase(Node):
     def get_element_frame(self):
         replacement = self.get_replacement()
         component_obj = self.components.get(self.component_name)
+        if component_obj is None:
+            raise ValueError(f'Componet not found: {self.component_name}')
         component_obj.mark_used_resources(replacement,self.context)
         replace_str = str(component_obj)
         if len(replacement) > 0:
@@ -274,11 +276,35 @@ class Text(VoidNode):
 
 @handles('p')
 class Paragraph(BlockNode, InlineNodeContainer):
+    @classmethod
+    def from_inline_list(cls,inline_list,context,parent_stack):
+        p = Paragraph(tag = None,context=context,parent_stack=parent_stack)
+        p.children = inline_list
+        p.name = 'p'
+        return p
+
     def parse_children(self,*args,**kwargs):
+        # 尽量让子元素以块状呈现
         super().parse_children(*args,**kwargs)
-        if len(self.children) == 1 and self.children[0].node_type in [NodeType.ANY, NodeType.BLOCK]:
-            # 尽量让子元素以块状呈现
-            self.expose_children = True
+        children_buffer_inline = []
+        new_children = []
+        replace_children_flag = False
+        for child in self.children:
+            if child.node_type in [NodeType.BLOCK, NodeType.ANY]:
+                self.expose_children = True
+                replace_children_flag = True
+                new_children.append(Paragraph.from_inline_list(
+                    children_buffer_inline, context=self.context,
+                    parent_stack=self.parent_stack))
+                new_children.append(child)
+                children_buffer_inline = []
+            else:
+                children_buffer_inline.append(child)   
+        if replace_children_flag:
+            new_children.append(Paragraph.from_inline_list(
+                children_buffer_inline, context=self.context,
+                parent_stack=self.parent_stack))
+            self.children = new_children
 
 class ListItemParagraph(Paragraph):
     def __init__(self,children,context, parent_stack ):
@@ -391,10 +417,55 @@ class Heading(BlockNode):
     def get_replacement(self) -> Union[List|None]:
         return {'level': self.name[1:]}
 
+class LinkType(Enum):
+    homepage = '打开帮助'
+    launch = '启动游戏'
+    jrrp = '今日人品'
+    rubclean = '清理垃圾'
+    ramclean = '内存优化'
+    copy = '复制文本'
+    refresh_homepage = '刷新主页'
+    download = '下载文件'
+    browse = '打开网页'
+
 @handles('a')
 class Link(InlineNode, InlineNodeContainer):
+    def __init__(self, tag, *args, **kwargs):
+        super().__init__(tag, *args, **kwargs)
+        self.link = self.attrs['href']
+        if self.attrs['href'].startswith('pcl:'):
+            self.link_type = LinkType[self.attrs['href'].split(':')[1]]
+            self.__process_link()
+        else:
+            self.link_type = LinkType.browse
+
+    def __process_link(self):
+        if self.link_type == LinkType.launch:
+            self.link = self.link[13:]
+            arr = self.link.split('/')
+            version = arr[0]
+            if version == 'current':
+                version = '\\current'
+            self.link = version if len(arr) == 1 else f'{version}|{arr[1]}'
+        elif self.link_type == LinkType.download:
+            self.link = self.link[13:]
+        elif self.link_type == LinkType.homepage:
+            link = self.link[13:]
+            if link.endswith('/'):
+                link = link[:-1]
+            if not link.endswith('.json'):
+                if link.endswith('.xaml'):
+                    link = link[:-5] + '.json'
+                else:
+                    link += '.json'
+            self.link = link
+        elif self.link_type == LinkType.browse:
+            pass
+        else:
+            self.link = ''
+
     def get_replacement(self) -> Union[List|None]:
-        reps = {'link': self.attrs['href']}
+        reps = {'link': self.link, 'type': self.link_type.value}
         ancestor = self.ancestor
         if ancestor.name == 'li':
             reps['pos_down'] = 3
