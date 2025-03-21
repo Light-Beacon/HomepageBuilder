@@ -16,7 +16,7 @@ if config('server.cache.cross', True):
     CROSS_PROCESS_CACHE = manager.dict()
 
 logger = Logger('Server')
-VERSION_GETTER_CLASSES = {}
+VERSION_PROVIDER_CLASSES = {}
 
 class ProjectAPI:
     '''api类'''
@@ -30,8 +30,8 @@ class ProjectAPI:
             self.builder = Builder()
             self.project = Project(self.builder,self.project_file)
             self.default_page = self.project.default_page
-            self.version_getter: VersionGetter = VERSION_GETTER_CLASSES.get(
-                config('Server.Version.By','time'), VersionGetter)(self)
+            self.version_provider: VersionProvider = VERSION_PROVIDER_CLASSES.get(
+                config('Server.Version.By','time'), VersionProvider)(self)
             self.__run_time_version = 0
             self.trigger_project_update()
 
@@ -115,7 +115,7 @@ class ProjectAPI:
         return {'response':self.project.get_page_xaml(alias,setter=setter),
                 'content-type' : self.project.get_page_content_type(alias,setter=setter) }
 
-class VersionGetter():
+class VersionProvider():
     '''
     用于实现版本号获取的类
     ## 用法
@@ -146,17 +146,17 @@ class VersionGetter():
 
     def __init_subclass__(cls, **kwargs):
         if name := cls.name:
-            VERSION_GETTER_CLASSES[name] = cls
+            VERSION_PROVIDER_CLASSES[name] = cls
         else:
             raise ValueError()
 
-class VersionTimeGetter(VersionGetter):
+class VersionTimeProvider(VersionProvider):
     name = 'time'
     @classmethod
     def get_page_version(self, _alias :str, _request):
         return str(time())
 
-class VersionStaticGetter(VersionGetter):
+class VersionStaticProvider(VersionProvider):
     name = 'static'
     @classmethod
     def get_page_version(self, _alias :str, _request):

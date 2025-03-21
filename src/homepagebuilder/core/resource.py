@@ -167,16 +167,29 @@ class XamlResource(Resource):
     def getxaml(self):
         return self.xaml
 
+def append_resource(resource_name:str, reslist:List[Resource], context:'Context'):
+    resource = context.resources[resource_name]
+    #logger.info(resource_name)
+    reslist.append(resource)
+    if baseon := resource.basedon:
+        append_resource(baseon, reslist, context)
+
 def get_resources_code(context:'Context'):
     try:
-        resset:Set[Resource] = set(context.resources[res] for res in context.used_resources)
-        for usedres in context.used_resources:
-            if baseon := context.resources[usedres].basedon:
-                resset.add(context.resources[baseon])
+        reslist:List[Resource] = []
+        for res in context.used_resources:
+            append_resource(res,reslist,context)
         for _k,res in context.resources.items():
             if res.is_default:
-                resset.add(res)
-        return ''.join([res.getxaml() for res in resset])
+                append_resource(res.key, reslist, context)
+        reslist.reverse()
+        result = ''
+        flags:Set[str] = set()
+        for res in reslist:
+            if res.key not in flags:
+                result += res.getxaml()
+                flags.add(res.key)
+        return result
     except KeyError as e:
         logger.error(locale('resource.nullreferce',ex=e))
         raise e

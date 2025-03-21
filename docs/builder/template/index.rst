@@ -4,7 +4,7 @@
 
 模版目录
 -----------------
-所有模版均放在工程文件夹的 structures/templates 文件夹中。
+所有模版均放在工程文件夹的 `structures/templates` 文件夹中。
 
 例如：
 

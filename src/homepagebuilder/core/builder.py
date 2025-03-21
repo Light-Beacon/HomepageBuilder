@@ -37,6 +37,7 @@ class Builder(BuilderBase):
         self.__context.setter = None
 
     def load_structure(self,dire_path):
+        logger.info(t('builder.load.structures'))
         self.__context.components.update(
             Loader.load_compoents(dire_path + 'components'))
         self.__context.templates.update(
