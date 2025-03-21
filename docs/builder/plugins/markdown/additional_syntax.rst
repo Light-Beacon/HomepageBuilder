@@ -96,40 +96,46 @@ Wiki Link
 ++++++++++++++
 使用以下链接将复制文本
 
-.. code-block::
+::
+
     pcl:copy://<需要复制的文本>
 
 刷新主页
 ++++++++++++++
 使用以下链接将刷新主页
 
-.. code-block::
+::
+
     pcl:refresh_homepage://
 
 下载文件
 ++++++++++++++
 使用以下链接格式将下载指定文件
 
-.. code-block::
+::
+
    pcl:download:https://example.com
 
 今日人品
 ++++++++++++++
 使用以下链接将使用弹窗展示今日人品
 
-.. code-block::
+::
+
     pcl:jrrp://
 
 清理垃圾
 ++++++++++++++
 使用以下链接将调用清理游戏垃圾
 
-.. code-block::
+::
+
     pcl:rubclean://
 
 内存优化
 ++++++++++++++
 使用以下链接将调用内存优化
 
-.. code-block::
+::
+    
     pcl:ramclean://
