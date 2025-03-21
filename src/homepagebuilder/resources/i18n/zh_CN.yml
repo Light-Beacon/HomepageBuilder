@@ -1,4 +1,5 @@
 builder.load.resources: '加载构建器资源'
+builder.load.structures: '加载构建器结构'
 command.build.done: '构建完成，文件保存至 ${path}'
 debug.timer.start: '${func}(${count}) 计时器启动'
 debug.timer.stop: '${func}(${count}) 计时器停止，该函数运行时间: ${time}s'
