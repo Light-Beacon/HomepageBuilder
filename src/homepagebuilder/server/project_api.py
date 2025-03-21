@@ -30,7 +30,7 @@ class ProjectAPI:
             self.builder = Builder()
             self.project = Project(self.builder,self.project_file)
             self.default_page = self.project.default_page
-            self.version_getter: VersionGetter = VERSION_PRO_CLASSES.get(
+            self.version_getter: VersionGetter = VERSION_PROVIDER_CLASSES.get(
                 config('Server.Version.By','time'), VersionGetter)(self)
             self.__run_time_version = 0
             self.trigger_project_update()
