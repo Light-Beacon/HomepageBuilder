@@ -10,6 +10,7 @@ from .logger import Logger
 from .utils.event import set_triggers
 from .utils.property import PropertySetter
 from .config import is_debugging
+from .i18n import locale as t
 
 if TYPE_CHECKING:
     from typing import List, Union
@@ -96,6 +97,7 @@ class TemplateManager():
 
     def build_with_template(self,card,template_name,children_code,context:'Context') -> str:
         '''使用指定模版构建卡片'''
+        logger.debug(t("template.build", template = template_name))
         if (not template_name) or template_name == 'void':
             return children_code
         target_template = context.templates[template_name]
@@ -127,16 +129,15 @@ class TemplateManager():
             raise TypeError('容器路径类型无效')
         containers.reverse()
         current_code = code
-        for container in containers:
-            match container:
+        for container_name in containers:
+            match container_name:
                 case 'this':
                     current_code = code
                 case 'base':
                     break
                 case _:
-                    if container in context.components:
-                        current_code = format_code(context.components[container],
-                                            card,context.project,current_code)
+                    if container_object := context.components.get(container_name):
+                        current_code = container_object.toxaml(card,context,current_code)
                     else:
                         raise ValueError('容器路径中存在不存在的组件')
         return current_code
