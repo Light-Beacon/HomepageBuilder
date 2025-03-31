@@ -1,0 +1,7 @@
+# 使用 Markdown 文本的卡片
+components:
+ - ModifierCollapsedCard
+base: void
+filter:
+  file_exten:
+    - pclmodifier
