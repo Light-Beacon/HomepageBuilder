@@ -62,31 +62,56 @@ dependency_manager = DependencyManager()
 def get_check_list():
     return dependency_manager.get_check_list()
 
-def load_module(module_path:str,queue_load:bool=False):
+def load_package(dire:Dire):
+    logger.debug(dire.abs_path)
+    if dire.name == '__pycache__':
+        return
+    init_file = dire.getfile('__init__.py')
+    if not init_file:
+        raise ImportError(f'{dire.abs_path} is not a python package')
+    parent_path = dire.parent.abs_path
+    if parent_path not in sys.path:
+        sys.path.append(parent_path)
+    package_name = dire.name
+    spec = importlib.util.spec_from_file_location(package_name, init_file.abs_path)
+    package = importlib.util.module_from_spec(spec)
+    sys.modules[package_name] = package
+    modules[dire.abs_path] = package
+    spec.loader.exec_module(package)
+    return package
+
+def load_module(module_path:str, package:str = None, queue_load:bool=False):
     '''导入模块'''
     path_to = os.path.dirname(module_path)
     file_name = os.path.basename(module_path)
     name,_ = os.path.splitext(file_name)
-    if name in modules :
+    if module_path in modules :
         # Module already exist
-        logger.debug(t('module.reload',name=name))
-        module = importlib.reload(modules[name])
+        logger.debug(t('module.reload',name = name))
+        module = importlib.reload(modules[module_path])
     else:
         if not queue_load:
-            logger.debug(t('module.load',name=name))
+            if package:
+                logger.debug(t('module.load.frompackage', name = name,
+                            package = package.split(os.sep)[-1]))
+            else:
+                logger.debug(t('module.load.start', name = name))
         # Add module
         sys.path.append(path_to)
         try:
-            module = importlib.import_module(name)
+            module = importlib.import_module(name, package = package)
         except RequireDependency as rd:
             # 如果请求加载某些模块
             dependency_manager.require(rd,module_path)
             return UnLoadedFunction(module_path)
+        except ImportError as ex:
+            logger.error(t('module.load.failed',module = module_path, ex = ex))
+            return UnLoadedFunction(module_path)
         logger.debug(t('module.load.success',name=name))
-        modules[name] = module
+        modules[module_path] = module
         for module in dependency_manager.satisfied(name):
             # 依赖已经成功加载需要重新加载的模块
-            load_module(module,True)
+            load_module(module, package, queue_load=True)
     return module
 
 def init_modules(modulelist,*args,**kwargs):
@@ -103,15 +128,14 @@ def require(module_name):
     else:
         raise RequireDependency(module_name)
 
-
 @file_reader(['py','python'])
-def read_python(filepath:str) -> callable:
+def read_python(filepath:str, package = None, *_args, **_kwargs) -> callable:
     ''' 读取 Python 文件 '''
     if not os.path.exists(filepath):
         raise FileNotFoundError(f'{filepath} not exist!')
-    return load_module(filepath)
+    return load_module(filepath, package)
 
-def load_module_dire(dire,*args,**kwargs):
+def load_module_dire(dire, *args, **kwargs):
     ''' 载入文件夹下的所有 python 模块 '''
     modulelist = []
     if isinstance(dire,str):
@@ -121,6 +145,8 @@ def load_module_dire(dire,*args,**kwargs):
             return
     if not isinstance(dire,Dire):
         raise TypeError()
-    for file in dire.scan(PY_PATTERN,recur=True):
+    for file in dire.scan(PY_PATTERN):
         modulelist.append(file.read())
+    for dire in dire.scan(PY_PATTERN, include_dires=True, include_files=False):
+        load_package(dire)
     init_modules(modulelist,*args,**kwargs)

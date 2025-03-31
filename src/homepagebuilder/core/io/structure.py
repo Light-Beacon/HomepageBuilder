@@ -2,6 +2,7 @@ import re
 import os
 import sys
 from typing import List,Union
+from pathlib import Path
 from ..logger import Logger
 from ..config import config
 from .accessor import read
@@ -60,19 +61,19 @@ class File():
         #logger.debug(f'读取{self.abs_path}')
         return self.read(func)
 
-    def read(self,func = None,usecache:bool = True):
+    def read(self, *args, func = None, usecache:bool = True, **kwargs):
         '''读取文件'''
         #logger.debug(f'读取{self.abs_path}')
         if config('Debug.Enable'):
-            return read(self,func,usecache)
+            return read(self, *args, func = func, usecache = usecache, **kwargs)
         try:
-            return read(self,func,usecache)
+            return read(self, *args, func = func, usecache = usecache, **kwargs)
         except Exception as ex:
             logger.warning(ex)
 
-    def write(self,*args,func = None,**kwargs):
+    def write(self, *args, func = None, **kwargs):
         '''写入文件'''
-        return read(self,*args,func,**kwargs)
+        return read(self, *args, func, **kwargs)
 
 class Dire():
     def __init__(self,abs_path):
@@ -86,6 +87,13 @@ class Dire():
         self.files:dict[str,File] = {}
         self.dires:dict[str,'Dire'] = {}
         self.__self_scan()
+
+    def to_path(self):
+        return Path(self.abs_path)
+
+    @property
+    def parent(self):
+        return Dire(Path(self.abs_path).parent)
 
     def __add_node(self,path) -> None:
         basename = os.path.basename(path)
@@ -124,6 +132,18 @@ class Dire():
         '''和 `scan` 效果相似，函数会返回该文件夹所有下边的一层文件夹的指定文件列表'''
         return self.scan(patten=patten,recur=True,min_recur_deepth=1,max_recur_deepth=1)
 
+    def getfile(self, filename: str):
+        '''获取文件夹中的某一个文件'''
+        if not (self.files or self.dires):
+            self.__self_scan()
+        return self.files.get(filename)
+
+    def getdire(self, direname: str):
+        '''获取文件夹中的某一个文件夹'''
+        if not (self.files or self.dires):
+            self.__self_scan()
+        return self.dires.get(direname)
+
     def scan(self,
             patten:Union[str|re.Pattern] = ANYPATTERN,
             recur:bool=False,
@@ -132,7 +152,7 @@ class Dire():
             max_recur_deepth:int = sys.maxsize,
             include_dires:bool = False,
             include_files:bool = True,
-         ) -> List[File]:
+         ) -> List[Union[File, 'Dire']]:
         '''遍历文件夹下所有文件夹所有文件, 读取其中符合正则表达式的文件, 最后以列表形式输出
         ## 参数
         ### 常规

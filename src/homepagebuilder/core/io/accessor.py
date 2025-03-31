@@ -12,7 +12,6 @@ class FileFormatUnsupportedError(Exception):
         super().__init__(*args)
         self.file = file
         self.msg = locale('io.format.unsupported',path=file.abs_path,exten = file.extention)
-    
     def __str__(self):
         return self.msg
 
@@ -47,7 +46,7 @@ def file_writer(*file_extentions):
         return func
     return decorator
 
-def read(file,func = None,usecache:bool = True):
+def read(file, *args, func = None, usecache:bool = True, **kwargs):
     '''读取文件'''
     if not os.path.exists(file.abs_path):
         raise FileNotFoundError(f'{file.abs_path} not exist!')
@@ -58,11 +57,11 @@ def read(file,func = None,usecache:bool = True):
             func = read_func_mapping[file.extention]
         else:
             raise FileFormatUnsupportedError(file)
-        file.cache = func(file.abs_path)
+        file.cache = func(file.abs_path, *args, **kwargs)
         return file.cache
-    return func(file.abs_path)
+    return func(file.abs_path, *args, **kwargs)
 
-def write(file,*arg,func = None,**kwarg):
+def write(file, *arg, func = None, **kwarg):
     '''写入文件'''
     if not func:
         if file.extention in write_func_mapping:
@@ -70,4 +69,4 @@ def write(file,*arg,func = None,**kwarg):
         else:
             func = write_func_mapping['txt']
         return file.data
-    return func(file.abs_path,*arg,**kwarg)
+    return func(file.abs_path, *arg, **kwarg)

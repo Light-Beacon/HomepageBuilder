@@ -1,36 +1,41 @@
 import markdown
 from bs4 import BeautifulSoup
-from homepagebuilder.interfaces import script, require
+from homepagebuilder.interfaces import script
 from homepagebuilder.core.config import config
+from .parsers.utils import create_node_from_tag
+from . import processor as processors
 
-parsers_module = require('markdown_parsers')
-processor_module = require('markdown_processor')
-create_node = parsers_module.create_node
- 
 class MarkdownPresenter:
     def __init__(self):
         self.pre_process_pipeline = []
         if not config('markdown.preprocessor.deleteline.disable', False): 
-            self.add_pre_processor(processor_module.DELETE_LINE_PROCESSOR)
+            self.add_pre_processor(processors.DeleteLinePreProcessor)
         if not config('markdown.preprocessor.block_codeblock.disable', False): 
-            self.add_pre_processor(processor_module.BLOCK_CODE_PROCESSOR)
+            self.add_pre_processor(processors.BlockCodePreProcessor)
         if not config('markdown.preprocessor.wikilink.disable', False): 
-            self.add_pre_processor(processor_module.WIKI_LINK_PROCESSOR)
-    
-    def add_pre_processor(self, processor):
+            self.add_pre_processor(processors.WikiLinkPreProcessor)
+
+    def add_pre_processor(self, processor: processors.PreProcessor):
+        """添加预处理器
+
+        Args:
+            processor (PreProcessor): 继承于 PreProcessor 的处理器类型
+        """
         self.pre_process_pipeline.append(processor)
-    
-    def pre_process(self, markdown:str) -> str:
+
+    def pre_process(self, content:str) -> str:
         for processor in self.pre_process_pipeline:
-            markdown = processor.process(markdown)
-        return markdown
-    
+            content = processor.process(content)
+        return content
+
     def html2xaml(self, html, context):
         '''html转为xaml代码'''
         soup = BeautifulSoup(html,'html.parser')
         xaml = ''
         for tag in soup.find_all(recursive=False):
-            xaml += create_node(tag,context,[]).convert()
+            xaml += create_node_from_tag(tag = tag,
+                                         context = context,
+                                         parent_stack=[]).convert()
         return xaml
 
     def convert(self, md,context):
