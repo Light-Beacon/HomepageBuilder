@@ -27,7 +27,7 @@ MODIFY_PATHS = {
 "Launch.Account.Microsoft.AccountSettings.Button": f"{WINDOW_ROOT}{genpath([3,1,None,None,0,2,0,0,1,None,1])}",
 "Launch.Account.Microsoft.SwitchAccount.Button": f"{WINDOW_ROOT}{genpath([3,1,None,None,0,2,0,0,1,None,2])}",
 "Launch.Version.Switch": f"{WINDOW_ROOT}{genpath([3,1,None,None,0,0])}",
-"Launch.Version.Modify.Text": f"{WINDOW_ROOT}{genpath([3,1,None,None,0,1])}"
+"Launch.Version.Modify": f"{WINDOW_ROOT}{genpath([3,1,None,None,0,1])}"
 }
 
 @file_reader(['pclmodifier'])
