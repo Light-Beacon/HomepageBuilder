@@ -8,7 +8,7 @@ def genpath(list:list):
     path = ""
     for i in list:
         if i == None:
-            path += f".Child"
+            path += ".Child"
         else:
             path += f".Children[{i}]"
     return path

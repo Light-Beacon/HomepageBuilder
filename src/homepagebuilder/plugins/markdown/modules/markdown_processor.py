@@ -19,7 +19,7 @@ class RegexSubPreProcessor(PreProcessor):
         return re.sub(pattern=self.patten, repl=self.repl, string=markdown)
     
 DELETE_LINE_PROCESSOR = RegexSubPreProcessor(
-    patten = r'~~(.*)~~',
+    patten = r'~~(.*?)~~',
     repl = r'<del>\1</del>')
 """删除线转义器"""
 
