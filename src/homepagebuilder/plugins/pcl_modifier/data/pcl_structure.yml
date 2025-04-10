@@ -1,12 +1,8 @@
-PCL:
-   versions:
-      release:
-         greaterthan: 2.8.9
-      beta:
-         greaterthan: 2.8.9
-      community-edition: 
-         Null
-   content:
+versions:
+   offical: [2.8.9, ...]
+   opensource: [2.8.9, ...]
+content:
+   PCL:
       - BackgoundImage
       - TitleBar:
          - ImgTitle

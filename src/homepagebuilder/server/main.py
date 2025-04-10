@@ -2,10 +2,10 @@
 服务器主模块
 '''
 from flask import Flask, request, make_response
-from typing import Tuple, Union
 from werkzeug.middleware.proxy_fix import ProxyFix
 from ..core.project import PageNotFoundError
 from ..core.logger import Logger
+from ..core.utils.client import PCLClient
 from .project_updater import request_update
 from .project_api import ProjectAPI
 from ..core.utils.property import PropertySetter
@@ -114,43 +114,14 @@ def process_err_page_json(err_code):
     '''处理发生错误的 JSON 请求'''
     return f'{{"Title":"{err_code}"}}'
 
+
 class ClientArgs:
     def __init__(self,web_request):
-        self.is_pcl, self.is_open = self.__getpcltype(web_request=web_request)
-        self.pclver = self.__getpclver(web_request=web_request)
-        self.pclver_id = self.__getpclverid(web_request=web_request)
-
-    def __getpcltype(self,web_request) -> Tuple[bool,Union[bool|None]]:
-        refer = web_request.headers.get('Referer','')
-        if refer.endswith('pcl2.server/'):
-            return True, False
-        if refer.endswith('pcl2.open.server/'):
-            return True, True
-        return False, None
-
-    def __getpclverid(self,web_request):
-        refer = web_request.headers.get('Referer','')
-        if not self.is_pcl:
-            return None
-        return int(refer[7:10])
-
-    def __getpclver(self,web_request):
-        uas = web_request.headers.get('User-Agent','')
-        uas = uas.split()
-        if len(uas) >= 1:
-            if pclver := uas[0].split('/'):
-                if pclver[0] == 'PCL2':
-                    return pclver[1]
-        return None
+        self.client: PCLClient = PCLClient.from_request(web_request=web_request)
 
     def getsetter(self):
         d = {
-            'client':{
-                'ispcl': self.is_pcl,
-                'isopensource': self.is_open,
-                'version': self.pclver,
-                'versionid': self.pclver_id
-            }
+            'client':self.client
         }
         return PropertySetter(override=d)
 
