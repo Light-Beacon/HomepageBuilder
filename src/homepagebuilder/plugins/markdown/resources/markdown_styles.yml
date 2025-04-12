@@ -54,6 +54,7 @@ Styles:
  - Key: BlockCodeBorder
    Target: Border
    Setters:
+      Foreground: *Color3
       Background: "{DynamicResource ColorBrush4}"
       Opacity:  0.8
       CornerRadius: 5 
