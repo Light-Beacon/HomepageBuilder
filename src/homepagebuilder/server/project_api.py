@@ -75,10 +75,10 @@ class ProjectAPI:
     def get_version(self,alias,request):
         '''获取主页版本'''
         self.__check_project_update()
-        if self.version_getter.require_request:
-            return self.version_getter.get_page_version(alias,request)
+        if self.version_provider.require_request:
+            return self.version_provider.get_page_version(alias,request)
         if ('__version', alias) not in self.cache:
-            self.cache[('__version', alias)] = self.version_getter.get_page_version(alias,request)
+            self.cache[('__version', alias)] = self.version_provider.get_page_version(alias,request)
         return self.cache[('__version', alias)]
 
     def get_page_json(self,alias):
