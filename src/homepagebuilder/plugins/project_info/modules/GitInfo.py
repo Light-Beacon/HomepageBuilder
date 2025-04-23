@@ -33,15 +33,23 @@ IS_GIT_INSTALLED = check_git_installtion()
 def is_git_repo(directory):
     try:
         subprocess.run(["git", "rev-parse"],cwd=directory, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return True
-    except Exception:
-        return False
+        return True, None
+    except Exception as ex:
+        return False, ex
+
+def check_is_git_repo(proj):
+    is_repo, err = is_git_repo(proj.base_path)
+    proj.set_context_data('git.isrepo', is_repo)
+    if not is_repo and not gitinfo_config('NoProduceNotRepoWarning'):
+        logger.warning(locale('projectinfo.git.isnotrepo'))
+        logger.warning(locale('projectinfo.git.disablehint', errdetail = err, hide_config_key = 'NoProduceNotRepoWarning'))
+    return is_repo
 
 @enable_by_config('ProjectInfo.GitInfo.Enable')
 @enable_by(IS_GIT_INSTALLED)
 @on('project.load.return')
 def set_githash(proj,*_,**__):
-    proj.set_context_data('git.isrepo', is_git_repo(proj.base_path))
+    check_is_git_repo(proj)
     if not proj.get_context_data('git.isrepo'):
         if not gitinfo_config('NoProduceNotRepoWarning'):
             logger.warning(locale('projectinfo.git.isnotrepo'))
