@@ -41,8 +41,8 @@ def check_is_git_repo(proj):
     is_repo, err = is_git_repo(proj.base_path)
     proj.set_context_data('git.isrepo', is_repo)
     if not is_repo and not gitinfo_config('NoProduceNotRepoWarning'):
-        logger.warning(locale('projectinfo.git.isnotrepo'))
-        logger.warning(locale('projectinfo.git.disablehint', errdetail = err, hide_config_key = 'NoProduceNotRepoWarning'))
+        logger.warning(locale('projectinfo.git.isnotrepo', errdetail = err))
+        logger.warning(locale('projectinfo.git.disablehint', hide_config_key = 'NoProduceNotRepoWarning'))
     return is_repo
 
 @enable_by_config('ProjectInfo.GitInfo.Enable')
