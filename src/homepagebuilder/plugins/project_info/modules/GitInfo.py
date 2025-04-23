@@ -32,10 +32,10 @@ IS_GIT_INSTALLED = check_git_installtion()
 
 def is_git_repo(directory):
     try:
-        subprocess.run(["git", "rev-parse"],cwd=directory, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(["git", "rev-parse"], cwd=directory, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return True, None
-    except Exception as ex:
-        return False, ex
+    except subprocess.CalledProcessError as ex:
+        return False, ex.stderr
 
 def check_is_git_repo(proj):
     is_repo, err = is_git_repo(proj.base_path)
