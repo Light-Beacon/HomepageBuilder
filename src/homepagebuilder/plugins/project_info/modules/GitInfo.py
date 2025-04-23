@@ -51,9 +51,6 @@ def check_is_git_repo(proj):
 def set_githash(proj,*_,**__):
     check_is_git_repo(proj)
     if not proj.get_context_data('git.isrepo'):
-        if not gitinfo_config('NoProduceNotRepoWarning'):
-            logger.warning(locale('projectinfo.git.isnotrepo'))
-            logger.warning(locale('projectinfo.git.disablehint', hide_config_key = 'NoProduceNotRepoWarning'))
         return
     githash = get_githash(proj.base_path).removesuffix('\n')
     logger.info(locale('projectinfo.git.version',version=githash))
