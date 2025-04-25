@@ -13,7 +13,7 @@ Debug.Logging.FileOutput.Enable: False
 
 # 服务器版本获取方式
 Server.Version.By: time
-# 若版本获取方式为 hash，该值指定了哈希方法（MD5/SHA1/SHA256）
+# 若版本获取方式为 hash，该值指定了哈希算法（MD5/SHA1/SHA256）
 Server.Version.Hash.Method: MD5
 
 # 是否忽略以 IO.IngorePrefix 开头和以 IO.IngoreSuffix 结尾的文件
