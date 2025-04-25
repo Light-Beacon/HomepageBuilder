@@ -29,7 +29,7 @@ class Project(ABC):
         self.__context.project = self
         self.base_library:Library = None
         self.base_path:str = None
-        self.default_page:PageBase = None
+        self.default_page:str = None
         self.version:str = None
         self.pages:Dict[str,PageBase] = {}
         self.pagelist:List[PageBase] = []

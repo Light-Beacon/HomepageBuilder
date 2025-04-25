@@ -4,7 +4,7 @@ from homepagebuilder.core.logger import Logger
 from homepagebuilder.core.i18n import locale
 from homepagebuilder.interfaces.Events import on
 from homepagebuilder.interfaces import enable_by_config, config as sys_config, enable_by
-from homepagebuilder.server.project_api import VersionProvider
+from homepagebuilder.server.utils.version_providers import VersionProvider
 
 def gitinfo_config(key):
     return sys_config('ProjectInfo.GitInfo.' + key)
@@ -35,7 +35,7 @@ def is_git_repo(directory):
         subprocess.run(["git", "rev-parse"], cwd=directory, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return True, None
     except subprocess.CalledProcessError as ex:
-        return False, ex.stderr
+        return False, ex.stderr.decode()
 
 def check_is_git_repo(proj):
     is_repo, err = is_git_repo(proj.base_path)

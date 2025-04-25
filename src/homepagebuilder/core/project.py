@@ -134,19 +134,27 @@ class Project(ProjectBase):
             for alias in page.alias:
                 self.pages[alias] = page
 
-    @set_triggers('project.genxaml')
-    def get_page_xaml(self, page_alias, no_not_found_err_logging = False, setter = None):
-        """获取页面 xaml 代码"""
-        logger.info(t('project.gen_page.start', page=page_alias, args=setter))
+    def find_page_by_alias(self, page_alias, no_not_found_err_logging = False,):
+        """从别名获取页面对象"""
         if page_alias not in self.pages:
             if not no_not_found_err_logging:
                 logger.error(t('project.gen_page.failed.notfound', page=page_alias))
             raise PageNotFoundError(page_alias)
+        return self.pages[page_alias]
+
+    @set_triggers('project.genxaml')
+    def get_page_xaml(self, page_alias, no_not_found_err_logging = False, setter = None):
+        """使用页面别名获取其 xaml 代码"""
+        logger.info(t('project.gen_page.start', page=page_alias, args=setter))
+        page = self.find_page_by_alias(page_alias, no_not_found_err_logging)
+        return self.generate_page_xaml(page, setter)
+
+    def generate_page_xaml(self, page, setter = None):
+        """使用页面对象生成 xaml 代码"""
         context = self.get_context_copy()
         context.setter=setter
-        context.used_resources=set()
-        xaml = self.pages[page_alias].generate(context = context)
-        return xaml
+        context.used_resources = set()
+        return page.generate(context = context)
 
     def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None):
         if page_alias not in self.pages:

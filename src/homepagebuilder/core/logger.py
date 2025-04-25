@@ -42,11 +42,13 @@ def supports_color():
     # 对于其他系统，检查是否连接到终端
     return hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
 
-TIME_PART_FMT = "[%(asctime)s.%(msecs)03d]"
+TIME_PART_FMT = "[%(asctime)s]"
 COLORED_TIME_PART_FMT = CONSOLE_WHITE + TIME_PART_FMT + CONSOLE_CLEAR
 LOC_PART_FMT = "[%(name)s|%(filename)s:%(lineno)d]"
 IS_CONSOLE_SUPPORTS_COLOR = supports_color()
 
+if is_debugging():
+    TIME_PART_FMT = "[%(asctime)s.%(msecs)03d]"
 
 class ColorConsoleFormater(logging.Formatter):
     def __init__(self):

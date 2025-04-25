@@ -2,13 +2,13 @@ import os
 import gc
 from multiprocessing import Manager
 from os.path import sep
-from time import time
 from ..core.project import Project
 from ..core.builder import Builder
 from ..core.config import config, is_debugging
 from ..core.utils.property import PropertySetter
 from ..core.utils.event import set_triggers
 from ..core.logger import Logger
+from .utils.version_providers import VersionProvider, get_provider_class
 
 manager = Manager()
 CROSS_PROCESS_CACHE = None
@@ -16,7 +16,6 @@ if config('server.cache.cross', True):
     CROSS_PROCESS_CACHE = manager.dict()
 
 logger = Logger('Server')
-VERSION_PROVIDER_CLASSES = {}
 
 class ProjectAPI:
     '''api类'''
@@ -30,8 +29,7 @@ class ProjectAPI:
             self.builder = Builder()
             self.project = Project(self.builder,self.project_file)
             self.default_page = self.project.default_page
-            self.version_provider: VersionProvider = VERSION_PROVIDER_CLASSES.get(
-                config('Server.Version.By','time'), VersionProvider)(self)
+            self.version_provider: VersionProvider = get_provider_class()(self)
             self.__run_time_version = 0
             self.trigger_project_update()
 
@@ -72,10 +70,10 @@ class ProjectAPI:
                 self.reload_project()
 
     @set_triggers('server.get.version')
-    def get_version(self,alias,request):
+    def get_version(self, alias, request):
         '''获取主页版本'''
         self.__check_project_update()
-        if self.version_provider.require_request:
+        if self.version_provider.dynamic:
             return self.version_provider.get_page_version(alias,request)
         if ('__version', alias) not in self.cache:
             self.cache[('__version', alias)] = self.version_provider.get_page_version(alias,request)
@@ -97,67 +95,20 @@ class ProjectAPI:
     def get_page_response(self,alias,client,args = None):
         '''获取页面内容'''
         self.__check_project_update()
-        if (alias,args) not in self.cache:
-            setter = PropertySetter(None,args,False)
-            if len(setter) > 0:
-                setter.attach(client.getsetter())
-                return self.get_response_dict(alias,setter,client)
-            else:
-                if rsp := self.cache.get((alias,client.pclver)):
-                    return rsp
-                else:
-                    setter.attach(client.getsetter())
-                    self.cache[(alias,client.pclver)] = self.get_response_dict(alias,setter,client)
-                    return self.cache[(alias,client.pclver)]
+        setter = PropertySetter(None,args,False)
+        if len(setter) > 0:
+            return self.get_response_dict(alias,setter,client)
+        if rsp := self.cache.get((alias,client.pclver)):
+            return rsp
+        else:
+            rsp = self.get_response_dict(alias,setter,client)
+            self.cache[(alias,client.pclver)] = rsp
+            return rsp
 
     def get_response_dict(self,alias,setter,client):
         setter.attach(client.getsetter())
-        return {'response':self.project.get_page_xaml(alias,setter=setter),
+        return {'response': self.get_page_xaml(alias,setter=setter),
                 'content-type' : self.project.get_page_content_type(alias,setter=setter) }
 
-class VersionProvider():
-    '''
-    用于实现版本号获取的类
-    ## 用法
-    继承该类，指定 `name`，并实现 `get_page_version` 方法'''
-
-    name:str = None
-    '''名称'''
-
-    require_request: bool = False
-    '''标识版本是否与请求内容有关'''
-
-    api: ProjectAPI
-    '''项目 API'''
-
-    def __init__(self,api):
-        self.api = api
-
-    @classmethod
-    def get_page_version(self, alias :str, request):
-        """
-        获取页面版本号
-        ### 参数
-        * `alias` 待获取的页面路径
-        * `request` 获取版本号时时发送的 HTTP 请求
-            * 如需使用本项，请将派生类的 `require_request` 设置为 `True` 以禁用版本号缓存
-        """
-        raise NotImplementedError()
-
-    def __init_subclass__(cls, **kwargs):
-        if name := cls.name:
-            VERSION_PROVIDER_CLASSES[name] = cls
-        else:
-            raise ValueError()
-
-class VersionTimeProvider(VersionProvider):
-    name = 'time'
-    @classmethod
-    def get_page_version(self, _alias :str, _request):
-        return str(time())
-
-class VersionStaticProvider(VersionProvider):
-    name = 'static'
-    @classmethod
-    def get_page_version(self, _alias :str, _request):
-        return str(config('Server.Version.StaticValue'))
+    def get_page_xaml(self, alias, setter):
+        return self.project.get_page_xaml(alias, setter=setter)
