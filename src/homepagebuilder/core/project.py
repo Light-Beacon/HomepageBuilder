@@ -2,6 +2,7 @@
 工程文件模块，构建器核心
 """
 import os
+from typing import TYPE_CHECKING
 from .io import Dire, File
 from .library import Library
 from .logger import Logger
@@ -10,10 +11,15 @@ from .module_manager import load_module_dire,get_check_list
 from .utils.event import set_triggers
 from .utils.paths import fmtpath
 from .utils.checking import Version
+from .utils.client import DEFAULT_PCLCLIENT
 from .page import CardStackPage, RawXamlPage
 from .loader import Loader
 from .types import Project as ProjectBase
 from .config import import_config_dire
+
+if TYPE_CHECKING:
+    from .utils.client import PCLClient
+    
 PATH_SEP = os.path.sep
 logger = Logger('Project')
 
@@ -135,7 +141,7 @@ class Project(ProjectBase):
                 self.pages[alias] = page
 
     @set_triggers('project.genxaml')
-    def get_page_xaml(self, page_alias, no_not_found_err_logging = False, setter = None):
+    def get_page_xaml(self, page_alias, no_not_found_err_logging = False, setter = None, client:'PCLClient' = DEFAULT_PCLCLIENT):
         """获取页面 xaml 代码"""
         logger.info(t('project.gen_page.start', page=page_alias, args=setter))
         if page_alias not in self.pages:
@@ -144,16 +150,17 @@ class Project(ProjectBase):
             raise PageNotFoundError(page_alias)
         context = self.get_context_copy()
         context.setter=setter
+        context.client = client
         context.used_resources=set()
         xaml = self.pages[page_alias].generate(context = context)
         return xaml
 
-    def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None):
+    def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None, client:'PCLClient' = DEFAULT_PCLCLIENT):
         if page_alias not in self.pages:
             if not no_not_found_err_logging:
                 logger.error(t('project.gen_page.failed.notfound', page=page_alias))
             raise PageNotFoundError(page_alias)
-        return self.pages[page_alias].get_content_type(setter = setter)
+        return self.pages[page_alias].get_content_type(setter = setter, client = client)
 
     def get_page_displayname(self, page_alias):
         """获取页面显示名"""

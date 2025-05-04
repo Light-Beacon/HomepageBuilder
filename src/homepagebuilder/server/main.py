@@ -8,7 +8,6 @@ from ..core.logger import Logger
 from ..core.utils.client import PCLClient
 from .project_updater import request_update
 from .project_api import ProjectAPI
-from ..core.utils.property import PropertySetter
 from ..core.i18n import locale as t
 from ..core.config import config, is_debugging
 
@@ -86,7 +85,8 @@ def getpage(alias:str):
             response_dict = projapi.get_page_json(alias)
             logger.debug(t("server.request.response.json",page=alias,args=args))
         else:
-            response_dict = projapi.get_page_response(alias,client=ClientArgs(request),args=args)
+            client = PCLClient.from_request(web_request=request)
+            response_dict = projapi.get_page_response(alias, client, args=args)
             logger.debug(t("server.request.response.page",page=alias,args=args))
         response = make_response(response_dict['response'])
         response.headers['Content-Type'] = response_dict['content-type']
@@ -113,17 +113,6 @@ def process_not_found(alias,mode):
 def process_err_page_json(err_code):
     '''处理发生错误的 JSON 请求'''
     return f'{{"Title":"{err_code}"}}'
-
-
-class ClientArgs:
-    def __init__(self,web_request):
-        self.client: PCLClient = PCLClient.from_request(web_request=web_request)
-
-    def getsetter(self):
-        d = {
-            'client':self.client
-        }
-        return PropertySetter(override=d)
 
 
 if __name__ == "__main__":

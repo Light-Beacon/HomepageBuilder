@@ -33,7 +33,7 @@ content:
                      - GameSwitchButton
                      - GameModifyButton
                      - PlayerProfileZone:
-                        - PlayerProfileArea:
+                        - PlayerProfileArea
                   - Launching:
                      - LaunchingAnimation:
                         - LoadingAnimation

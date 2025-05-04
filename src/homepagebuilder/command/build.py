@@ -2,7 +2,6 @@ import os
 from os import makedirs
 from os.path import sep, exists
 from .proc import CommandProcesser
-from ..core.utils.property import PropertySetter
 from ..core.logger import Logger
 from ..core.i18n import locale as t
 
@@ -60,13 +59,7 @@ class BuildCommand(CommandProcesser):
 
     @classmethod
     def __build_and_output(cls,project, page, output_path, args):
-        xaml = project.get_page_xaml(page_alias=page,setter = PropertySetter(override={
-                'client':{
-                    'ispcl': not args.not_pcl,
-                    'isopensource': args.pcl_is_opensource,
-                    'versionid': args.pcl_versionid
-                }
-            }))
+        xaml = project.get_page_xaml(page_alias=page)
         if output_path:
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(xaml)

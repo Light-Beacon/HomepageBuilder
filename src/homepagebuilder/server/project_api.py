@@ -7,6 +7,7 @@ from ..core.project import Project
 from ..core.builder import Builder
 from ..core.config import config, is_debugging
 from ..core.utils.property import PropertySetter
+from ..core.utils.client import PCLClient
 from ..core.utils.event import set_triggers
 from ..core.logger import Logger
 
@@ -94,26 +95,24 @@ class ProjectAPI:
                 'content-type': 'application/json'}
 
     @set_triggers('server.get.page')
-    def get_page_response(self,alias,client,args = None):
+    def get_page_response(self,alias, client:PCLClient, args = None):
         '''获取页面内容'''
         self.__check_project_update()
-        if (alias,args) not in self.cache:
+        if (alias, args) not in self.cache:
             setter = PropertySetter(None,args,False)
             if len(setter) > 0:
                 setter.attach(client.getsetter())
-                return self.get_response_dict(alias,setter,client)
+                return self.get_response_dict(alias, setter, client)
             else:
-                if rsp := self.cache.get((alias,client.pclver)):
+                if rsp := self.cache.get((alias, client)):
                     return rsp
                 else:
-                    setter.attach(client.getsetter())
-                    self.cache[(alias,client.pclver)] = self.get_response_dict(alias,setter,client)
-                    return self.cache[(alias,client.pclver)]
+                    self.cache[(alias, client)] = self.get_response_dict(alias, setter, client)
+                    return self.cache[(alias, client)]
 
-    def get_response_dict(self,alias,setter,client):
-        setter.attach(client.getsetter())
-        return {'response':self.project.get_page_xaml(alias,setter=setter),
-                'content-type' : self.project.get_page_content_type(alias,setter=setter) }
+    def get_response_dict(self,alias, setter, client):
+        return {'response':self.project.get_page_xaml(alias, setter=setter, client=client),
+                'content-type' : self.project.get_page_content_type(alias, setter=setter, client=client) }
 
 class VersionProvider():
     '''

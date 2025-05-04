@@ -44,7 +44,6 @@ class PCLClientLimiter():
             return False
         return True
 
-
 class PCLClient():
     def __init__(self):
         self.edition: PCLEdition
@@ -62,6 +61,9 @@ class PCLClient():
             'version': str(self.version),
             'versionid': self.version_id
         }
+        
+    def __hash__(self):
+        return hash(str(self.edition)+str(self.version)+str(self.version_id))
 
     def is_greater_than(self, other: 'PCLClient') -> bool:
         """判断当前版本是否大于其他版本"""
@@ -108,3 +110,8 @@ class PCLClient():
                 if pclver[0] == 'PCL2':
                     return pclver[1]
         return None
+
+DEFAULT_PCLCLIENT = PCLClient()
+DEFAULT_PCLCLIENT.edition = PCLEdition.OFFICAL
+DEFAULT_PCLCLIENT.version = Version(2,99,99)
+DEFAULT_PCLCLIENT.version_id = 9999
