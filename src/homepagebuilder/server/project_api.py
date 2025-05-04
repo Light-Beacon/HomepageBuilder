@@ -76,9 +76,9 @@ class ProjectAPI:
         self.__check_project_update()
         if self.version_provider.dynamic:
             return self.version_provider.get_page_version(alias,request)
-        if ('__version', alias) not in self.cache:
-            self.cache[('__version', alias)] = self.version_provider.get_page_version(alias,request)
-        return self.cache[('__version', alias)]
+        if ('__$version', alias) not in self.cache:
+            self.cache[('__$version', alias)] = self.version_provider.get_page_version(alias,request)
+        return self.cache[('__$version', alias)]
 
     def get_page_json(self,alias):
         '''获取页面json文件'''
@@ -99,9 +99,10 @@ class ProjectAPI:
         setter = PropertySetter(None, args, False)
         if len(setter) > 0:
             return self.get_response_dict(alias, setter, client)
-        if not (rsp := self.cache.get((alias,client))):
+        client_hash = hash(client)
+        if not (rsp := self.cache.get((alias, client_hash))):
             rsp = self.get_response_dict(alias,setter,client)
-            self.cache[(alias,client)] = rsp
+            self.cache[(alias, client_hash)] = rsp
         return rsp
 
     def get_response_dict(self,alias, setter, client):
