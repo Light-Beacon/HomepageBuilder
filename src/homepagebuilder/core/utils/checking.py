@@ -12,7 +12,7 @@ def is_xaml(file:'File') -> bool:
 def is_yaml(file:'File') -> bool:
     "判断文件是否为Yaml"
     return file.extention in ['yml','yaml']
-
+    
 class Version():
     """版本号"""
     def __init__(self, major, minor = 0, micro = 0):
@@ -25,19 +25,35 @@ class Version():
         major, minor, micro = map(int, version_str.split("."))
         return cls(major, minor, micro)
 
+    def __str__(self):
+        return f"{self.major}.{self.minor}.{self.micro}"
+
     def __repr__(self):
         return f"{self.major}.{self.minor}.{self.micro}"
 
+    def __rt__(self, other):
+        if other is ...:
+            return True
+        return (self.major, self.minor, self.micro) > (other.major, other.minor, other.micro)
+
     def __lt__(self, other):
+        if other is ...:
+            return True
         return (self.major, self.minor, self.micro) < (other.major, other.minor, other.micro)
 
     def __eq__(self, other):
+        if other is ...:
+            return True
         return (self.major, self.minor, self.micro) == (other.major, other.minor, other.micro)
 
     def __lshift__(self, other):
+        if other is ...:
+            return True
         return (self.major, self.minor) < (other.major, other.minor)
 
     def __rshift__(self, other):
+        if other is ...:
+            return True
         return (self.major, self.minor) > (other.major, other.minor)
 
     @classmethod

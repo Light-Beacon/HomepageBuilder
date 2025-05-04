@@ -52,6 +52,10 @@ class Builder(BuilderBase):
         self.__context.resources.update(
             Loader.load_resources(dire_path))
 
+    def load_data(self, dire_path):
+        """加载构建器数据"""
+        self.__context.data.update(Loader.create_structure_mapping(dire_path))
+
     def load_modules(self,dire_path):
         """加载构建器模块"""
 
@@ -65,11 +69,12 @@ class Builder(BuilderBase):
         for file in Dire(plugin_path).scan_subdir(r'pack\.yml'):
             data = file.data
             dire = os.path.dirname(data['file_path'])
+            self.load_data(f'{dire}{PATH_SEP}data')
             self.load_structure(f'{dire}{PATH_SEP}structures/')
             self.load_resources(f'{dire}{PATH_SEP}resources')
-            load_module_dire(f'{dire}{PATH_SEP}modules')
+            load_module_dire(f'{dire}{PATH_SEP}modules', context = self.__context)
             append_locale(f'{dire}{PATH_SEP}i18n')
-        self.__check_module_wait_list()  
+        self.__check_module_wait_list()
 
     def __check_module_wait_list(self):
         if len(wait_list := get_check_list()) > 0:

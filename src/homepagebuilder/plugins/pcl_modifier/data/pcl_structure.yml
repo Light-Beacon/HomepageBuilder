@@ -1,0 +1,64 @@
+versions:
+   offical: [2.8.9, ...]
+   opensource: [2.8.9, ...]
+content:
+   PCL:
+      - BackgoundImage
+      - TitleBar:
+         - ImgTitle
+         - CloseButton
+         - MinimizeButton
+         - Title:
+            - LogoTitle
+            - TextTitle
+            - ImageTitle
+            - SelectionButtons:
+               - Launch
+               - Download
+               - Link
+               - Setup
+               - Other
+         - PageTitleBar:
+            - BackButton
+            - PageTitle
+      - Left:
+         - RectLeftBackground
+         - RectLeftShadow
+      - Main:
+         - Right
+         - Left:
+            children:
+               children: # PageLaunchLeft (PageLaunchLeft:1)
+                  - LaunchSettings: # PanInput (PageLaunchLeft:9)
+                     - GameSwitchButton
+                     - GameModifyButton
+                     - PlayerProfileZone:
+                        - PlayerProfileArea
+                  - Launching:
+                     - LaunchingAnimation:
+                        - LoadingAnimation
+                        - LaunchingTitle
+                        - LaunchingGameName
+                        - LaunchingProgressBar
+                        - LaunchingInfo:
+                           - CurrentStepLable
+                           - DownloadingSupportText
+                           - LoginMethodLable
+                           - LoginMethodText
+                           - LaunchingProgressLable
+                           - LaunchingProgressText
+                           - DownloadingSpeedLable
+                           - DownloadingSpeedText
+                           - LaunchingHint:
+                              - LaunchingHintBorder
+                              - LaunchingHintLabel
+                              - LaunchingHintText
+                     - LaunchingCancelButton
+
+      - Hints
+      - FunctionButtons:
+         - BackToTopButton
+         - DownloadButton
+         - AprilFoolsGiveUpButton
+         - ShutDwonGameButton
+         - MusicButton

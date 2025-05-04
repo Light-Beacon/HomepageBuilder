@@ -1,5 +1,5 @@
 <local:MyTextBox><local:MyTextBox.Text>
     <Binding UpdateSourceTrigger="PropertyChanged" Mode="OneWayToSource"
-    Path="${PATH}" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window, AncestorLevel=1}" 
+    Path="${PATH}" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Grid, AncestorLevel=4}" 
     FallbackValue="${VALUE}"/>
 </local:MyTextBox.Text></local:MyTextBox>

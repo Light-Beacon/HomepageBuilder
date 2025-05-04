@@ -6,6 +6,7 @@ from ..core.project import Project
 from ..core.builder import Builder
 from ..core.config import config, is_debugging
 from ..core.utils.property import PropertySetter
+from ..core.utils.client import PCLClient
 from ..core.utils.event import set_triggers
 from ..core.logger import Logger
 from .utils.version_providers import VersionProvider, get_provider_class
@@ -75,9 +76,9 @@ class ProjectAPI:
         self.__check_project_update()
         if self.version_provider.dynamic:
             return self.version_provider.get_page_version(alias,request)
-        if ('__version', alias) not in self.cache:
-            self.cache[('__version', alias)] = self.version_provider.get_page_version(alias,request)
-        return self.cache[('__version', alias)]
+        if ('__$version', alias) not in self.cache:
+            self.cache[('__$version', alias)] = self.version_provider.get_page_version(alias,request)
+        return self.cache[('__$version', alias)]
 
     def get_page_json(self,alias):
         '''获取页面json文件'''
@@ -92,23 +93,21 @@ class ProjectAPI:
                 'content-type': 'application/json'}
 
     @set_triggers('server.get.page')
-    def get_page_response(self,alias,client,args = None):
+    def get_page_response(self,alias, client:PCLClient, args = None):
         '''获取页面内容'''
         self.__check_project_update()
-        setter = PropertySetter(None,args,False)
+        setter = PropertySetter(None, args, False)
         if len(setter) > 0:
-            return self.get_response_dict(alias,setter,client)
-        if rsp := self.cache.get((alias,client.pclver)):
-            return rsp
-        else:
+            return self.get_response_dict(alias, setter, client)
+        client_hash = hash(client)
+        if not (rsp := self.cache.get((alias, client_hash))):
             rsp = self.get_response_dict(alias,setter,client)
-            self.cache[(alias,client.pclver)] = rsp
-            return rsp
+            self.cache[(alias, client_hash)] = rsp
+        return rsp
 
-    def get_response_dict(self,alias,setter,client):
-        setter.attach(client.getsetter())
-        return {'response': self.get_page_xaml(alias,setter=setter),
-                'content-type' : self.project.get_page_content_type(alias,setter=setter) }
+    def get_response_dict(self,alias, setter, client):
+        return {'response':self.project.get_page_xaml(alias, setter=setter, client=client),
+                'content-type' : self.project.get_page_content_type(alias, setter=setter, client=client) }
 
     def get_page_xaml(self, alias, setter):
         return self.project.get_page_xaml(alias, setter=setter)

@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from . import Builder, Project
     from ...core.elements import Component
     from ..utils.property import PropertySetter
+    from ..utils.client import PCLClient
     from ..resource import Resource
 
 class Context():
@@ -30,5 +31,7 @@ class Context():
     """页面模版"""
     setter: 'PropertySetter'
     """设置器"""
+    client: 'PCLClient'
+    """客户端信息"""
     used_resources: Set[str] = set()
     """使用过的资源"""
