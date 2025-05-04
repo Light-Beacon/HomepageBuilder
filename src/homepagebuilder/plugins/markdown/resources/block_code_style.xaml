@@ -1,4 +1,5 @@
 <Style TargetType="TextBox" x:Key="BlockCode">
+    <Setter Property="Foreground" Value="{DynamicResource ColorBrush1}" />
     <Setter Property="FontSize" Value="14" />
     <Setter Property="IsReadOnly" Value="True" />
     <Setter Property="FontFamily" Value="Consolas" />

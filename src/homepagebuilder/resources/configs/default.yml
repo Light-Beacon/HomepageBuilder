@@ -11,7 +11,10 @@ Debug.Enable: False
 Debug.Logging.Level: 10
 Debug.Logging.FileOutput.Enable: False
 
-Server.Version.By: Time
+# 服务器版本获取方式
+Server.Version.By: time
+# 若版本获取方式为 hash，该值指定了哈希算法（MD5/SHA1/SHA256）
+Server.Version.Hash.Method: MD5
 
 # 是否忽略以 IO.IngorePrefix 开头和以 IO.IngoreSuffix 结尾的文件
 # 这项文件禁用给构建器工程提供了方便的禁用手段

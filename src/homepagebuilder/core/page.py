@@ -20,7 +20,7 @@ logger = Logger('Page')
 class PageBase():
     "页面基类"
     @abstractmethod
-    def generate(self, context:'Context'):
+    def generate(self, context:'Context') -> str:
         "获取页面 XAML 代码"
     
     @property

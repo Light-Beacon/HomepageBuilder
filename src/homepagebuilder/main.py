@@ -22,6 +22,10 @@ def main():
         if args.debug:
             force_debug()
         COMMAND_BINGDING[args.command].process(args)
+    except KeyboardInterrupt:
+        print('User cancel')
+    except SystemExit:
+        print('System exit')
     except Exception as e:
         print(f"{e.__class__.__name__}: {e}")
         if is_debugging():
