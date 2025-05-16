@@ -54,9 +54,14 @@ class ProjectAPI:
         del self.project
         gc.collect()
         self.project = Project(self.builder,self.project_file)
-        self.cache.clear()
+        self.clear_cache()
         self.trigger_project_update()
         logger.info('[Server] Project Reloaded.')
+
+    def clear_cache(self):
+        '''清除缓存'''
+        self.cache.clear()
+        logger.info('Cache cleared.')
 
     def trigger_project_update(self):
         ''' 触发 project 更新信号'''
@@ -80,7 +85,8 @@ class ProjectAPI:
             self.cache[('__$version', alias)] = self.version_provider.get_page_version(alias,request)
         return self.cache[('__$version', alias)]
 
-    def get_page_json(self,alias):
+    @set_triggers('server.get.json')
+    def get_page_json(self, alias):
         '''获取页面json文件'''
         self.__check_project_update()
         key = alias + '.json'
