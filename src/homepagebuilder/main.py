@@ -1,7 +1,7 @@
 """构建器主入口"""
 import argparse
 from typing import Dict
-from .core.config import is_debugging, init_full, force_debug
+from .core.config import is_debugging, init_full, force_debug, set_config
 from .command import *
 
 COMMAND_BINGDING:Dict[str, CommandProcesser] = {}
@@ -19,9 +19,15 @@ def main():
         subparsers = parser.add_subparsers(help='Command', dest='command')
         __bind_all_command(subparsers)
         args = parser.parse_args()
+        if args.logging_level:
+            set_config('Logging.Level', args.logging_level)
         if args.debug:
             force_debug()
         COMMAND_BINGDING[args.command].process(args)
+    except KeyboardInterrupt:
+        print('User cancel')
+    except SystemExit:
+        print('System exit')
     except Exception as e:
         print(f"{e.__class__.__name__}: {e}")
         if is_debugging():

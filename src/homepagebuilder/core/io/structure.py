@@ -3,7 +3,7 @@ import os
 import sys
 from typing import List,Union
 from ..logger import Logger
-from ..config import config
+from ..config import config, is_debugging
 from .accessor import read
 
 SEP = os.sep
@@ -68,7 +68,10 @@ class File():
         try:
             return read(self,func,usecache)
         except Exception as ex:
-            logger.warning(ex)
+            if is_debugging():
+                raise ex
+            else:
+                logger.warning(ex)
 
     def write(self,*args,func = None,**kwargs):
         '''写入文件'''

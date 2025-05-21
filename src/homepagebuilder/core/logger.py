@@ -5,7 +5,7 @@ import logging
 import os.path
 import sys
 import time
-from .config import config, is_debugging, subscribe_debug_changing
+from .config import config, is_debugging, on_config_changing
 
 TAB_TEXT = '    '
 CONSOLE_CLEAR = '\033[0m'
@@ -19,6 +19,7 @@ CONSOLE_CYAN = '\033[36m'
 CONSOLE_WHITE = '\033[37m'
 
 LEVEL_COLORES = {
+    1: CONSOLE_CLEAR,
     5: CONSOLE_CYAN,
     10: CONSOLE_GREEN,
     20: CONSOLE_BLUE,
@@ -26,7 +27,8 @@ LEVEL_COLORES = {
     40: CONSOLE_RED,
     50: CONSOLE_MAGENTA}
 
-LEVEL_NAMES = {
+LEVEL_FULL_NAMES = {
+    1: "NOISY",
     5: "EVENT",
     10: "DEBUG",
     20: "INFO",
@@ -34,6 +36,7 @@ LEVEL_NAMES = {
     40: "ERROR",
     50: "CRITICAL"}
 
+LEVEL_NAMES = {}
 
 def supports_color():
     # 检查是否为 Windows 系统
@@ -42,14 +45,14 @@ def supports_color():
     # 对于其他系统，检查是否连接到终端
     return hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
 
-TIME_PART_FMT = "[%(asctime)s.%(msecs)03d]"
+TIME_PART_FMT = "[%(asctime)s]"
 COLORED_TIME_PART_FMT = CONSOLE_WHITE + TIME_PART_FMT + CONSOLE_CLEAR
 LOC_PART_FMT = "[%(name)s|%(filename)s:%(lineno)d]"
 IS_CONSOLE_SUPPORTS_COLOR = supports_color()
 
-
 class ColorConsoleFormater(logging.Formatter):
-    def __init__(self):
+    super_formatter = None
+    def init_supper_formatter(self):
         if IS_CONSOLE_SUPPORTS_COLOR:
             self.super_formatter = logging.Formatter(
                 fmt=f'{COLORED_TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
@@ -105,21 +108,39 @@ if config('Debug.Logging.ConsoleOutput.Enable', True):
 if config('Debug.Logging.FileOutput.Enable', False):
     FILE_HANDLER = init_file_handler()
 
-IS_DEBUG_ENABLE = None
-LOGGING_LEVEL = None
-def set_logging_level():
-    global IS_DEBUG_ENABLE, LOGGING_LEVEL
-    IS_DEBUG_ENABLE = is_debugging()
-    LOGGING_LEVEL = config('Debug.Logging.Level') if IS_DEBUG_ENABLE else config('Logging.Level')
-    if CONSOLE_HANDLER:
-        CONSOLE_HANDLER.setLevel(LOGGING_LEVEL)
-    if FILE_HANDLER:
-         CONSOLE_HANDLER.setLevel(LOGGING_LEVEL)
+@on_config_changing('Debug.Logging.Level.Abbreviate')
+def set_level_name():
+    LEVEL_NAMES.clear()
+    if config('Debug.Logging.Level.Abbreviate', False):
+        for level, name in LEVEL_FULL_NAMES.items():
+            LEVEL_NAMES[level] = name[0]
+    else:
+        for level, name in LEVEL_FULL_NAMES.items():
+            LEVEL_NAMES[level] = name
 
-subscribe_debug_changing(set_logging_level)
-set_logging_level()
+@on_config_changing('Debug.Logging.Level',
+                    'Logging.Level', 
+                    'Debug.Enable')
+def set_logging_format():
+    global TIME_PART_FMT, COLORED_TIME_PART_FMT, LOC_PART_FMT
+    is_debug_enabled = is_debugging()
+    logging_level = min(config('Debug.Logging.Level') if is_debug_enabled else 20, config('Logging.Level'))
+    if CONSOLE_HANDLER:
+        CONSOLE_HANDLER.setLevel(logging_level)
+    if FILE_HANDLER:
+        FILE_HANDLER.setLevel(logging_level)
+    if is_debug_enabled:
+        TIME_PART_FMT = "[%(asctime)s.%(msecs)03d]"
+        LOC_PART_FMT = "[%(name)s|%(filename)s:%(lineno)d]"
+    else:
+        TIME_PART_FMT = "[%(asctime)s]"
+        LOC_PART_FMT = "[%(name)s]"
+    COLORED_TIME_PART_FMT = CONSOLE_WHITE + TIME_PART_FMT + CONSOLE_CLEAR
+    CONSOLE_FORMATTER.init_supper_formatter()
 
 logging.basicConfig(level=logging.INFO)
+set_level_name()
+set_logging_format()
 
 class Logger(logging.Logger):
     """日志记录器"""
@@ -130,6 +151,9 @@ class Logger(logging.Logger):
         if FILE_HANDLER:
             self.addHandler(FILE_HANDLER)
         self.propagate = False
-    
+
     def event(self, msg, *args, **kwargs):
         self._log(5, msg, args, **kwargs)
+
+    def noisy(self, msg, *args, **kwargs):
+        self._log(1, msg, args, **kwargs)

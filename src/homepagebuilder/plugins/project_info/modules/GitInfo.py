@@ -4,7 +4,7 @@ from homepagebuilder.core.logger import Logger
 from homepagebuilder.core.i18n import locale
 from homepagebuilder.interfaces.Events import on
 from homepagebuilder.interfaces import enable_by_config, config as sys_config, enable_by
-from homepagebuilder.server.project_api import VersionProvider
+from homepagebuilder.server.utils.version_providers import VersionProvider
 
 def gitinfo_config(key):
     return sys_config('ProjectInfo.GitInfo.' + key)
@@ -32,20 +32,25 @@ IS_GIT_INSTALLED = check_git_installtion()
 
 def is_git_repo(directory):
     try:
-        subprocess.run(["git", "rev-parse"],cwd=directory, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return True
-    except Exception:
-        return False
+        subprocess.run(["git", "rev-parse"], cwd=directory, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return True, None
+    except subprocess.CalledProcessError as ex:
+        return False, ex.stderr.decode()
+
+def check_is_git_repo(proj):
+    is_repo, err = is_git_repo(proj.base_path)
+    proj.set_context_data('git.isrepo', is_repo)
+    if not is_repo and not gitinfo_config('NoProduceNotRepoWarning'):
+        logger.warning(locale('projectinfo.git.isnotrepo', errdetail = err))
+        logger.warning(locale('projectinfo.git.disablehint', hide_config_key = 'NoProduceNotRepoWarning'))
+    return is_repo
 
 @enable_by_config('ProjectInfo.GitInfo.Enable')
 @enable_by(IS_GIT_INSTALLED)
 @on('project.load.return')
 def set_githash(proj,*_,**__):
-    proj.set_context_data('git.isrepo', is_git_repo(proj.base_path))
+    check_is_git_repo(proj)
     if not proj.get_context_data('git.isrepo'):
-        if not gitinfo_config('NoProduceNotRepoWarning'):
-            logger.warning(locale('projectinfo.git.isnotrepo'))
-            logger.warning(locale('projectinfo.git.disablehint', hide_config_key = 'NoProduceNotRepoWarning'))
         return
     githash = get_githash(proj.base_path).removesuffix('\n')
     logger.info(locale('projectinfo.git.version',version=githash))

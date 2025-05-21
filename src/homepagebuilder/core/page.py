@@ -13,20 +13,21 @@ from ..debug import global_anlyzer as anl
 if TYPE_CHECKING:
     from .types import Context
     from .io import File
+    from .utils.client import PCLClient
 
 logger = Logger('Page')
 
 class PageBase():
     "页面基类"
     @abstractmethod
-    def generate(self, context:'Context'):
+    def generate(self, context:'Context') -> str:
         "获取页面 XAML 代码"
     
     @property
     def display_name(self):
         raise NotImplementedError()
     
-    def get_content_type(self, setter:PropertySetter):
+    def get_content_type(self, setter:PropertySetter , client:'PCLClient'):
         return 'application/xml'
 
 class FileBasedPage(PageBase):

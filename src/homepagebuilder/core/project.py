@@ -2,6 +2,7 @@
 工程文件模块，构建器核心
 """
 import os
+from typing import TYPE_CHECKING
 from .io import Dire, File
 from .library import Library
 from .logger import Logger
@@ -10,10 +11,15 @@ from .module_manager import load_module_dire,get_check_list
 from .utils.event import set_triggers
 from .utils.paths import fmtpath
 from .utils.checking import Version
+from .utils.client import DEFAULT_PCLCLIENT
 from .page import CardStackPage, RawXamlPage
 from .loader import Loader
 from .types import Project as ProjectBase
 from .config import import_config_dire
+
+if TYPE_CHECKING:
+    from .utils.client import PCLClient
+    
 PATH_SEP = os.path.sep
 logger = Logger('Project')
 
@@ -135,31 +141,41 @@ class Project(ProjectBase):
                 self.pages[alias] = page
 
     @set_triggers('project.genxaml')
-    def get_page_xaml(self, page_alias, no_not_found_err_logging = False, setter = None):
-        """获取页面 xaml 代码"""
-        logger.info(t('project.gen_page.start', page=page_alias, args=setter))
+    def find_page_by_alias(self, page_alias, no_not_found_err_logging = False):
+        """从别名获取页面对象"""
         if page_alias not in self.pages:
             if not no_not_found_err_logging:
                 logger.error(t('project.gen_page.failed.notfound', page=page_alias))
             raise PageNotFoundError(page_alias)
-        context = self.get_context_copy()
-        context.setter=setter
-        context.used_resources=set()
-        xaml = self.pages[page_alias].generate(context = context)
-        return xaml
+        return self.pages[page_alias]
 
-    def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None):
+    @set_triggers('project.genxaml')
+    def get_page_xaml(self, page_alias, no_not_found_err_logging = False, setter = None, client = DEFAULT_PCLCLIENT):
+        """使用页面别名获取其 xaml 代码"""
+        logger.info(t('project.gen_page.start', page=page_alias, args=setter))
+        page = self.find_page_by_alias(page_alias, no_not_found_err_logging)
+        return self.generate_page_xaml(page, setter, client)
+
+    def generate_page_xaml(self, page, setter = None, client = DEFAULT_PCLCLIENT):
+        """使用页面对象生成 xaml 代码"""
+        context = self.get_context_copy()
+        context.setter = setter
+        context.client = client
+        context.used_resources = set()
+        return page.generate(context = context)
+
+    def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None, client:'PCLClient' = DEFAULT_PCLCLIENT):
         if page_alias not in self.pages:
             if not no_not_found_err_logging:
                 logger.error(t('project.gen_page.failed.notfound', page=page_alias))
             raise PageNotFoundError(page_alias)
-        return self.pages[page_alias].get_content_type(setter = setter)
+        return self.pages[page_alias].get_content_type(setter = setter, client = client)
 
     def get_page_displayname(self, page_alias):
         """获取页面显示名"""
         page = self.pages.get(page_alias)
         if not page:
-            raise PageNotFoundError(t('page.not_found',page = page_alias))
+            raise PageNotFoundError(t('page.not_found', page = page_alias))
         return page.display_name
 
     def set_context_data(self,key,value):

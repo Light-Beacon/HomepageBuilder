@@ -43,7 +43,11 @@ def locale(key:str,*args,lang:str=DEFAULTLANG,**kwargs):
                 string = locale(key,lang='en_US',*args,**kwargs)
             else:
                 string = key
-        return Template(string).substitute(*args,**kwargs)
+        try:
+            result = Template(string).substitute(*args,**kwargs)
+            return result
+        except KeyError:
+            return f"{key}: {args} {kwargs}"
     else:
         return locale(key,lang='en_US',**kwargs)
 

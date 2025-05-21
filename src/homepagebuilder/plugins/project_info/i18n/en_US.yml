@@ -1,4 +1,4 @@
 projectinfo.git.version: "Current repo version: ${version}"
 projectinfo.git.disablehint: If you want disable git functions permanently please set ProjectInfo.GitInfo.Enable to False in config. To hide this hint please set ProjectInfo.GitInfo.${hide_config_key} to True."
-projectinfo.git.isnotrepo: "The project currently loading may not managed by git. Related functions have been disabled."
+projectinfo.git.isnotrepo: "The project currently loading may not managed by git. Related functions have been disabled. Error detail: ${errdetail}"
 projectinfo.git.notinstalled: "Git is not installed in current environment. Related functions have been disabled."
