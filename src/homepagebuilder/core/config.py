@@ -3,18 +3,39 @@ import yaml
 
 __CONFIG_DICT = {}
 FORCE_DEBUGGING = False
-SUBSCRIBE_DEBUG_CHANGING_LIST = []
+
+CONFIG_CHANGE_EVENT_SUBSCRIBERS = {}
+def on_config_changing(*config_keys: str):
+    """[装饰器]订阅配置改变事件"""
+    def wrapper(func):
+        for config_key in config_keys:
+            if config_key not in CONFIG_CHANGE_EVENT_SUBSCRIBERS:
+                CONFIG_CHANGE_EVENT_SUBSCRIBERS[config_key] = []
+            CONFIG_CHANGE_EVENT_SUBSCRIBERS[config_key].append(func)
+        return func
+    return wrapper
+
+def __trigger_congfig_changing(config_key:str):
+    """触发配置改变事件"""
+    if subscribers := CONFIG_CHANGE_EVENT_SUBSCRIBERS.get(config_key):
+        for func in subscribers:
+            func()
 
 def config(key:str,default = None) -> object:
     """获取配置"""
     return __CONFIG_DICT.get(key,default)
+
+def set_config(key:str,value:object) -> None:
+    """设置配置"""
+    __CONFIG_DICT[key] = value
+    __trigger_congfig_changing(key)
 
 class DisabledByConfig(Exception):
     """被配置禁用"""
 
 def is_debugging() -> bool:
     """在调试模式状态下"""
-    return FORCE_DEBUGGING or config('Debug.Enable')
+    return config('Debug.Enable')
 
 def enable_by_config(key:str,default_output=None,
                      raise_error=False):
@@ -41,6 +62,8 @@ def __init_default() -> None:
     with open(filepath,encoding='utf-8') as f:
         data:dict = yaml.load(f,Loader=yaml.FullLoader)
     __CONFIG_DICT.update(data)
+    for key in data:
+        __trigger_congfig_changing(key)
 
 def init_full() -> None:
     """加载所有配置"""
@@ -53,19 +76,13 @@ def import_config_dire(direpath) -> None:
     files = Dire(direpath).scan(recur=True,patten=r'.*\.yml')
     for file in files:
         __CONFIG_DICT.update(file.data)
+        for key in file.data:
+            __trigger_congfig_changing(key)
 
-def subscribe_debug_changing(func):
-    SUBSCRIBE_DEBUG_CHANGING_LIST.append(func)
-
-def trigger_debug_changing():
-    for func in SUBSCRIBE_DEBUG_CHANGING_LIST:
-        func()
 
 def force_debug() -> None:
     print('DEBUGMODE ON')
-    global FORCE_DEBUGGING
-    FORCE_DEBUGGING = True
-    trigger_debug_changing()
+    set_config('Debug.Enable', True)
 
 ##ON IMPORTED
 __init_default()

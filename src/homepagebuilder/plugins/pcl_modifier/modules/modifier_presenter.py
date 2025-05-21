@@ -34,7 +34,7 @@ class PCLStructure:
             if isinstance(yaml_node,str): # 终端节点
                 self.name = yaml_node
                 self.is_endpoint = True
-                logger.debug('Created %s', self.name)
+                logger.noisy('Created %s', self.name)
                 return
             self.yaml_children = list(yaml_node.values())[0]
             if isinstance(self.yaml_children,list): # 集合容器
@@ -49,7 +49,7 @@ class PCLStructure:
                 self.__build_tree()
             else:
                 raise TypeError(f"Invalid yaml node type: {type(yaml_node)}")
-            logger.debug('Created %s', self.name)
+            logger.noisy('Created %s', self.name)
 
         def __build_tree(self,):
             if self.is_endpoint:
@@ -67,7 +67,7 @@ class PCLStructure:
             return self.children.get(name)
         
         def log_tree(self, deepth):
-            logger.debug('%s %s','  │' * deepth, self.name)
+            logger.noisy('%s %s','  │' * deepth, self.name)
             if self.is_endpoint:
                 return
             if self.is_collection_container:
@@ -130,7 +130,7 @@ class PCLStructure:
 
     def log_tree(self):
         for edition, version in self.limiter.ruleset.items():
-            logger.debug('%s v%s:', edition, version)
+            logger.noisy('%s v%s:', edition, version)
         self.root_node.log_tree(0)
     
 PCLStructure_LIST = []

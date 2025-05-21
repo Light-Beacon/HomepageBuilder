@@ -15,7 +15,8 @@ class CommandProcesser:
         self.init_subpraser(self.parser)
 
     def __common_init_subpraser(self,parser):
-        parser.add_argument('--debug', action='store_true', help='start debug mode')
+        parser.add_argument('--debug', help='enable debug mode', action='store_true')
+        parser.add_argument('--logging-level', type=int, help='set logging level')
 
     def init_subpraser(self,parser:ArgumentParser):
         """初始化解析器"""
