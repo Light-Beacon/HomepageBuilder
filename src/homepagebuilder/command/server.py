@@ -1,18 +1,21 @@
 import os
 from .proc import CommandProcesser
+from ..core.i18n import locale as t
 
 DEFALUT_PORT = 6608
 
 class ServerCommand(CommandProcesser):
     name = 'server'
-    help = 'Run server'
+    help = t('command.server.help')
 
-    def init_subpraser(self,parser):
+    def init_subparser(self,parser):
         parser.add_argument('--project', type=str,
                             default=os.getcwd() + os.path.sep + 'Project.yml',
-                            help='project file path')
-        parser.add_argument('-p', '--port', type=str, help='project path')
-        parser.add_argument('--flask-debug', action='store_true')
+                            help=t('command.server.help.args.project'))
+        parser.add_argument('-p', '--port', type=str,
+                            help=t('command.server.help.args.port'))
+        parser.add_argument('--flask-debug', action='store_true',
+                            help=t('command.server.help.args.flask_debug'))
 
     def process(self,args):
         from ..server.main import Server

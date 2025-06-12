@@ -15,8 +15,13 @@ def main():
     """构建器主入口"""
     try:
         init_full()
-        parser = argparse.ArgumentParser()
-        subparsers = parser.add_subparsers(help='Command', dest='command')
+        from .core.i18n import locale, LocalizedHelpFormatter
+        parser = argparse.ArgumentParser(
+            add_help=False,
+            formatter_class=LocalizedHelpFormatter
+        )
+        parser.add_argument('-h', '--help', action='help', help=locale('command.help'))
+        subparsers = parser.add_subparsers(help=locale('command'), dest='command')
         __bind_all_command(subparsers)
         args = parser.parse_args()
         if args.logging_level:
@@ -25,9 +30,9 @@ def main():
             force_debug()
         COMMAND_BINGDING[args.command].process(args)
     except KeyboardInterrupt:
-        print('User cancel')
+        print(locale('command.interrupted'))
     except SystemExit:
-        print('System exit')
+        print(locale('command.system_exit'))
     except Exception as e:
         print(f"{e.__class__.__name__}: {e}")
         if is_debugging():

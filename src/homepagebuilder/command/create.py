@@ -2,31 +2,32 @@ import importlib.resources as pkg_resources
 import shutil
 import os
 from .proc import CommandProcesser
+from ..core.i18n import locale as t
 
 class FolderNotEmptyError(Exception):
     def __init__(self, *args):
         super().__init__(*args)
 
-class InitProjectCommand(CommandProcesser):
-    name = 'initproject'
-    help = 'Creat a new project by using template'
+class CreateProjectCommand(CommandProcesser):
+    name = 'create'
+    help = t('command.create.help')
 
-    def init_subpraser(self,parser):
+    def init_subparser(self,parser):
         parser.add_argument('template', nargs="?", default='default',
-                            help='name of the template')
+                            help=t('command.create.help.args.template'))
         parser.add_argument('--location', type=str,
                               default=os.getcwd(),
-                              help='project path')
+                              help=t('command.create.help.args.location'))
 
     def process(self,args):
         try:
-            copy_installed_package_folder(args.template, args.location)
+            __copy_installed_package_folder(args.template, args.location)
         except FileNotFoundError as e:
-            print(f'Project template "{args.template}" Not Exist!')
+            print(t('command.create.template_not_exist', template=args.template))
             raise e
 
 
-def copy_installed_package_folder(folder_name, dest_folder):
+def __copy_installed_package_folder(folder_name, dest_folder):
     package_path = pkg_resources.files('homepagebuilder')
     src_folder = package_path / 'projects'/ folder_name
 
@@ -34,20 +35,20 @@ def copy_installed_package_folder(folder_name, dest_folder):
         raise FileNotFoundError(src_folder)
 
     if bool(os.listdir(dest_folder)):
-        print('The folder is not empty! Creating a new proejct may damage your files!')
+        print(t('command.create.folder_not_empty'))
         for _ in range(3):
-            inputstr = input('Do you still want to creat a new project in this folder? [y/n] ')
+            inputstr = input(t('command.create.folder_not_empty.confirm'))
             if inputstr.lower() in ['y', 'yes' ,'true' ,'oui' ,'si' ,'是']:
                 break
             if inputstr.lower() in ['n', 'no' ,'false' ,'non' ,'否']:
                 raise FolderNotEmptyError(dest_folder)
-            print('Input Incorrect. Please input "yes" or "no".')
+            print(t('command.create.folder_not_empty.input_error'))
         else:
-            print('Max retry times reached. Creating canceled.')
+            print(t('command.create.folder_not_empty.max_retry'))
             raise FolderNotEmptyError(dest_folder)
 
     if not os.path.exists(dest_folder):
         os.makedirs(dest_folder)
 
     shutil.copytree(src_folder, dest_folder, dirs_exist_ok=True)
-    print(f'Created a new project with template "{folder_name}"')
+    print(t('command.create.created', template=folder_name))
