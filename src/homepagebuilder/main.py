@@ -11,6 +11,13 @@ def __bind_all_command(subparsers):
         processer = processer_class(subparsers)
         COMMAND_BINGDING[processer.name] = processer
 
+def __applicate_auto_complete(parser):
+    try:
+        import argcomplete
+        argcomplete.autocomplete(parser)
+    except ImportError:
+        pass
+
 def main():
     """构建器主入口"""
     try:
@@ -23,6 +30,7 @@ def main():
         parser.add_argument('-h', '--help', action='help', help=locale('command.help'))
         subparsers = parser.add_subparsers(help=locale('command'), dest='command')
         __bind_all_command(subparsers)
+        __applicate_auto_complete(parser)
         args = parser.parse_args()
         if args.logging_level:
             set_config('Logging.Level', args.logging_level)
