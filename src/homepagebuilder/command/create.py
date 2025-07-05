@@ -19,36 +19,37 @@ class CreateProjectCommand(CommandProcesser):
                               default=os.getcwd(),
                               help=t('command.create.help.args.location'))
 
+    def __copy_installed_package_folder(self, folder_name, dest_folder):
+        package_path = pkg_resources.files('homepagebuilder')
+        src_folder = package_path / 'projects'/ folder_name
+
+        if not os.path.exists(src_folder):
+            raise FileNotFoundError(src_folder)
+
+        if bool(os.listdir(dest_folder)):
+            print(t('command.create.folder_not_empty'))
+            for _ in range(3):
+                inputstr = input(t('command.create.folder_not_empty.confirm'))
+                if inputstr.lower() in ['y', 'yes' ,'true' ,'oui' ,'si' ,'是']:
+                    break
+                if inputstr.lower() in ['n', 'no' ,'false' ,'non' ,'否']:
+                    raise FolderNotEmptyError(dest_folder)
+                print(t('command.create.folder_not_empty.input_error'))
+            else:
+                print(t('command.create.folder_not_empty.max_retry'))
+                raise FolderNotEmptyError(dest_folder)
+
+        if not os.path.exists(dest_folder):
+            os.makedirs(dest_folder)
+
+        shutil.copytree(src_folder, dest_folder, dirs_exist_ok=True)
+        print(t('command.create.created', template=folder_name))
+
     def process(self,args):
         try:
-            __copy_installed_package_folder(args.template, args.location)
+            self.__copy_installed_package_folder(args.template, args.location)
         except FileNotFoundError as e:
             print(t('command.create.template_not_exist', template=args.template))
             raise e
 
 
-def __copy_installed_package_folder(folder_name, dest_folder):
-    package_path = pkg_resources.files('homepagebuilder')
-    src_folder = package_path / 'projects'/ folder_name
-
-    if not os.path.exists(src_folder):
-        raise FileNotFoundError(src_folder)
-
-    if bool(os.listdir(dest_folder)):
-        print(t('command.create.folder_not_empty'))
-        for _ in range(3):
-            inputstr = input(t('command.create.folder_not_empty.confirm'))
-            if inputstr.lower() in ['y', 'yes' ,'true' ,'oui' ,'si' ,'是']:
-                break
-            if inputstr.lower() in ['n', 'no' ,'false' ,'non' ,'否']:
-                raise FolderNotEmptyError(dest_folder)
-            print(t('command.create.folder_not_empty.input_error'))
-        else:
-            print(t('command.create.folder_not_empty.max_retry'))
-            raise FolderNotEmptyError(dest_folder)
-
-    if not os.path.exists(dest_folder):
-        os.makedirs(dest_folder)
-
-    shutil.copytree(src_folder, dest_folder, dirs_exist_ok=True)
-    print(t('command.create.created', template=folder_name))
