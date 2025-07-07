@@ -4,12 +4,12 @@ from typing import Dict
 from .core.config import is_debugging, init_full, force_debug, set_config
 from .command import *
 
-COMMAND_BINGDING:Dict[str, CommandProcesser] = {}
+COMMAND_BINDING:Dict[str, CommandProcesser] = {}
 
 def __bind_all_command(subparsers):
     for processer_class in CommandProcesser.__subclasses__():
         processer = processer_class(subparsers)
-        COMMAND_BINGDING[processer.name] = processer
+        COMMAND_BINDING[processer.name] = processer
 
 def __applicate_auto_complete(parser):
     try:
@@ -36,7 +36,7 @@ def main():
             set_config('Logging.Level', args.logging_level)
         if args.debug:
             force_debug()
-        COMMAND_BINGDING[args.command].process(args)
+        COMMAND_BINDING[args.command].process(args)
     except KeyboardInterrupt:
         print(locale('command.interrupted'))
     except SystemExit:
