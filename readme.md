@@ -9,3 +9,4 @@ Can run in server mode, respond homepage requests.
 构建器可在两种模式下运行：构建器模式和服务器模式。构建器使用工程文件生成主页代码；服务器使用工程文件响应来自PCL的请求，提供联网更新
 
 使用文档见：https://builder.docs.bugjump.net/
+文档仓库：https://github.com/Light-Beacon/HomepageBuilderDocument
