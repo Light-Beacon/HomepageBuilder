@@ -15,21 +15,22 @@ def is_yaml(file:'File') -> bool:
     
 class Version():
     """版本号"""
-    def __init__(self, major, minor = 0, micro = 0):
+    def __init__(self, major, minor = 0, micro = 0, detail = None):
         self.major = major
         self.minor = minor
         self.micro = micro
+        self.detail = detail
 
     @classmethod
     def from_string(cls, version_str):
-        major, minor, micro = map(int, version_str.split("."))
-        return cls(major, minor, micro)
+        major, minor, micro, *detail = version_str.split(".")
+        return cls(major, minor, micro, detail)
 
     def __str__(self):
-        return f"{self.major}.{self.minor}.{self.micro}"
+        return f"{self.major}.{self.minor}.{self.micro}{'.' + '.'.join(map(str, self.detail)) if self.detail else ''}"
 
     def __repr__(self):
-        return f"{self.major}.{self.minor}.{self.micro}"
+        return f"{self.major}.{self.minor}.{self.micro}{'.' + '.'.join(map(str, self.detail)) if self.detail else ''}"
 
     def __rt__(self, other):
         if other is ...:

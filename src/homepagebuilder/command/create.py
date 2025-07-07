@@ -3,6 +3,7 @@ import shutil
 import os
 from .proc import CommandProcesser
 from ..core.i18n import locale as t
+from ..core.utils.checking import Version
 
 class FolderNotEmptyError(Exception):
     def __init__(self, *args):
@@ -43,6 +44,10 @@ class CreateProjectCommand(CommandProcesser):
             os.makedirs(dest_folder)
 
         shutil.copytree(src_folder, dest_folder, dirs_exist_ok=True)
+
+        with open(os.path.join(dest_folder, 'Project.yml'), 'a', encoding='utf-8') as f:
+            f.write('\nversion: ' + str(Version.builder_version()) + '\n')
+
         print(t('command.create.created', template=folder_name))
 
     def process(self,args):
@@ -51,5 +56,3 @@ class CreateProjectCommand(CommandProcesser):
         except FileNotFoundError as e:
             print(t('command.create.template_not_exist', template=args.template))
             raise e
-
-
