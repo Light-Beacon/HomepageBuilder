@@ -6,22 +6,21 @@ from .utils.event import set_triggers
 from .formatter import format_code
 from .logger import Logger
 from .i18n import locale as t
-from .config import config, is_debugging
+from .config import is_debugging
 from .resource import get_resources_code
 from ..debug import global_anlyzer as anl
 
 if TYPE_CHECKING:
-    from .types import Context
     from .io import File
     from .utils.client import PCLClient
 
 logger = Logger('Page')
 
 class PageBase():
-    "页面基类"
+    """页面基类"""
     @abstractmethod
     def generate(self, context:'Context') -> str:
-        "获取页面 XAML 代码"
+        """获取页面 XAML 代码"""
     
     @property
     def display_name(self):
@@ -31,13 +30,13 @@ class PageBase():
         return 'application/xml'
 
 class FileBasedPage(PageBase):
-    "基于文件的页面，仅应用于继承"
+    """基于文件的页面，仅应用于继承"""
     def __init__(self, file: 'File') -> None:
         super().__init__()
         self.file = file
 
 class CodeBasedPage(PageBase):
-    "基于代码的页面，仅应用于继承"
+    """基于代码的页面，仅应用于继承"""
     def __init__(self, project) -> None:
         super().__init__()
         self.project = project
@@ -56,6 +55,8 @@ class CardStackPage(FileBasedPage):
     def __init__(self, file: 'File') -> None:
         super().__init__(file)
         data = file.data
+        if not isinstance(data, dict):
+            raise ValueError(t('page.data_not_dict', file=file.name))
         self.setter = PropertySetter(data.get('fill'), data.get('override'))
         self.name = data.get('name', file.name)
         self.display_name_str = data.get('display_name', self.name)

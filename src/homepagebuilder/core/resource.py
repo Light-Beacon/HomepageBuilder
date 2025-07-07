@@ -2,6 +2,7 @@
 资源结构模块
 '''
 import re
+import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from typing import Dict, Annotated, List, Union, Set, TYPE_CHECKING
 from .io import File
@@ -9,7 +10,6 @@ from .logger import Logger
 from .utils.checking import is_xaml, is_yaml
 from .i18n import locale
 from .utils.funcs import transform
-import xml.etree.ElementTree as ET
 
 if TYPE_CHECKING:
     from .types import Context
@@ -49,7 +49,7 @@ class ResourceLoader:
             return cls.__loadyamlfile(file)
         else:
             raise ValueError()
-    
+
     @classmethod
     def __loadyamlfile(cls,file:Annotated[File,is_yaml]):
         """加载yaml资源文件"""
@@ -90,6 +90,7 @@ class Resource(ABC):
         """资源类型"""
 
 class StyleResource(Resource):
+    """样式资源"""
     setters: Dict[str,object]
     is_default: bool
 
@@ -133,6 +134,7 @@ NAMESPACES = {
 NAMESPACES_T = transform(NAMESPACES)
 
 class XamlResource(Resource):
+    """Xaml资源"""
     is_default: bool
 
     def __init__(self,element:ET.Element):

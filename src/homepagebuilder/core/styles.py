@@ -3,7 +3,7 @@
 '''
 
 from typing import Dict
-from core.i18n import locale as t
+from ..core.i18n import locale as t
 
 def get_style_code(context) -> str:
     '''获取样式代码'''

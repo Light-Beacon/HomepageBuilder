@@ -67,6 +67,7 @@ page.generate.done: '${page} 页面生成完毕'
 page.get_card: '获取卡片: ${card_ref}'
 page.get_card.null: '跳过空卡片'
 page.get_card.failed: '由于以下原因，获取卡片失败: ${ex}'
+page.data_not_dict: '页面数据不是字典类型，无法处理'
 project.init: "初始化中..."
 project.load.basic_res: "正在加载基础资源"
 project.load.modules: "正在加载模块"
