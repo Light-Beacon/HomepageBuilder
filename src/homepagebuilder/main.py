@@ -20,9 +20,13 @@ def __applicate_auto_complete(parser):
 
 def main():
     """构建器主入口"""
+    init_full()
     try:
-        init_full()
         from .core.i18n import locale, LocalizedHelpFormatter
+    except ImportError:
+        print("[FATAL] Load i18n module failed.")
+        return 1
+    try:
         parser = argparse.ArgumentParser(
             add_help=False,
             formatter_class=LocalizedHelpFormatter
