@@ -237,6 +237,7 @@ class WPFUIContainer(NodeBase):
         elif self.actual_ancestor.contain_type == NodeType.INLINE:
             return "<InlineUIContainer>" + super().convert() + "</InlineUIContainer>"
         else:
+            logger.error(f'Unknown ancestor type: {self.actual_ancestor.contain_type}')
             raise TypeError
 
 @handles('em','strong','code','del','br')
