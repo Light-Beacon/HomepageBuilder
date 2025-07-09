@@ -8,7 +8,6 @@ from .logger import Logger
 from .i18n import locale as t
 from .config import is_debugging
 from .resource import get_resources_code
-from ..debug import global_anlyzer as anl
 
 if TYPE_CHECKING:
     from .io import File
@@ -57,7 +56,9 @@ class CardStackPage(FileBasedPage):
         data = file.data
         if not isinstance(data, dict):
             raise ValueError(t('page.data_not_dict', file=file.name))
-        self.setter = PropertySetter(data.get('fill'), data.get('override'))
+        self.setter = PropertySetter(data.get('default'), data.get('override'))
+        self.setter.default.update(data.get('fill', {}))  # 兼容性考虑
+        self.setter.override.update(data.get('cover', {}))  # 兼容性考虑
         self.name = data.get('name', file.name)
         self.display_name_str = data.get('display_name', self.name)
         self.cardrefs = data.get('cards',{})
@@ -82,7 +83,6 @@ class CardStackPage(FileBasedPage):
         runtime_setter.attach(context.setter)
         content = ''
         for card_ref in self.cardrefs:
-            anl.phase(card_ref)
             content += self.__getcardscontent(card_ref, context, setter = runtime_setter)
         return content
 
