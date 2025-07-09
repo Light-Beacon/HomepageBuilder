@@ -1,6 +1,49 @@
 builder.load.resources: '加载构建器资源'
 builder.load.structures: '加载构建器结构'
+
+## COMMANDS
+command: '命令'
+command.interrupted: '用户中断，系统退出'
+command.system_exit: '系统退出'
+command.usage_prefix: '用法：'
+command.positional_arguments: '位置参数'
+command.optional_arguments: '可选参数'
+command.options: '选项'
+
+### BUILD
+command.build.help: '构建主页'
 command.build.done: '构建完成，文件保存至 ${path}'
+command.build.help.args.project: '工程文件（Project.yml）路径'
+command.build.help.args.output: '生成文件输出路径'
+command.build.help.args.page: '页面名称'
+command.build.help.args.all_page: '生成所有页面'
+command.build.help.args.dry_run: '干运行'
+command.build.help.args.not_pcl: '设定客户端为非 PCL 版本'
+command.build.help.args.pcl_is_opensource: '设定 PCL 为开源版'
+command.build.help.args.pcl_versionid: '设定 PCL 版本ID'
+
+### HELP
+command.help: '显示帮助信息'
+command.help.debug: '以调试模式启动'
+command.help.logging_level: '设定日志等级'
+
+### CREATE
+command.create.help: '创建工程'
+command.create.help.args.template: '使用的模板'
+command.create.help.args.location: '工程路径'
+command.create.created: '已成功使用项目模板 ${template} 创建项目'
+command.create.folder_not_empty: '文件夹不为空！创建新项目可能会损坏您的文件！'
+command.create.folder_not_empty.confirm: '您仍然希望在此文件夹中创建新项目吗？ [y/n] '
+command.create.folder_not_empty.input_error: '输入错误。 请输入 "yes" 或 "no"'
+command.create.folder_not_empty.max_retry: '您已经尝试了太多次。 项目创建已取消。'
+command.create.template_not_exist: '模板 ${template} 不存在'
+
+### SERVER
+command.server.help: '启动服务器'
+command.server.help.args.port: '服务器端口'
+command.server.help.args.project: '工程文件（Project.yml）路径'
+command.server.help.args.flask_debug: '启用 Flask 调试模式'
+
 debug.timer.start: '${func}(${count}) 计时器启动'
 debug.timer.stop: '${func}(${count}) 计时器停止，该函数运行时间: ${time}s'
 event.subscribe: '${func} 订阅事件 ${name}'
@@ -24,6 +67,7 @@ page.generate.done: '${page} 页面生成完毕'
 page.get_card: '获取卡片: ${card_ref}'
 page.get_card.null: '跳过空卡片'
 page.get_card.failed: '由于以下原因，获取卡片失败: ${ex}'
+page.data_not_dict: '页面数据不是字典类型，无法处理'
 project.init: "初始化中..."
 project.load.basic_res: "正在加载基础资源"
 project.load.modules: "正在加载模块"

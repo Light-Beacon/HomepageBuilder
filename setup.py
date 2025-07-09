@@ -2,7 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name = "homepagebuilder",
-    version = "0.14.5",
+    setup_requires=['setuptools_scm'],
+    use_scm_version=True,
     author = "Nattiden",
     author_email = "lightbeacon@bugjump.net",
     url = "https://github.com/Light-Beacon/HomepageBuilder",
@@ -23,7 +24,7 @@ setup(
         'beautifulsoup4>=4.12.3',
         'Markdown>=3.5.2',
         'PyYAML>=6.0.1',
-        'flask>=3.0.3',
+        'flask>=3.0.3'
     ],
     packages = find_packages(where="src"),
     package_dir = {"":"src"},

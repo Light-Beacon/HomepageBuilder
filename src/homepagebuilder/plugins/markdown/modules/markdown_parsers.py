@@ -237,6 +237,7 @@ class WPFUIContainer(NodeBase):
         elif self.actual_ancestor.contain_type == NodeType.INLINE:
             return "<InlineUIContainer>" + super().convert() + "</InlineUIContainer>"
         else:
+            logger.error(f'Unknown ancestor type: {self.actual_ancestor.contain_type}')
             raise TypeError
 
 @handles('em','strong','code','del','br')
@@ -281,6 +282,7 @@ class Paragraph(BlockNode, InlineNodeContainer):
         p = Paragraph(tag = None,context=context,parent_stack=parent_stack)
         p.children = inline_list
         p.name = 'p'
+        p.tag = '<virtual p>'
         return p
 
     def parse_children(self,*args,**kwargs):
@@ -293,14 +295,15 @@ class Paragraph(BlockNode, InlineNodeContainer):
             if child.node_type in [NodeType.BLOCK, NodeType.ANY]:
                 self.expose_children = True
                 replace_children_flag = True
-                new_children.append(Paragraph.from_inline_list(
-                    children_buffer_inline, context=self.context,
-                    parent_stack=self.parent_stack))
+                if len(children_buffer_inline) > 0:
+                    new_children.append(Paragraph.from_inline_list(
+                        children_buffer_inline, context=self.context,
+                        parent_stack=self.parent_stack))
                 new_children.append(child)
                 children_buffer_inline = []
             else:
-                children_buffer_inline.append(child)   
-        if replace_children_flag:
+                children_buffer_inline.append(child)
+        if replace_children_flag and len(children_buffer_inline) > 0:
             new_children.append(Paragraph.from_inline_list(
                 children_buffer_inline, context=self.context,
                 parent_stack=self.parent_stack))

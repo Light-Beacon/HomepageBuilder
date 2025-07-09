@@ -2,11 +2,12 @@ import markdown
 from bs4 import BeautifulSoup
 from homepagebuilder.interfaces import script, require
 from homepagebuilder.core.config import config
+from homepagebuilder.interfaces import Logger
 
 parsers_module = require('markdown_parsers')
 processor_module = require('markdown_processor')
 create_node = parsers_module.create_node
- 
+logger = Logger('MarkdownPresenter')
 class MarkdownPresenter:
     def __init__(self):
         self.pre_process_pipeline = []
@@ -37,6 +38,7 @@ class MarkdownPresenter:
         '''生成xaml代码'''
         md = self.pre_process(md)
         html = markdown.markdown(md)
+        logger.noisy(f'Converted markdown to html: {html}')
         xaml = self.html2xaml(html,context)
         return xaml
 

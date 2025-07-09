@@ -1,3 +1,4 @@
+from argparse import HelpFormatter
 from locale import getdefaultlocale
 from string import Template
 from .config import config
@@ -52,3 +53,24 @@ def locale(key:str,*args,lang:str=DEFAULTLANG,**kwargs):
         return locale(key,lang='en_US',**kwargs)
 
 init(locales)
+
+class LocalizedHelpFormatter(HelpFormatter):
+    """本地化帮助格式化器"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def add_usage(self, usage, actions, groups, prefix=None):
+        if prefix is None:
+            prefix = locale('command.usage_prefix')
+        return super().add_usage(usage, actions, groups, prefix)
+
+    def start_section(self, heading):
+        translations = {
+            'positional arguments': 'command.positional_arguments',
+            'optional arguments': 'command.optional_arguments',
+            'options': 'command.options',
+        }
+        if heading in translations:
+            heading = locale(translations[heading])
+        super().start_section(heading)

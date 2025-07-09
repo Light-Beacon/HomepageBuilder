@@ -9,20 +9,26 @@ logger = Logger('Command|Build')
 
 class BuildCommand(CommandProcesser):
     name = 'build'
-    help = 'Build Homepage'
+    help = t('command.build.help')
 
-    def init_subpraser(self,parser):
+    def init_subparser(self,parser):
         parser.add_argument('--project', type=str,
-                              default=os.getcwd() + os.path.sep + 'Project.yml',
-                              help='project file path')
+                            default=os.getcwd() + os.path.sep + 'Project.yml',
+                            help=t('command.build.help.args.project'))
         parser.add_argument('--output-path', type=str, default=None,
-                              help='generated file dest')
-        parser.add_argument('-p', '--page', type=str, help='page name')
-        parser.add_argument('-a', '--all-page', action='store_true', help='generate all page')
-        parser.add_argument('--dry-run', action='store_true', help='dry run')
-        parser.add_argument('--not-pcl', action='store_true')
-        parser.add_argument('--pcl-is-opensource', action='store_true')
-        parser.add_argument('--pcl-versionid', type=int, default=None, help='PCL version')
+                            help=t('command.build.help.args.output'))
+        parser.add_argument('-p', '--page', type=str,
+                            help=t('command.build.help.args.page'))
+        parser.add_argument('-a', '--all-page', action='store_true',
+                            help=t('command.build.help.args.all_page'))
+        parser.add_argument('--dry-run', action='store_true',
+                            help=t('command.build.help.args.dry_run'))
+        parser.add_argument('--not-pcl', action='store_true',
+                            help=t('command.build.help.args.not_pcl'))
+        parser.add_argument('--pcl-is-opensource',action='store_true',
+                            help=t('command.build.help.args.pcl_is_opensource'))
+        parser.add_argument('--pcl-versionid', type=int, default=None,
+                            help=t('command.build.help.args.pcl_versionid'))
 
     def process(self,args) -> None:
         from ..core.builder import Builder

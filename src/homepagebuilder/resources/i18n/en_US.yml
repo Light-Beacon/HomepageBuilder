@@ -1,5 +1,48 @@
 builder.load.resources: 'Loading builder resources'
+
+## COMMANDS
+command: 'Command'
+command.interrupted: 'User interrupted, system exit'
+command.system_exit: 'System exit'
+command.usage_prefix: 'Usage:'
+command.positional_arguments: 'Positional arguments:'
+command.optional_arguments: 'Optional arguments:'
+command.options: 'Options:'
+
+### BUILD
+command.build.help: 'Build homepage'
 command.build.done: 'Build done, files saved to ${path}'
+command.build.help.args.project: 'Project file (Project.yml) path'
+command.build.help.args.output: 'Output path for generated files'
+command.build.help.args.page: 'Page name'
+command.build.help.args.all_page: 'Generate all pages'
+command.build.help.args.dry_run: 'Dry run'
+command.build.help.args.not_pcl: 'Set client to non-PCL edition'
+command.build.help.args.pcl_is_opensource: 'Set PCL is open source edition'
+command.build.help.args.pcl_versionid: 'Set PCL version ID'
+
+### HELP
+command.help: 'show this help message and exit'
+command.help.debug: 'Start in debug mode'
+command.help.logging_level: 'Set logging level'
+
+### CREATE
+command.create.help: 'Create a new project'
+command.create.help.args.template: 'Template to use'
+command.create.help.args.location: 'Project location'
+command.create.folder_not_empty: 'The folder is not empty! Creating a new project may damage your files!'
+command.create.folder_not_empty.confirm: 'Do you still want to create a new project in this folder? [y/n] '
+command.create.folder_not_empty.input_error: 'Input error. Please input "yes" or "no"'
+command.create.folder_not_empty.max_retry: 'You have tried too many times. The project creation is cancelled.'
+command.create.created: 'Project created successfully with template {template}'
+command.create.template_not_exist: 'Template ${template} does not exist'
+
+### SERVER
+command.server.help: 'Start the server'
+command.server.help.args.port: 'Server port'
+command.server.help.args.project: 'Project file (Project.yml) path'
+command.server.help.args.flask_debug: 'Enable Flask debug mode'
+
 debug.timer.start: '${func}(${count}) Timer Started'
 debug.timer.stop: '${func}(${count}) Timer Stopped, Time used: ${time}s'
 event.subscribe: '${func} subcribed event ${name}'
@@ -17,6 +60,7 @@ module.page.import.one.init: 'Load code-driven page: ${name}'
 module.page.import.one.add: 'Registed code-driven page:${name}'
 module.page.import.success: 'Load code-driven page successfully'
 page.not_found: 'Cannot find page named ${page}'
+page.data_not_dict: 'Page data is not a dictionary, unable to process'
 page.generate.done: 'Generated page ${page}'
 page.get_card: 'Get card: ${card_ref}'
 page.get_card.null: 'Skiped null card'

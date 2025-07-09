@@ -20,17 +20,17 @@ class IndexingOption(IntEnum):
     """库内文件不加入上一级索引"""
     private = 4
     """子库与库内文件均不加入上一级索引"""
-    ignore = 0
+    hidden = 0
     """子库本身以及所有子内容均不加入索引"""
-    
+
     @classmethod
     def indexing_sublibs(cls, option: 'IndexingOption'):
         return bool(option.value & 1)
-    
+
     @classmethod
     def indexing_subfiles(cls, option: 'IndexingOption'):
         return bool(option.value & 2)
-    
+
     @classmethod
     def indexing_self(cls, option: 'IndexingOption'):
         return bool(option.value & 4)
@@ -41,7 +41,8 @@ class Library:
     def __init__(self,data:dict):
         self.name= data['name']
         logger.info(t('library.load',name=self.name))
-        self.setter = PropertySetter(data.get('fill'),data.get('override'))
+        self.setter = PropertySetter(data.get('default'),data.get('override'))
+        self.setter.default.update(data.get('fill',{})) # 兼容性考虑
         self.setter.override.update(data.get('cover',{})) # 兼容性考虑
         self.indexing = IndexingOption[data.get('indexing', 'public').lower()]
         self.card_mapping = {}  # 卡片索引

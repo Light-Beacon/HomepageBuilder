@@ -4,30 +4,47 @@ from typing import Dict
 from .core.config import is_debugging, init_full, force_debug, set_config
 from .command import *
 
-COMMAND_BINGDING:Dict[str, CommandProcesser] = {}
+COMMAND_BINDING:Dict[str, CommandProcesser] = {}
 
 def __bind_all_command(subparsers):
     for processer_class in CommandProcesser.__subclasses__():
         processer = processer_class(subparsers)
-        COMMAND_BINGDING[processer.name] = processer
+        COMMAND_BINDING[processer.name] = processer
+
+def __applicate_auto_complete(parser):
+    try:
+        import argcomplete
+        argcomplete.autocomplete(parser)
+    except ImportError:
+        pass
 
 def main():
     """构建器主入口"""
+    init_full()
     try:
-        init_full()
-        parser = argparse.ArgumentParser()
-        subparsers = parser.add_subparsers(help='Command', dest='command')
+        from .core.i18n import locale, LocalizedHelpFormatter
+    except ImportError:
+        print("[FATAL] Load i18n module failed.")
+        return 1
+    try:
+        parser = argparse.ArgumentParser(
+            add_help=False,
+            formatter_class=LocalizedHelpFormatter
+        )
+        parser.add_argument('-h', '--help', action='help', help=locale('command.help'))
+        subparsers = parser.add_subparsers(help=locale('command'), dest='command')
         __bind_all_command(subparsers)
+        __applicate_auto_complete(parser)
         args = parser.parse_args()
         if args.logging_level:
             set_config('Logging.Level', args.logging_level)
         if args.debug:
             force_debug()
-        COMMAND_BINGDING[args.command].process(args)
+        COMMAND_BINDING[args.command].process(args)
     except KeyboardInterrupt:
-        print('User cancel')
+        print(locale('command.interrupted'))
     except SystemExit:
-        print('System exit')
+        print(locale('command.system_exit'))
     except Exception as e:
         print(f"{e.__class__.__name__}: {e}")
         if is_debugging():
