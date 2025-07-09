@@ -102,7 +102,10 @@ class TemplateManager():
             return children_code
         target_template = context.templates[template_name]
         code = ''
-        card = PropertySetter(target_template.get('fill'),target_template.get('cover')).decorate(card)
+        setter = PropertySetter(target_template.get('default'),target_template.get('override'))
+        setter.default.update(card.get('fill',{}))  # 兼容性考虑
+        setter.override.update(card.get('cover',{}))  # 兼容性考虑
+        card = setter.decorate(card)
         card = self.expend_card_placeholders(card,children_code,context)
         for cpn in target_template['components']:
             cpn = format_code(cpn,card,context,'')

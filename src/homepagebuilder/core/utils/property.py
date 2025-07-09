@@ -3,8 +3,8 @@ class ReadOnlySetterException(Exception):
     pass
 
 class PropertySetter():
-    def __init__(self,fill = None,override = None, frozen = True):
-        self.fill:Dict = dict(fill) if fill else {}
+    def __init__(self,default = None,override = None, frozen = True):
+        self.default:Dict = dict(default) if default else {}
         self.override:Dict = dict(override) if override else {}
         self.__frozen = frozen
     
@@ -15,22 +15,22 @@ class PropertySetter():
         if not sticker_setter:
             return
         self.override.update(sticker_setter.override)
-        tempfill = sticker_setter.fill.copy()
-        tempfill.update(self.fill)
-        self.fill = tempfill
+        temp_default = sticker_setter.default.copy()
+        temp_default.update(self.default)
+        self.default = temp_default
     
     def clone(self):
-        new_setter = PropertySetter(self.fill, self.override)
+        new_setter = PropertySetter(self.default, self.override)
         new_setter.__frozen = False
         return new_setter
     
     def toProperties(self):
-        fillcopy = self.fill.copy()
-        fillcopy.update(self.override)
-        return fillcopy
-    
+        default_copy = self.default.copy()
+        default_copy.update(self.override)
+        return default_copy
+
     def decorate(self,property:Dict):
-        new_property = self.fill.copy()
+        new_property = self.default.copy()
         new_property.update(property)
         new_property.update(self.override)
         return new_property
@@ -43,7 +43,7 @@ class PropertySetter():
         return self.__frozen
 
     def __len__(self):
-        return len(self.fill) + len(self.override)
+        return len(self.default) + len(self.override)
     
     @classmethod
     def fromargs(cls,args:List[str]):
@@ -57,4 +57,4 @@ class PropertySetter():
         return PropertySetter(None,override)
     
     def __str__(self) -> str:
-        return f'<PS|fill:{self.fill}, override:{self.override}>'
+        return f'<PS|default:{self.default}, override:{self.override}>'
