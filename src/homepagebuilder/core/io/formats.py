@@ -1,5 +1,6 @@
 import json
 import yaml
+from typing import Dict
 from pathlib import Path
 from .accessor import file_reader,file_writer
 
@@ -10,8 +11,8 @@ def read_json(filepath) -> dict:
         data = json.load(f)
         return data
 
-@file_reader(['yml','yaml'])
-def read_yaml(filepath:str) -> dict:
+@file_reader('yml', 'yaml')
+def read_yaml(filepath:str) -> Dict:
     ''' 读取 Yaml 文件 '''
     with open(filepath,encoding='utf-8') as f:
         data = yaml.load(f,Loader=yaml.FullLoader)
@@ -20,13 +21,13 @@ def read_yaml(filepath:str) -> dict:
         data.update({'file_path':filepath})
         return data
 
-@file_reader(['txt','xaml'])
+@file_reader('txt', 'xaml')
 def read_string(filepath:str):
     '''读取字符串文件'''
     with open(filepath, "r+",encoding="utf-8") as file:
         return file.read()
 
-@file_writer(['txt','xaml'])
+@file_writer('txt', 'xaml')
 def write_string(filepath:str,data:str):
     '''写入字符串文件'''
     file = Path(filepath)

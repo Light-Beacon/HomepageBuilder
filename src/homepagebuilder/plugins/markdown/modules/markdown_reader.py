@@ -7,7 +7,7 @@ from homepagebuilder.interfaces import file_reader, read_string
 
 # 提取列表项：(?:\[?\s*)(\".*?\"|\'.*?\'|[^,]*?)(?:\s*[,|\]])
 
-@file_reader(['md','markdown'])
+@file_reader('md', 'markdown')
 def read_markdown(filepath:str):
     '''读取markdown文件方法'''
     string = read_string(filepath=filepath)

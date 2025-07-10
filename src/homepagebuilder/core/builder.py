@@ -1,4 +1,5 @@
 import os
+from typing import TYPE_CHECKING, Union, Optional
 from .config import enable_by_config
 from .io import Dire
 from .project import Project
@@ -6,17 +7,27 @@ from .i18n import locale as t, append_locale
 from .logger import Logger
 from .module_manager import load_module_dire,get_check_list
 from .templates_manager import TemplateManager
-from .types import Builder as BuilderBase
 from .loader import Loader
 from .utils.paths import getbuilderpath
+from ..core.types import Context
+from .utils.property import PropertySetter
+
+if TYPE_CHECKING:
+    from ..core.resource import Resource
+    from ..core.templates_manager import TemplateManager
 
 PATH_SEP = os.path.sep
 logger = Logger('Builder')
 
-class Builder(BuilderBase):
+class Builder():
     """构建器核心"""
+
     def __init__(self):
-        super().__init__()
+        self.envpath: str
+        self.resources: Resource
+        self.template_manager: TemplateManager
+        self.__context:Context = Context()
+        self.__context.builder = self
         self.envpath = os.path.dirname(os.path.dirname(__file__))
         self.__init_context()
         self.load_structure(getbuilderpath('resources/structures/'))
@@ -24,7 +35,7 @@ class Builder(BuilderBase):
         self.template_manager = TemplateManager()
         self.load_modules(getbuilderpath('modules'))
         self.load_plugins(getbuilderpath('plugins'))
-        self.current_project = None
+        self.current_project: Optional[Project] = None
 
     def __init_context(self):
         self.__context.components = {}
@@ -34,9 +45,10 @@ class Builder(BuilderBase):
         self.__context.templates = {}
         self.__context.project = None
         self.__context.resources = {}
-        self.__context.setter = None
+        self.__context.setter = PropertySetter()
 
     def load_structure(self,dire_path):
+        """加载构建器结构"""
         logger.info(t('builder.load.structures'))
         self.__context.components.update(
             Loader.load_compoents(dire_path + 'components'))
@@ -80,5 +92,10 @@ class Builder(BuilderBase):
         if len(wait_list := get_check_list()) > 0:
             logger.error(t('builder.check_module_list.error', wait_list=wait_list))
 
-    def load_proejct(self,project_path):
+    def load_project(self, project_path):
+        """加载工程"""
         self.current_project = Project(self,project_path)
+
+    def get_context_copy(self) -> 'Context':
+        """获取环境拷贝"""
+        return self.__context.copy()

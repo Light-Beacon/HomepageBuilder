@@ -2,7 +2,7 @@
 工程文件模块，构建器核心
 """
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional
 from .io import Dire, File
 from .library import Library
 from .logger import Logger
@@ -14,17 +14,35 @@ from .utils.checking import Version
 from .utils.client import DEFAULT_PCLCLIENT
 from .page import CardStackPage, RawXamlPage
 from .loader import Loader
-from .types import Project as ProjectBase
 from .config import import_config_dire
 
 if TYPE_CHECKING:
     from .utils.client import PCLClient
-    
+    from .builder import Builder
+    from .types import Context
+    from .page import PageBase
+
 PATH_SEP = os.path.sep
 logger = Logger('Project')
 
-class Project(ProjectBase):
+class Project():
     """工程类"""
+
+    @set_triggers('project.load')
+    def __init__(self, builder, path):
+        logger.info(t('project.init'))
+        self.builder:Builder = builder
+        self.__context:Context = builder.get_context_copy()
+        self.__context.project = self
+        self.base_library:Optional[Library] = None
+        self.base_path:Optional[str] = None
+        self.default_page:Optional[str] = None
+        self.version:Version = Version.from_string('0.0.0')
+        self.pages:Dict[str,PageBase] = {}
+        self.pagelist:List[PageBase] = []
+        self.import_pack(path)
+        logger.info(t('project.load.success'))
+
     def __checkModuleWaitList(self):
         if len(wait_list := get_check_list()) > 0:
             logger.error(t('project.check_module_list.error', wait_list=wait_list))
@@ -45,7 +63,7 @@ class Project(ProjectBase):
 
     @set_triggers('project.import.projectfile')
     def __init_load_projectfile(self,path):
-        pack_info = File(path).read()
+        pack_info:Dict[str, Optional[str]] = File(path).read()
         self.base_path = os.path.dirname(path)
         self.version = Version.from_string(pack_info['version'])
         self.default_page = pack_info.get('default_page')
@@ -112,12 +130,6 @@ class Project(ProjectBase):
         for pagefile in Dire(fmtpath(self.base_path,'/pages')).scan(recur=True):
             self.import_page_from_file(pagefile)
 
-    @set_triggers('project.load')
-    def __init__(self,builder, path):
-        logger.info(t('project.init'))
-        super().__init__(builder=builder,path=path)
-        logger.info(t('project.load.success'))
-
     def import_page_from_file(self, page_file: File):
         """导入页面"""
         file_name = page_file.name
@@ -128,7 +140,7 @@ class Project(ProjectBase):
         elif file_exten == 'xaml':
             page = RawXamlPage(page_file)
         else:
-            logger.warning(f'Page file not supported: {file_name}.{file_exten}')
+            logger.warning('Page file not supported: %s.%s', file_name, file_exten)
             return
         self.pages[file_name] = page
         self.pagelist.append(file_name)
@@ -180,8 +192,23 @@ class Project(ProjectBase):
 
     def set_context_data(self,key,value):
         self.__context.data[key] = value
-    
+
     def get_context_data(self,key):
         return self.__context.data.get(key)
+
+    def get_all_card(self) -> List:
+        """获取工程里的全部卡片"""
+        if not self.base_library:
+            raise ValueError(t('project.no_library'))
+        return self.base_library.get_all_cards()
+
+    def get_all_pagename(self) -> List:
+        """获取工程里的全部页面名"""
+        return self.pagelist
+
+    def get_context_copy(self) -> 'Context':
+        """获取环境拷贝"""
+        return self.__context.copy()
+
 class PageNotFoundError(Exception):
     """页面未找到错误"""

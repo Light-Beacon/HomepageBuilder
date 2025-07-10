@@ -41,7 +41,7 @@ class ResourceLoader:
         return output
 
     @classmethod
-    def loadfile(cls,file:File) -> List['Resource']:
+    def loadfile(cls,file:File) -> Dict[str, 'Resource']:
         logger.debug(locale('resourceloader.load.resourcefile',name=file.name))
         if is_xaml(file):
             return cls.__loadxamlfile(file)

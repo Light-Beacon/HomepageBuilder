@@ -55,7 +55,7 @@ class File():
         return f"File({self.fullname})"
 
     @property
-    def data(self,func = None,):
+    def data(self,func = None) -> object:
         '''文件数据'''
         #logger.debug(f'读取{self.abs_path}')
         return self.read(func)
@@ -123,14 +123,14 @@ class Dire():
                     continue
             self.__add_node(f'{self.abs_path}{SEP}{rel_path}')
 
-    def scan_subdir(self,patten:Union[str|re.Pattern] = ANYPATTERN):
+    def scan_subdir(self,patten:Union[str, re.Pattern] = ANYPATTERN):
         '''和 `scan` 效果相似，函数会返回该文件夹所有下边的一层文件夹的指定文件列表'''
         return self.scan(patten=patten,recur=True,min_recur_deepth=1,max_recur_deepth=1)
 
     def scan(self,
-            patten:Union[str|re.Pattern] = ANYPATTERN,
+            patten:Union[str, re.Pattern, None] = ANYPATTERN,
             recur:bool=False,
-            dire_patten:Union[str|re.Pattern] = ANYPATTERN,
+            dire_patten:Union[str, re.Pattern] = ANYPATTERN,
             min_recur_deepth:int = 0,
             max_recur_deepth:int = sys.maxsize,
             include_dires:bool = False,
