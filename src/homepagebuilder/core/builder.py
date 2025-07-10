@@ -1,5 +1,6 @@
 import os
-from typing import TYPE_CHECKING, Union, Optional
+from pathlib import Path
+from typing import TYPE_CHECKING, Optional
 from .config import enable_by_config
 from .io import Dire
 from .project import Project
@@ -47,15 +48,15 @@ class Builder():
         self.__context.resources = {}
         self.__context.setter = PropertySetter()
 
-    def load_structure(self,dire_path):
+    def load_structure(self, dire_path:Path):
         """加载构建器结构"""
         logger.info(t('builder.load.structures'))
         self.__context.components.update(
-            Loader.load_compoents(dire_path + 'components'))
+            Loader.load_compoents(dire_path / 'components'))
         self.__context.templates.update(
-            Loader.load_tempaltes(dire_path + 'templates'))
+            Loader.load_tempaltes(dire_path / 'templates'))
         self.__context.page_templates.update(
-            Loader.load_page_tempaltes(dire_path + 'pagetemplates'))
+            Loader.load_page_tempaltes(dire_path / 'pagetemplates'))
 
     def load_resources(self,dire_path):
         """加载构建器资源"""
@@ -80,12 +81,12 @@ class Builder():
         logger.info(t('project.load.plugins'))
         for file in Dire(plugin_path).scan_subdir(r'pack\.yml'):
             data = file.data
-            dire = os.path.dirname(data['file_path'])
-            self.load_data(f'{dire}{PATH_SEP}data')
-            self.load_structure(f'{dire}{PATH_SEP}structures/')
-            self.load_resources(f'{dire}{PATH_SEP}resources')
-            load_module_dire(f'{dire}{PATH_SEP}modules', context = self.__context)
-            append_locale(f'{dire}{PATH_SEP}i18n')
+            dire = Path(data['file_path']).parent
+            self.load_data(dire / 'data')
+            self.load_structure(dire / 'structures')
+            self.load_resources(dire / 'resources')
+            load_module_dire(dire / 'modules', context=self.__context)
+            append_locale(dire / 'i18n')
         self.__check_module_wait_list()
 
     def __check_module_wait_list(self):

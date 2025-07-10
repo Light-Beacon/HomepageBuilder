@@ -1,6 +1,5 @@
-import os
 from ..logger import Logger
-from typing import Iterable, TypeVar, Union, Callable
+from typing import Iterable, TypeVar, Union, Callable, TYPE_CHECKING
 logger = Logger('IO')
 
 read_func_mapping: dict[str, Callable] = {}
@@ -8,7 +7,11 @@ write_func_mapping: dict[str, Callable] = {}
 
 T = TypeVar('T')
 
+if TYPE_CHECKING:
+    from .structure import File
+
 class FileFormatUnsupportedError(Exception):
+    """文件格式不支持异常"""
     def __init__(self,file, *args: object) -> None:
         from ..i18n import locale
         super().__init__(*args)
@@ -50,9 +53,9 @@ def file_writer(*file_extentions):
         return func
     return decorator
 
-def read(file,func = None,usecache:bool = True):
+def read(file:'File', func = None, usecache:bool = True):
     '''读取文件'''
-    if not os.path.exists(file.abs_path):
+    if not file.abs_path.exists():
         raise FileNotFoundError(f'{file.abs_path} not exist!')
     if not func:
         if usecache and file.cache:

@@ -171,7 +171,8 @@ class Project():
     def generate_page_xaml(self, page, setter = None, client = DEFAULT_PCLCLIENT):
         """使用页面对象生成 xaml 代码"""
         context = self.get_context_copy()
-        context.setter = setter
+        if setter is not None:
+            context.setter = setter
         context.client = client
         context.used_resources = set()
         return page.generate(context = context)

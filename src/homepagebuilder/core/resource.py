@@ -77,7 +77,7 @@ class ResourceLoader:
 class Resource(ABC):
     """资源基类"""
     key:str
-    basedon: Union[str|None]
+    basedon: Union[str, None]
     is_default: bool
 
     @abstractmethod

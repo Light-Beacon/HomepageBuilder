@@ -2,13 +2,17 @@
 Markdown 读取模块
 '''
 import re
+from typing import TYPE_CHECKING
 import yaml
 from homepagebuilder.interfaces import file_reader, read_string
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # 提取列表项：(?:\[?\s*)(\".*?\"|\'.*?\'|[^,]*?)(?:\s*[,|\]])
 
 @file_reader('md', 'markdown')
-def read_markdown(filepath:str):
+def read_markdown(filepath:'Path'):
     '''读取markdown文件方法'''
     string = read_string(filepath=filepath)
     string, card = sep_attr(string)
