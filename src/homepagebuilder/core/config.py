@@ -31,7 +31,7 @@ def config(key:str, default = None, except_type: Union[type[T],Tuple[type[T], ..
         if isinstance(except_type, type):
             raise TypeError(f'Config {key} is not of type {except_type.__name__}')
         elif isinstance(except_type, tuple):
-            raise TypeError(f'Config {key} is not one of those types {','.join([t.__name__ for t in except_type])}')
+            raise TypeError(f'Config {key} is not one of those types {",".join([t.__name__ for t in except_type])}')
         else:
             raise TypeError(f'Config {key} is not of type {except_type}')
     return value
