@@ -83,7 +83,7 @@ class TemplateManager():
                 if is_debugging():
                     raise ValueError(f"检测到卡片中 {'、'.join(q.queue)} 属性无法被展开")
                 else:
-                    logger.warning(f"检测到卡片中 {'、'.join(q.queue)} 属性无法被展开，跳过")
+                    logger.warning("检测到卡片中 %s 属性无法被展开，跳过", '、'.join(q.queue))
                 break
             key = q.get()
             try:
@@ -155,7 +155,7 @@ class TemplateManager():
                 if is_debugging():
                     raise ex
                 else:
-                    logger.warning(f'构建卡片时出现错误：\n{traceback.format_exc()}Skipped.')
+                    logger.warning('构建卡片时出现错误：\n%sSkipped.', traceback.format_exc())
                     return ''
 
         attr = card['templates']

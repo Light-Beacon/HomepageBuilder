@@ -28,7 +28,10 @@ class ProjectAPI:
             raise NotImplementedError()
         try:
             self.builder = Builder()
-            self.project = Project(self.builder,self.project_file)
+            self.builder.load_project(self.project_file)
+            if not self.builder.current_project:
+                raise ValueError("Project not loaded correctly.")
+            self.project = self.builder.current_project
             self.default_page = self.project.default_page
             self.version_provider: VersionProvider = get_provider_class()(self)
             self.__run_time_version = 0

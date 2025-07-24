@@ -2,6 +2,7 @@
 该模块内存放了卡片库类
 '''
 import os
+from typing import List
 from enum import IntEnum
 from .io import Dire,File
 from .logger import Logger
@@ -143,7 +144,7 @@ class Library:
         # DEV NOTICE 如果映射的内存占用太大了就将每一个文件和每一个子库的路径压成栈，交给根库来管理
 
     @set_triggers('library.getallcard')
-    def get_all_cards(self):
+    def get_all_cards(self) -> List:
         '''获取该库的所有卡片'''
         result = [self.setter.decorate(card) for card in self.cards.values()]
         for lib in self.sub_libraries.values():

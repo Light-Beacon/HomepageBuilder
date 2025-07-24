@@ -12,7 +12,7 @@ def is_xaml(file:'File') -> bool:
 def is_yaml(file:'File') -> bool:
     "判断文件是否为Yaml"
     return file.extention in ['yml','yaml']
-    
+
 class Version():
     """版本号"""
     def __init__(self, major, minor = 0, micro = 0, detail = None):

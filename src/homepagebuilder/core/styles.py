@@ -14,7 +14,7 @@ def get_style_code(context) -> str:
             xaml += item
         if isinstance(item,dict):
             for style in item['Styles']:
-                if style["Target"] == None:
+                if style["Target"] is None:
                     raise KeyError(t("resource.style.missingtarget"))
                 xaml += f'<Style TargetType="{style["Target"]}" '
                 if 'Key' in style:

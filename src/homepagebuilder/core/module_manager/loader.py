@@ -1,8 +1,9 @@
 import os
+from pathlib import Path
 import importlib
 import sys
 import re
-from typing import List
+from typing import List, Callable
 from ..logger import Logger
 from ..i18n import locale as t
 from ..io import file_reader, Dire
@@ -104,8 +105,8 @@ def require(module_name):
         raise RequireDependency(module_name)
 
 
-@file_reader(['py','python'])
-def read_python(filepath:str) -> callable:
+@file_reader('py','python')
+def read_python(filepath:str) -> Callable:
     ''' 读取 Python 文件 '''
     if not os.path.exists(filepath):
         raise FileNotFoundError(f'{filepath} not exist!')
@@ -114,7 +115,7 @@ def read_python(filepath:str) -> callable:
 def load_module_dire(dire,*args,**kwargs):
     ''' 载入文件夹下的所有 python 模块 '''
     modulelist = []
-    if isinstance(dire,str):
+    if isinstance(dire,(str,Path)):
         try:
             dire = Dire(dire)
         except FileNotFoundError:

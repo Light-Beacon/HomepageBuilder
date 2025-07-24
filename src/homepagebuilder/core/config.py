@@ -1,5 +1,8 @@
 import os
 import yaml
+from typing import TypeVar, Union, Tuple, Any, Callable
+
+T = TypeVar('T')
 
 __CONFIG_DICT = {}
 FORCE_DEBUGGING = False
@@ -21,9 +24,17 @@ def __trigger_congfig_changing(config_key:str):
         for func in subscribers:
             func()
 
-def config(key:str,default = None) -> object:
+def config(key:str, default = None, except_type: Union[type[T],Tuple[type[T], ...], Any] = Any, ) -> Union[T, Any]:
     """获取配置"""
-    return __CONFIG_DICT.get(key,default)
+    value = __CONFIG_DICT.get(key,default)
+    if except_type is not Any and not isinstance(value, except_type):
+        if isinstance(except_type, type):
+            raise TypeError(f'Config {key} is not of type {except_type.__name__}')
+        elif isinstance(except_type, tuple):
+            raise TypeError(f'Config {key} is not one of those types {",".join([t.__name__ for t in except_type])}')
+        else:
+            raise TypeError(f'Config {key} is not of type {except_type}')
+    return value
 
 def set_config(key:str,value:object) -> None:
     """设置配置"""
@@ -40,7 +51,7 @@ def is_debugging() -> bool:
 def enable_by_config(key:str,default_output=None,
                      raise_error=False):
     """当配置为 True 时启用的修饰器"""
-    def enable_by_config_deco(func:callable):
+    def enable_by_config_deco(func:Callable):
         def wrapper(*args,**kwagrs):
             if config(key):
                 return func(*args,**kwagrs)
@@ -75,10 +86,11 @@ def import_config_dire(direpath) -> None:
     from .io.structure import Dire
     files = Dire(direpath).scan(recur=True,patten=r'.*\.yml')
     for file in files:
+        if not isinstance(file.data, dict):
+            raise TypeError(f'Config file {file.abs_path} is not a dict!')
         __CONFIG_DICT.update(file.data)
         for key in file.data:
             __trigger_congfig_changing(key)
-
 
 def force_debug() -> None:
     print('DEBUGMODE ON')

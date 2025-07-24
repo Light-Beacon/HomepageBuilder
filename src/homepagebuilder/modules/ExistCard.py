@@ -1,4 +1,3 @@
-from homepagebuilder.core.types.project import Project
 from homepagebuilder.interfaces import script, format_code
 
 @script('ExistCard')

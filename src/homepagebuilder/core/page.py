@@ -119,6 +119,10 @@ class CardStackPage(FileBasedPage):
             return None 
 
     def __getcardunsafe(self,ref:str,context:Context,setter):
+        if not context.project:
+            raise ValueError(t('page.error.no_project'))
+        if not context.project.base_library:
+            raise ValueError(t('page.error.no_library'))
         card = context.project.base_library.get_card(ref, False)
         card = setter.decorate(card)
         return card

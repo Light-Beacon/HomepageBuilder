@@ -1,5 +1,5 @@
 import re
-from typing import Dict
+from typing import Dict, Union, TypeVar, Optional
 from .io import Dire, File
 from .logger import Logger
 from .elements import Component
@@ -13,19 +13,21 @@ PY_PATTERN = re.compile(r'.*\.py$')
 
 logger = Logger('Loader')
 
+T = TypeVar('T')
+
 class Loader():
 
     @classmethod
-    def load_compoents(cls,direpath):
-        return cls.create_structure_mapping(direpath,XAML_PATTERN,Component)
+    def load_compoents(cls, direpath) -> Dict[str, Component]:
+        return cls.create_structure_mapping(direpath, XAML_PATTERN, Component)
 
     @classmethod
-    def load_tempaltes(cls,direpath):
-        return cls.create_structure_mapping(direpath,YAML_PATTERN)
+    def load_tempaltes(cls,direpath) -> Dict[str, Dict]:
+        return cls.create_structure_mapping(direpath, YAML_PATTERN)
 
     @classmethod
-    def load_page_tempaltes(cls,direpath):
-        return cls.create_structure_mapping(direpath,XAML_PATTERN)
+    def load_page_tempaltes(cls,direpath) -> Dict[str, str]:
+        return cls.create_structure_mapping(direpath, XAML_PATTERN)
 
     @classmethod
     def load_resources(cls,direpath):
@@ -52,7 +54,8 @@ class Loader():
         return output
 
     @classmethod
-    def create_structure_mapping(cls,path:str,patten = None,item_type=None):
+    def create_structure_mapping(cls,path:str,patten = None,
+                                 item_type:Optional[type[T]]=None) -> Dict[str,T]:
         output = {}
         try:
             dire = Dire(path)
@@ -62,11 +65,16 @@ class Loader():
             return output
         except Exception as ex:
             logger.error(ex)
-            return
+            return {}
         return output
 
     @classmethod
-    def mapping_file(cls,file_or_dire,output:Dict[str,object],item_type:type=None,prefix = '',patten = None,is_toplevel:bool = True):
+    def mapping_file(cls,file_or_dire,
+                     output:Dict[str,object],
+                     item_type:Union[type,None]=None,
+                     prefix = '',
+                     patten = None,
+                     is_toplevel:bool = True):
         if isinstance(file_or_dire,File):
             file = file_or_dire
             name = prefix + file.name
@@ -78,7 +86,7 @@ class Loader():
                 logger.debug(locale('loader.regist.structure',name=name))
         elif isinstance(file_or_dire,Dire):
             dire = file_or_dire
-            for node in dire.scan(patten,include_dires=True):
+            for node in dire.scan(patten, include_dires=True):
                 cls.mapping_file(node,output,patten=patten,is_toplevel = False, item_type=item_type,
                             prefix = '' if is_toplevel else f'{prefix}{dire.name}/')
         else:

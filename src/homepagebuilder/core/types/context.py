@@ -1,8 +1,9 @@
-from typing import Dict, Set, TYPE_CHECKING
+from typing import Dict, Set, TYPE_CHECKING, Union
 import copy
 
 if TYPE_CHECKING:
-    from . import Builder, Project
+    from ..builder import Builder
+    from ..project import Project
     from ...core.elements import Component
     from ..utils.property import PropertySetter
     from ..utils.client import PCLClient
@@ -17,7 +18,7 @@ class Context():
 
     builder: 'Builder'
     """构建器"""
-    project: 'Project'
+    project: Union['Project', None]
     """工程"""
     resources: Dict[str,'Resource']
     """工程资源"""

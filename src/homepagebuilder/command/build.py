@@ -33,7 +33,7 @@ class BuildCommand(CommandProcesser):
     def process(self,args) -> None:
         from ..core.builder import Builder
         builder = Builder()
-        builder.load_proejct(args.project)
+        builder.load_project(args.project)
         if args.all_page:
             self.__gen_allpage(args,builder,args.output_path)
         else:

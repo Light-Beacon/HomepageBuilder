@@ -1,4 +1,6 @@
 import os
+from typing import Optional
+from pathlib import Path
 
 dn = os.path.dirname
 
@@ -10,6 +12,9 @@ def fmtpath(*paths) -> str:
         result += path.replace('/',os.sep)
     return result
 
-def getbuilderpath(path:str):
+def getbuilderpath(path:Optional[str] = None) -> Path:
+    """获取构建器路径"""
+    if not path:
+        return Path(ENV_PATH)
     path = fmtpath(path)
-    return ENV_PATH + os.sep + path
+    return Path(ENV_PATH) / path
