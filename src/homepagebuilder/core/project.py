@@ -12,6 +12,7 @@ from .utils.event import set_triggers
 from .utils.paths import fmtpath
 from .utils.checking import Version
 from .utils.client import DEFAULT_PCLCLIENT
+from .utils.property import PropertySetter
 from .page import CardStackPage, RawXamlPage
 from .loader import Loader
 from .config import import_config_dire
@@ -97,9 +98,9 @@ class Project():
     def __init_import_structures(self):
         self.__context.components.update(Loader.load_compoents(
             fmtpath(self.base_path,'/structures/components')))
-        self.__context.templates.update(Loader.load_tempaltes(
+        self.__context.templates.update(Loader.load_templates(
             fmtpath(self.base_path,'/structures/templates')))
-        self.__context.page_templates.update(Loader.load_page_tempaltes(
+        self.__context.page_templates.update(Loader.load_page_templates(
             fmtpath(self.base_path,'/structures/pagetemplates')))
 
     def __init_import_data(self):
@@ -143,7 +144,7 @@ class Project():
             logger.warning('Page file not supported: %s.%s', file_name, file_exten)
             return
         self.pages[file_name] = page
-        self.pagelist.append(file_name)
+        self.pagelist.append(page)
 
     def __import_card_stack_page(self,page:CardStackPage):
         if page.name:
@@ -177,7 +178,9 @@ class Project():
         context.used_resources = set()
         return page.generate(context = context)
 
-    def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None, client:'PCLClient' = DEFAULT_PCLCLIENT):
+    def get_page_content_type(self, page_alias, no_not_found_err_logging = False,
+                            setter:PropertySetter = PropertySetter.create_empty_setter(),
+                            client:'PCLClient' = DEFAULT_PCLCLIENT):
         if page_alias not in self.pages:
             if not no_not_found_err_logging:
                 logger.error(t('project.gen_page.failed.notfound', page=page_alias))

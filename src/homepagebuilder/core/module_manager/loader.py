@@ -3,7 +3,8 @@ from pathlib import Path
 import importlib
 import sys
 import re
-from typing import List, Callable
+from types import ModuleType
+from typing import List, Union
 from ..logger import Logger
 from ..i18n import locale as t
 from ..io import file_reader, Dire
@@ -14,8 +15,8 @@ PY_PATTERN = re.compile(r'.*\.py$')
 logger = Logger('ModuleManager')
 class RequireDependency(Exception):
     '''需求依赖例外'''
-    def __init__(self,require):
-        self.require = require
+    def __init__(self, require_module_name:str):
+        self.require = require_module_name
 
 class DependencyManager():
     '''模块依赖管理器'''
@@ -25,10 +26,10 @@ class DependencyManager():
 
     def require(self,rde:RequireDependency,path:str) -> None:
         '''需求某项依赖'''
-        require = rde.require
-        if require not in self.load_checks:
-            self.load_checks[require] = []
-        self.load_checks[require].append(path)
+        require_dependency = rde.require
+        if require_dependency not in self.load_checks:
+            self.load_checks[require_dependency] = []
+        self.load_checks[require_dependency].append(path)
         if path not in self.wait_checks:
             self.wait_checks[path] = 1
         else:
@@ -53,8 +54,8 @@ class DependencyManager():
             return load_checks
         else:
             return []
-class UnLoadedFunction():
-    '''未加载的方法占位符类'''
+class UnLoadedModule():
+    '''未加载的模块占位符类'''
     def __init__(self,path):
         self.path = path
 
@@ -82,12 +83,12 @@ def load_module(module_path:str,queue_load:bool=False):
         except RequireDependency as rd:
             # 如果请求加载某些模块
             dependency_manager.require(rd,module_path)
-            return UnLoadedFunction(module_path)
+            return UnLoadedModule(module_path)
         logger.debug(t('module.load.success',name=name))
         modules[name] = module
-        for module in dependency_manager.satisfied(name):
+        for module_name in dependency_manager.satisfied(name):
             # 依赖已经成功加载需要重新加载的模块
-            load_module(module,True)
+            load_module(module_name,True)
     return module
 
 def init_modules(modulelist,*args,**kwargs):
@@ -104,9 +105,8 @@ def require(module_name):
     else:
         raise RequireDependency(module_name)
 
-
 @file_reader('py','python')
-def read_python(filepath:str) -> Callable:
+def read_python(filepath:str) -> Union[UnLoadedModule, ModuleType]:
     ''' 读取 Python 文件 '''
     if not os.path.exists(filepath):
         raise FileNotFoundError(f'{filepath} not exist!')

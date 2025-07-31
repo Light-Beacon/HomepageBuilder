@@ -86,11 +86,10 @@ class File():
             else:
                 raise TypeError(f'File {self.abs_path} is not of type {except_type}')
         return result
-    
 
     def write(self,*args,func = None,**kwargs):
-        '''写入文件'''
-        return read(self,*args,func,**kwargs)
+        '''写入文件(尚未实现)'''
+        raise NotImplementedError('File.write is not implemented, use `write` function instead')
 
 class Dire():
     def __init__(self,abs_path:Union[Path, str]):

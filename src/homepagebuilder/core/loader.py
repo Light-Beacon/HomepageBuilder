@@ -22,11 +22,11 @@ class Loader():
         return cls.create_structure_mapping(direpath, XAML_PATTERN, Component)
 
     @classmethod
-    def load_tempaltes(cls,direpath) -> Dict[str, Dict]:
+    def load_templates(cls,direpath) -> Dict[str, Dict]:
         return cls.create_structure_mapping(direpath, YAML_PATTERN)
 
     @classmethod
-    def load_page_tempaltes(cls,direpath) -> Dict[str, str]:
+    def load_page_templates(cls,direpath) -> Dict[str, str]:
         return cls.create_structure_mapping(direpath, XAML_PATTERN)
 
     @classmethod

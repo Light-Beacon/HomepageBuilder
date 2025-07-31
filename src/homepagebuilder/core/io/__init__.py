@@ -1,4 +1,4 @@
-from typing import List,T
+from typing import List
 from .structure import File,Dire
 from .accessor import file_reader,file_writer
 from .formats import read_string, write_string

@@ -63,7 +63,7 @@ def get_githash(path):
 @on('tm.buildcard.start')
 @enable_by_config('ProjectInfo.GitInfo.Enable')
 @enable_by(IS_GIT_INSTALLED)
-def get_card_last_update_time(_tm,card,context,*args,**kwargs):
+def get_card_last_update_time(_tm,card,context,*_args,**_kwargs):
     data = context.data
     if not data['git.isrepo']:
         return

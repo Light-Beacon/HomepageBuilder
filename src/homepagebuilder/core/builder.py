@@ -54,9 +54,9 @@ class Builder():
         self.__context.components.update(
             Loader.load_compoents(dire_path / 'components'))
         self.__context.templates.update(
-            Loader.load_tempaltes(dire_path / 'templates'))
+            Loader.load_templates(dire_path / 'templates'))
         self.__context.page_templates.update(
-            Loader.load_page_tempaltes(dire_path / 'pagetemplates'))
+            Loader.load_page_templates(dire_path / 'pagetemplates'))
 
     def load_resources(self,dire_path):
         """加载构建器资源"""
