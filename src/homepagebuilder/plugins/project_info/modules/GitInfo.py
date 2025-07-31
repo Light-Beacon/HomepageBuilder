@@ -11,7 +11,6 @@ def gitinfo_config(key):
 
 logger = Logger('ProjectInfo')
 
-
 def is_git_installed() -> bool:
     try:
         subprocess.run(["git", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -45,9 +44,9 @@ def check_is_git_repo(proj):
         logger.warning(locale('projectinfo.git.disablehint', hide_config_key = 'NoProduceNotRepoWarning'))
     return is_repo
 
-@enable_by_config('ProjectInfo.GitInfo.Enable')
-@enable_by(IS_GIT_INSTALLED)
 @on('project.load.return')
+@enable_by(IS_GIT_INSTALLED)
+@enable_by_config('ProjectInfo.GitInfo.Enable')
 def set_githash(proj,*_,**__):
     check_is_git_repo(proj)
     if not proj.get_context_data('git.isrepo'):
