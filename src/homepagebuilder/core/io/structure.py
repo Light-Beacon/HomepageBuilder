@@ -30,8 +30,8 @@ def GET_IGNORE_PREFIX() -> List[str]:
     return config('IO.IgnorePrefix', default=['#','.'], except_type=list)
 
 def GET_IGNORE_SUFFIX() -> List[str]:
-    """需要忽略的文件的前缀名"""
-    return config('IO.IngoreSuffix', default=['.disabled'], except_type=list)
+    """需要忽略的文件的后缀名"""
+    return config('IO.IgnoreSuffix', default=['.disabled'], except_type=list)
 #endregion
 
 #region [EXCEPTIONS]异常
