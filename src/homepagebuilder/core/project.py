@@ -18,6 +18,7 @@ from .loader import Loader
 from .config import import_config_dire
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from .utils.client import PCLClient
     from .builder import Builder
     from .types import Context
@@ -49,7 +50,7 @@ class Project():
             logger.error(t('project.check_module_list.error', wait_list=wait_list))
 
     @set_triggers('project.import')
-    def import_pack(self, path):
+    def import_pack(self, path: 'Path'):
         """导入工程包"""
         logger.info(t('project.import.start', path=path))
         self.__init_load_projectfile(path)
@@ -63,8 +64,10 @@ class Project():
         logger.info(t('project.import.success'))
 
     @set_triggers('project.import.projectfile')
-    def __init_load_projectfile(self,path):
-        pack_info:Dict[str, Optional[str]] = File(path).read()
+    def __init_load_projectfile(self, path: 'Path'):
+        if not path.exists():
+            raise FileNotFoundError(t('project.import.projectfilenotfound', path=path))
+        pack_info: Dict[str, Optional[str]] = File(path).read()
         self.base_path = os.path.dirname(path)
         self.version = Version.from_string(pack_info['version'])
         self.default_page = pack_info.get('default_page')

@@ -71,7 +71,7 @@ class Loader():
     @classmethod
     def mapping_file(cls,file_or_dire,
                      output:Dict[str,object],
-                     item_type:Union[type,None]=None,
+                     item_type:Optional[type]=None,
                      prefix = '',
                      patten = None,
                      is_toplevel:bool = True):
@@ -80,7 +80,9 @@ class Loader():
             name = prefix + file.name
             if item_type:
                 output[name] = item_type(file=file)
-                logger.debug(locale('loader.regist.structure.withtype',type_name=item_type.__name__,name=name))
+                logger.debug(locale('loader.regist.structure.withtype',
+                                    type_name=locale("type." + item_type.__name__.lower()),
+                                    name=name))
             else:
                 output[name] = file.data
                 logger.debug(locale('loader.regist.structure',name=name))

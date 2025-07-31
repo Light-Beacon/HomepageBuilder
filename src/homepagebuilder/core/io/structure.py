@@ -43,15 +43,29 @@ class IsAFileError(Exception):
 #endregion
 
 class File():
-    def __init__(self,abs_path:Union[Path, str],read_init = False):
+    """文件类"""
+    def __init__(self,abs_path:Union[Path, str],read_init = False, dire = None):
         if isinstance(abs_path, str):
             abs_path = Path(abs_path)
         self.abs_path:Path = abs_path
+        """文件绝对路径"""
         self.fullname:str = abs_path.name
+        """文件名(包含后缀)"""
         self.direname:Path = abs_path.parent
+        """文件所在目录"""
+        self.name:str
+        """文件名(不包含后缀)"""
+        self.extention:str
+        """文件后缀名"""
         self.name,self.extention = os.path.splitext(self.fullname)
         self.extention = self.extention.removeprefix('.')
         self.cache = None
+        self.dire:Dire
+        """文件所在目录的目录（`Dire`）对象"""
+        if dire:
+            self.dire = dire
+        else:
+            self.dire = Dire(self.direname)
         if read_init:
             self.read()
 
@@ -92,6 +106,7 @@ class File():
         raise NotImplementedError('File.write is not implemented, use `write` function instead')
 
 class Dire():
+    """目录类"""
     def __init__(self,abs_path:Union[Path, str]):
         if isinstance(abs_path, str):
             abs_path = Path(abs_path)
@@ -110,7 +125,7 @@ class Dire():
     def __add_node(self,path:Path) -> None:
         basename = path.name
         if path.is_file():
-            self.files[basename] = File(path)
+            self.files[basename] = File(path, dire = self)
         elif path.is_dir():
             self.dires[basename] = Dire(path)
         elif path.is_symlink():

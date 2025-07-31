@@ -1,4 +1,9 @@
+builder.init: 'Initializing builder'
 builder.load.resources: 'Loading builder resources'
+builder.load.structures: 'Loading builder structures'
+builder.load.modules: 'Loading builder modules'
+builder.load.plugins: "Loading builder plugins"
+
 
 ## COMMANDS
 command: 'Command'
@@ -12,6 +17,7 @@ command.options: 'Options:'
 ### BUILD
 command.build.help: 'Build homepage'
 command.build.done: 'Build done, files saved to ${path}'
+command.build.failed: 'Build failed'
 command.build.help.args.project: 'Project file (Project.yml) path'
 command.build.help.args.output: 'Output path for generated files'
 command.build.help.args.page: 'Page name'
@@ -43,6 +49,15 @@ command.server.help.args.port: 'Server port'
 command.server.help.args.project: 'Project file (Project.yml) path'
 command.server.help.args.flask_debug: 'Enable Flask debug mode'
 
+## PLUGIN
+plugin.load: 'Loading plugin: ${plugin}'
+plugin.load.data: 'Loading plugin data'
+plugin.load.structures: 'Loading plugin structures'
+plugin.load.resources: 'Loading plugin resources'
+plugin.load.modules: 'Loading plugin modules'
+
+type.component: 'Component'
+
 debug.timer.start: '${func}(${count}) Timer Started'
 debug.timer.stop: '${func}(${count}) Timer Stopped, Time used: ${time}s'
 event.subscribe: '${func} subcribed event ${name}'
@@ -68,9 +83,9 @@ page.get_card.failed: 'Failed to get card due to: ${ex}'
 project.init: "Initializing.."
 project.load.basic_res: "Loading basic resources"
 project.load.modules: "Loading modules"
-project.load.plugins: "Loading plugins"
 project.load.success: "Pack loaded successful!"
 project.import.start: "Start to import pack at: ${path}"
+project.import.projectfilenotfound: "Cannot find project description file ${path}"
 project.import.pack.version.too.new: "Pack version(${packversion}) is too newer than builder version(${packversion})"
 project.import.pack.version.too.old: "Pack version(${packversion}) is too older than builder version(${packversion})"
 project.import.pack.version.new: "Pack version(${packversion}) is newer than builder version(${packversion})"

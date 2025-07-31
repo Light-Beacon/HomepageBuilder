@@ -24,6 +24,7 @@ class Builder():
     """构建器核心"""
 
     def __init__(self):
+        logger.info(t('builder.init'))
         self.envpath: str
         self.resources: Resource
         self.template_manager: TemplateManager
@@ -31,9 +32,12 @@ class Builder():
         self.__context.builder = self
         self.envpath = os.path.dirname(os.path.dirname(__file__))
         self.__init_context()
+        logger.info(t('builder.load.structures'))
         self.load_structure(getbuilderpath('resources/structures/'))
+        logger.info(t('builder.load.resources'))
         self.load_resources(getbuilderpath('resources/resources/'))
         self.template_manager = TemplateManager()
+        logger.info(t('builder.load.modules'))
         self.load_modules(getbuilderpath('modules'))
         self.load_plugins(getbuilderpath('plugins'))
         self.current_project: Optional[Project] = None
@@ -50,7 +54,6 @@ class Builder():
 
     def load_structure(self, dire_path:Path):
         """加载构建器结构"""
-        logger.info(t('builder.load.structures'))
         self.__context.components.update(
             Loader.load_compoents(dire_path / 'components'))
         self.__context.templates.update(
@@ -60,8 +63,6 @@ class Builder():
 
     def load_resources(self,dire_path):
         """加载构建器资源"""
-
-        logger.info(t('builder.load.resources'))
         self.__context.resources.update(
             Loader.load_resources(dire_path))
 
@@ -71,20 +72,24 @@ class Builder():
 
     def load_modules(self,dire_path):
         """加载构建器模块"""
-
-        logger.info(t('project.load.modules'))
         load_module_dire(dire_path)
 
     @enable_by_config('System.EnablePlugins')
     def load_plugins(self, plugin_path):
         """加载构建器插件"""
-        logger.info(t('project.load.plugins'))
+        logger.info(t('builder.load.plugins'))
         for file in Dire(plugin_path).scan_subdir(r'pack\.yml'):
+            plugin_logger = Logger(f'Plugin|{file.dire.name}')
+            plugin_logger.info(t('plugin.init'))
             data = file.data
             dire = Path(data['file_path']).parent
+            plugin_logger.debug(t('plugin.load.data'))
             self.load_data(dire / 'data')
+            plugin_logger.debug(t('plugin.load.structures'))
             self.load_structure(dire / 'structures')
+            plugin_logger.debug(t('plugin.load.resources'))
             self.load_resources(dire / 'resources')
+            plugin_logger.debug(t('plugin.load.modules'))
             load_module_dire(dire / 'modules', context=self.__context)
             append_locale(dire / 'i18n')
         self.__check_module_wait_list()
@@ -93,9 +98,9 @@ class Builder():
         if len(wait_list := get_check_list()) > 0:
             logger.error(t('builder.check_module_list.error', wait_list=wait_list))
 
-    def load_project(self, project_path):
+    def load_project(self, project_path: 'Path'):
         """加载工程"""
-        self.current_project = Project(self,project_path)
+        self.current_project = Project(self, project_path)
 
     def get_context_copy(self) -> 'Context':
         """获取环境拷贝"""
