@@ -78,7 +78,6 @@ def get_card_last_update_time(_tm,card,context,*args,**kwargs):
     dt = datetime.datetime.fromtimestamp(int(timestamp[:-1]))
     card['last_update'] = dt.date()
 
-
 class GitVersionProvider(VersionProvider):
     name = 'githash'
     def get_page_version(self, alias, request):

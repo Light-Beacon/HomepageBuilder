@@ -21,15 +21,15 @@ def IS_ENABLE_SYMLINK_ERROR() -> bool:
     """当遇到符号链接时是否报错"""
     return config('IO.EnableSymbolinkError', default=True, except_type=bool)
 
-def IS_ENABLE_INGORE() -> bool:
+def IS_ENABLE_IGNORE() -> bool:
     """是否启用文件首尾为特定格式时忽略"""
-    return config('IO.EnableIngore', default=False, except_type=bool)
+    return config('IO.EnableIgnore', default=False, except_type=bool)
 
-def GET_INGORE_PREFIX() -> List[str]:
+def GET_IGNORE_PREFIX() -> List[str]:
     """需要忽略的文件的前缀名"""
-    return config('IO.IngorePrefix', default=['#','.'], except_type=list)
+    return config('IO.IgnorePrefix', default=['#','.'], except_type=list)
 
-def GET_INGORE_SUFFIX() -> List[str]:
+def GET_IGNORE_SUFFIX() -> List[str]:
     """需要忽略的文件的前缀名"""
     return config('IO.IngoreSuffix', default=['.disabled'], except_type=list)
 #endregion
@@ -124,10 +124,10 @@ class Dire():
 
     def __should_be_ignored(self, path:Path):
         name = path.name
-        for prefix in GET_INGORE_PREFIX():
+        for prefix in GET_IGNORE_PREFIX():
             if name.startswith(prefix):
                 return True
-        for suffix in GET_INGORE_SUFFIX():
+        for suffix in GET_IGNORE_SUFFIX():
             if name.endswith(suffix):
                 return True
         return False
@@ -136,7 +136,7 @@ class Dire():
         self.files = {}
         self.dires = {}
         for rel_path in self.abs_path.iterdir():
-            if IS_ENABLE_INGORE():
+            if IS_ENABLE_IGNORE():
                 if self.__should_be_ignored(rel_path):
                     continue
             self.__add_node(self.abs_path/rel_path)
