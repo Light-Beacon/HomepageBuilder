@@ -12,7 +12,6 @@ setup(
     classifiers=[
     'Development Status :: 4 - Beta',
     'Environment :: Console',
-    'Topic :: Scientific/Engineering :: Artificial Intelligence',
     'License :: OSI Approved :: GNU Affero General Public License v3',
     'Natural Language :: Chinese (Simplified)',
     'Natural Language :: English',
