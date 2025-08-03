@@ -1,3 +1,4 @@
+import re
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 from .types import Context
@@ -42,12 +43,21 @@ class CodeBasedPage(PageBase):
 
 class RawXamlPage(FileBasedPage):
     """纯XAML页面"""
+    _name = None
+    def get_name(self):
+        file_data = self.file.data
+        if m := re.search('\s*<!--title=\s*(.*)\s*-->', file_data): #用match识别不到 不知道为什么
+            return m.group(1)
+        return self.file.name
+    
     @property
     def display_name(self):
-        return self.file.name
+        if not self._name:
+            self._name = self.get_name()
+        return self._name
 
     def generate(self, context):
-        return self.file.data
+        return format_code(self.file.data, {}, context)
 
 class CardStackPage(FileBasedPage):
     """卡片堆叠页面"""
