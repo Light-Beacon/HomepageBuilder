@@ -1,2 +1,0 @@
-<local:MyButton Height="35" Margin="80,10"
-Text="${text}" EventType="${event_type}" EventData="${event_data}" ToolTip="${tip}"/>

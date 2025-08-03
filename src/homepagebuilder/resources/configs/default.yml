@@ -5,7 +5,9 @@ System.EnablePlugins: True
 # 是否忽略由脚本引起的错误
 System.Script.IgnoreError: False
 
+# 日志输出等级
 Logging.Level: 20
+
 # 是否启用 Debug
 Debug.Enable: False
 Debug.Logging.Level: 10
@@ -16,11 +18,11 @@ Server.Version.By: time
 # 若版本获取方式为 hash，该值指定了哈希算法（MD5/SHA1/SHA256）
 Server.Version.Hash.Method: MD5
 
-# 是否忽略以 IO.IngorePrefix 开头和以 IO.IngoreSuffix 结尾的文件
+# 是否忽略以 IO.IgnorePrefix 开头和以 IO.IgnoreSuffix 结尾的文件
 # 这项文件禁用给构建器工程提供了方便的禁用手段
-IO.EnableIngore: True
-IO.IngorePrefix: ['#','.']
-IO.IngoreSuffix: ['.disabled']
+IO.EnableIgnore: True
+IO.IgnorePrefix: ['#','.']
+IO.IgnoreSuffix: ['.disabled']
 
 # 是否读取符号链接
 IO.EnableSymbolink: False

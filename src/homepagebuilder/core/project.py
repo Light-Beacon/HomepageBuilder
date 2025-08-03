@@ -12,11 +12,13 @@ from .utils.event import set_triggers
 from .utils.paths import fmtpath
 from .utils.checking import Version
 from .utils.client import DEFAULT_PCLCLIENT
+from .utils.property import PropertySetter
 from .page import CardStackPage, RawXamlPage
 from .loader import Loader
 from .config import import_config_dire
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from .utils.client import PCLClient
     from .builder import Builder
     from .types import Context
@@ -48,7 +50,7 @@ class Project():
             logger.error(t('project.check_module_list.error', wait_list=wait_list))
 
     @set_triggers('project.import')
-    def import_pack(self, path):
+    def import_pack(self, path: 'Path'):
         """导入工程包"""
         logger.info(t('project.import.start', path=path))
         self.__init_load_projectfile(path)
@@ -62,8 +64,10 @@ class Project():
         logger.info(t('project.import.success'))
 
     @set_triggers('project.import.projectfile')
-    def __init_load_projectfile(self,path):
-        pack_info:Dict[str, Optional[str]] = File(path).read()
+    def __init_load_projectfile(self, path: 'Path'):
+        if not path.exists():
+            raise FileNotFoundError(t('project.import.projectfilenotfound', path=path))
+        pack_info: Dict[str, Optional[str]] = File(path).read()
         self.base_path = os.path.dirname(path)
         self.version = Version.from_string(pack_info['version'])
         self.default_page = pack_info.get('default_page')
@@ -97,9 +101,9 @@ class Project():
     def __init_import_structures(self):
         self.__context.components.update(Loader.load_compoents(
             fmtpath(self.base_path,'/structures/components')))
-        self.__context.templates.update(Loader.load_tempaltes(
+        self.__context.templates.update(Loader.load_templates(
             fmtpath(self.base_path,'/structures/templates')))
-        self.__context.page_templates.update(Loader.load_page_tempaltes(
+        self.__context.page_templates.update(Loader.load_page_templates(
             fmtpath(self.base_path,'/structures/pagetemplates')))
 
     def __init_import_data(self):
@@ -143,7 +147,7 @@ class Project():
             logger.warning('Page file not supported: %s.%s', file_name, file_exten)
             return
         self.pages[file_name] = page
-        self.pagelist.append(file_name)
+        self.pagelist.append(page)
 
     def __import_card_stack_page(self,page:CardStackPage):
         if page.name:
@@ -177,7 +181,9 @@ class Project():
         context.used_resources = set()
         return page.generate(context = context)
 
-    def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None, client:'PCLClient' = DEFAULT_PCLCLIENT):
+    def get_page_content_type(self, page_alias, no_not_found_err_logging = False,
+                            setter:PropertySetter = PropertySetter.create_empty_setter(),
+                            client:'PCLClient' = DEFAULT_PCLCLIENT):
         if page_alias not in self.pages:
             if not no_not_found_err_logging:
                 logger.error(t('project.gen_page.failed.notfound', page=page_alias))

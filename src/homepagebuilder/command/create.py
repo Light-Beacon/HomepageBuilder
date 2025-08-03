@@ -6,10 +6,10 @@ from ..core.i18n import locale as t
 from ..core.utils.checking import Version
 
 class FolderNotEmptyError(Exception):
-    def __init__(self, *args):
-        super().__init__(*args)
+    """文件夹不为空异常"""
 
 class CreateProjectCommand(CommandProcesser):
+    """创建项目命令处理类"""
     name = 'create'
     help = t('command.create.help')
 

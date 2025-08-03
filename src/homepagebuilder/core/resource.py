@@ -59,7 +59,9 @@ class ResourceLoader:
             for style in styles:
                 res = StyleResource(style)
                 output[res.key] = res
-                logger.debug(locale('resourceloader.load.regist',name=res.key,type_name=res.type))
+                logger.debug(locale('resourceloader.load.regist',
+                                    name=res.key,
+                                    type_name=locale("type." + res.type.lower())))
         return output
 
     @classmethod
@@ -71,7 +73,9 @@ class ResourceLoader:
         for element in root:
             res = XamlResource(element)
             output[res.key] = res
-            logger.debug(locale('resourceloader.load.regist',name=res.key,type_name=res.type))
+            logger.debug(locale('resourceloader.load.regist',
+                                name=res.key,
+                                type_name=locale("type." + res.type.lower())))
         return output
 
 class Resource(ABC):
@@ -83,11 +87,13 @@ class Resource(ABC):
     @abstractmethod
     def getxaml(self):
         "获取xaml"
+        raise NotImplementedError()
 
     @property
     @abstractmethod
     def type(self):
         """资源类型"""
+        raise NotImplementedError()
 
 class StyleResource(Resource):
     """样式资源"""
@@ -111,7 +117,7 @@ class StyleResource(Resource):
 
     @property
     def type(self):
-        return 'Style'
+        return 'Builder.Style'
 
     def getxaml(self):
         xaml = '<Style '
@@ -132,6 +138,7 @@ NAMESPACES = {
     'local': 'clr-namespace:PCL;assembly=Plain Craft Launcher 2',
 }
 NAMESPACES_T = transform(NAMESPACES)
+NAMESPACE_PATTERN = re.compile(r'{clr-namespace:([^;]+);assembly=mscorlib}')
 
 class XamlResource(Resource):
     """Xaml资源"""
@@ -140,7 +147,11 @@ class XamlResource(Resource):
     def __init__(self,element:ET.Element):
         self.target = element.get('TargetType')
         self.basedon = element.get('BasedOn')
-        self.__type = element.tag
+        if element.tag.startswith('{'):
+            self.__type = NAMESPACE_PATTERN.sub(lambda m: f"{m.group(1)}.",
+                                            element.tag)
+        else:
+            self.__type = 'xaml.' + element.tag
         if key := element.get(f"{{{NAMESPACES['x']}}}Key"):
             self.is_default = False
             self.key = key
