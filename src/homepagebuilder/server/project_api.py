@@ -1,7 +1,7 @@
 import os
 import gc
 from multiprocessing import Manager
-from os.path import sep
+from pathlib import Path
 from ..core.project import Project
 from ..core.builder import Builder
 from ..core.config import config, is_debugging
@@ -23,6 +23,7 @@ class ProjectAPI:
     def __init__(self,project_path = None):
         self.cache = {}
         if project_path:
+            project_path = Path(project_path)
             self.__set_project_path(project_path)
         else:
             raise NotImplementedError()
@@ -45,7 +46,7 @@ class ProjectAPI:
 
     def __set_project_path(self,path):
         if os.path.isdir(path):
-            self.project_file = f"{path}{sep}Project.yml"
+            self.project_file = path / Path("Project.yml")
             self.project_dir  = path
         else:
             self.project_file = path
