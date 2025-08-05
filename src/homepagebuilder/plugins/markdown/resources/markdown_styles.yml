@@ -58,8 +58,3 @@ Styles:
       Opacity:  0.8
       CornerRadius: 5 
       Margin: 2
-
- - Key: InlineLink
-   Target: local:MyTextButton
-   Setters:
-      Foreground: "{DynamicResource ColorBrush1}"

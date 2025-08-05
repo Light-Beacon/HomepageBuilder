@@ -1,1 +1,1 @@
-<Underline><local:MyTextButton Margin="0,0,0,-${pos_down}" EventType="${type}" Style="{StaticResource InlineLink}" EventData="${link}">${content}</local:MyTextButton></Underline>
+<Underline><local:MyTextButton Margin="0,0,0,-${pos_down}" EventType="${type}" EventData="${link}">${content}</local:MyTextButton></Underline>
