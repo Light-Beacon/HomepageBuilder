@@ -2,9 +2,15 @@ import os
 from os import makedirs
 from os.path import sep, exists
 from pathlib import Path
+from typing import TYPE_CHECKING
 from .proc import CommandProcesser
 from ..core.logger import Logger
 from ..core.i18n import locale as t
+
+if TYPE_CHECKING:
+    from ..core.builder import Builder
+    from ..core.project import Project
+    from ..core.page import PageBase
 
 logger = Logger('Command|Build')
 
@@ -57,20 +63,20 @@ class BuildCommand(CommandProcesser):
         self.__build_and_output(builder.current_project, page, page_output_path, args)
         logger.info(t('command.build.done', path=page_output_path))
 
-    def __gen_allpage(self, args, builder, path):
+    def __gen_allpage(self, args, builder: 'Builder', path):
         if not path:
             path = os.getcwd() + os.path.sep + 'output' + os.path.sep
         if not path.endswith(sep):
             path = path + sep
         if not exists(path) and not args.dry_run:
             makedirs(path, exist_ok=True)
-        for page in builder.current_project.get_all_pagename():
-            page_output_path = f"{path}{page}.xaml"
+        for page in builder.current_project.get_all_page():
+            page_output_path = f"{path}{page.id}.xaml"
             self.__gen_single_page(args,page,builder,page_output_path)
 
     @classmethod
-    def __build_and_output(cls,project, page, output_path, args):
-        xaml = project.get_page_xaml(page_alias=page)
+    def __build_and_output(cls, project:'Project', page:'PageBase', output_path, args):
+        xaml = project.get_page_xaml(page=page)
         if output_path:
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(xaml)

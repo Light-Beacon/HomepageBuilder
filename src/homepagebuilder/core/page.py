@@ -22,6 +22,9 @@ class PageBase():
     def generate(self, context:'Context') -> str:
         """获取页面 XAML 代码"""
     
+    id: str
+    """页面的识别名"""
+    
     @property
     def display_name(self):
         raise NotImplementedError()
@@ -34,12 +37,14 @@ class FileBasedPage(PageBase):
     def __init__(self, file: 'File') -> None:
         super().__init__()
         self.file = file
+        self.id = file.name
 
 class CodeBasedPage(PageBase):
     """基于代码的页面，仅应用于继承"""
     def __init__(self, project) -> None:
         super().__init__()
         self.project = project
+        self.id = str(self.__class__)
 
 class RawXamlPage(FileBasedPage):
     """纯XAML页面"""
