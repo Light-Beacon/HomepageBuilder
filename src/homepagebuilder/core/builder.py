@@ -72,7 +72,7 @@ class Builder():
 
     def load_modules(self,dire_path):
         """加载构建器模块"""
-        load_module_dire(dire_path)
+        load_module_dire(dire_path, context = self.__context)
 
     @enable_by_config('System.EnablePlugins')
     def load_plugins(self, plugin_path):
@@ -105,3 +105,9 @@ class Builder():
     def get_context_copy(self) -> 'Context':
         """获取环境拷贝"""
         return self.__context.copy()
+    
+    def get_data(self, key):
+        return self.__context.data.get(key)
+
+    def set_data(self, key, value):
+        self.__context.data[key] = value

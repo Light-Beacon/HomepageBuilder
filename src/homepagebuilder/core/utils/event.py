@@ -32,7 +32,7 @@ def listen_event(event_name:str):
     '''监听事件'''
     def wrapper(func):
         logger.debug(locale('event.subscribe',
-                            func=f'{func.__module__.replace("homepagebuilder.","Builder.")}:{func.__name__}',
+                            func=f'{func.__module__.replace("homepagebuilder.","builder.")}:{func.__name__}',
                             name=event_name))
         if event_name not in events:
             events[event_name] = []

@@ -91,11 +91,11 @@ def load_module(module_path:str,queue_load:bool=False):
             load_module(module_name,True)
     return module
 
-def init_modules(modulelist,*args,**kwargs):
+def init_modules(modulelist, context, *args,**kwargs):
     '''调用所有模块的`init`方法'''
     for module in modulelist:
         if hasattr(module,'init'):
-            getattr(module,'init')(*args,**kwargs)
+            getattr(module,'init')(context, *args,**kwargs)
 
 def require(module_name):
     '''直到模块被成功加载后再加载此模块，并返回需要的模块'''
@@ -112,7 +112,7 @@ def read_python(filepath:str) -> Union[UnLoadedModule, ModuleType]:
         raise FileNotFoundError(f'{filepath} not exist!')
     return load_module(filepath)
 
-def load_module_dire(dire,*args,**kwargs):
+def load_module_dire(dire, context, *args,**kwargs):
     ''' 载入文件夹下的所有 python 模块 '''
     modulelist = []
     if isinstance(dire,(str,Path)):
@@ -124,4 +124,4 @@ def load_module_dire(dire,*args,**kwargs):
         raise TypeError()
     for file in dire.scan(PY_PATTERN,recur=True):
         modulelist.append(file.read())
-    init_modules(modulelist,*args,**kwargs)
+    init_modules(modulelist, context, *args, **kwargs)

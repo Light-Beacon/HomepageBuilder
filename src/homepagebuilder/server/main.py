@@ -20,7 +20,7 @@ class Server:
     def __init__(self,project_path=None):
         global projapi
         logger.info(t('server.init'))
-        projapi = ProjectAPI(project_path)
+        projapi = self.projapi = ProjectAPI(project_path)
         self.limiter = None
         self.init_server_config()
 

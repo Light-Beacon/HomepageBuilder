@@ -113,7 +113,7 @@ class Project():
     @set_triggers('project.import.modules')
     def __init_import_modules(self):
         logger.info(t('project.import.modules'))
-        load_module_dire(fmtpath(self.base_path,'/modules'), self)
+        load_module_dire(fmtpath(self.base_path,'/modules'), context = self.__context)
         self.__checkModuleWaitList()
 
     @set_triggers('project.import.cards')
