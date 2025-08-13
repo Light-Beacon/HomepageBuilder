@@ -86,6 +86,7 @@ def getpage(alias:str):
             logger.debug(t("server.request.response.json",page=alias,args=args))
         else:
             client = PCLClient.from_request(web_request=request)
+            logger.debug(t("server.request.version", version=str(client.version)))
             response_dict = projapi.get_page_response(alias, client, args=args)
             logger.debug(t("server.request.response.page",page=alias,args=args))
         response = make_response(response_dict['response'])

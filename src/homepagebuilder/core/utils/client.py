@@ -1,10 +1,10 @@
 from enum import Enum
 from typing import Union, Tuple, List, Dict, Annotated
-from .checking import Version
+from homepagebuilder.core.utils.checking import Version
 
 class PCLEdition(Enum):
     """PCL2类型"""
-    OFFICAL = 1
+    OFFICIAL = 1
     """官方版本PCL2"""
     OPEN_SOURCE = 10
     """开源版本PCL2"""
@@ -16,33 +16,6 @@ class PCLEdition(Enum):
     def is_pcl(self) -> bool:
         """是否为PCL2"""
         return self.value != 0
-
-class PCLClientLimiter():
-    def __init__(self):
-        self.ruleset:Dict[PCLEdition, List[Tuple[Annotated[Version,"min version"], Annotated[Version,"max version"]]]] = {}
-
-    def add_rule(self, pcledition, versionrange:Tuple[Union[Version|str], Union[Version|str]] = (...,...)):
-        minversion, maxversion = versionrange
-        if isinstance(minversion, str):
-            minversion = Version.from_string(minversion)
-        if isinstance(maxversion, str):
-            maxversion = Version.from_string(maxversion)
-        if not self.ruleset.get(pcledition):
-            self.ruleset[pcledition] = []
-        self.ruleset[pcledition].append((minversion,maxversion))
-
-    def check_accept(self, pcledition, version):
-        if isinstance(version, str):
-            version = Version.from_string(version)
-        rules = self.ruleset.get(pcledition)
-        if not rules:
-            return False
-        for rule in rules:
-            if version > rule[0] and version < rule[1]:
-                break
-        else:
-            return False
-        return True
 
 class PCLClient():
     def __init__(self):
@@ -65,13 +38,13 @@ class PCLClient():
     def __hash__(self):
         return hash(str(self.edition)+str(self.version)+str(self.version_id))
 
-    def is_greater_than(self, other: 'PCLClient') -> bool:
+    def above(self, other: 'PCLClient') -> bool:
         """判断当前版本是否大于其他版本"""
         if not self.is_pcl() or not other.is_pcl():
             return False
         return self.version > other.version
 
-    def is_less_than(self, other: 'PCLClient') -> bool:
+    def below(self, other: 'PCLClient') -> bool:
         """判断当前版本是否小于其他版本"""
         if not self.is_pcl() or not other.is_pcl():
             return False
@@ -93,7 +66,7 @@ class PCLClient():
         if refer.endswith('pcl2.open.server/'):
             return PCLEdition.OPEN_SOURCE
         if refer.endswith('pcl2.server/'):
-            return PCLEdition.OFFICAL
+            return PCLEdition.OFFICIAL
         return PCLEdition.NOT_PCL
 
     def __getpclverid(self, web_request):
@@ -108,10 +81,33 @@ class PCLClient():
         if len(uas) >= 1:
             if pclver := uas[0].split('/'):
                 if pclver[0] == 'PCL2':
-                    return pclver[1]
+                    return Version.from_string(pclver[1])
         return None
 
+class PCLClientLimiter():
+    def __init__(self):
+        self.ruleset:Dict[PCLEdition, List[Tuple[Annotated[Version,"min version"], Annotated[Version,"max version"]]]] = {}
+
+    def add_rule(self, pcledition, versionrange:Tuple[Union[Version|str], Union[Version|str]] = (...,...)):
+        minversion, maxversion = versionrange
+        if isinstance(minversion, str):
+            minversion = Version.from_string(minversion)
+        if isinstance(maxversion, str):
+            maxversion = Version.from_string(maxversion)
+        if not self.ruleset.get(pcledition):
+            self.ruleset[pcledition] = []
+        self.ruleset[pcledition].append((minversion,maxversion))
+
+    def check_accept(self, client:'PCLClient'):
+        rules = self.ruleset.get(client.edition)
+        if not rules:
+            return False
+        for rule in rules:
+            if rule[0] <= client.version <= rule[1]:
+                return True
+        return False
+
 DEFAULT_PCLCLIENT = PCLClient()
-DEFAULT_PCLCLIENT.edition = PCLEdition.OFFICAL
+DEFAULT_PCLCLIENT.edition = PCLEdition.OFFICIAL
 DEFAULT_PCLCLIENT.version = Version(2,99,99)
 DEFAULT_PCLCLIENT.version_id = 9999

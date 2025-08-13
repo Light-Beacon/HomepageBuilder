@@ -5,6 +5,7 @@
 from typing import TYPE_CHECKING
 from time import time
 import hashlib
+from ...core.utils.client import PCLClient
 from ...core.config import config, is_debugging
 from ...core.logger import Logger
 from ...core.utils.property import PropertySetter
@@ -87,7 +88,7 @@ class VersionHashProvider(VersionProvider):
         self.hash_method = config('Server.Version.Hash.Method', 'MD5')
 
 
-    def get_hash(self) -> str:
+    def get_hash(self, client) -> str:
         """获取哈希
 
         Raises:
@@ -96,7 +97,7 @@ class VersionHashProvider(VersionProvider):
         Returns:
             str: 16进制哈希
         """
-        page_result = self.api.get_page_xaml(self.api.default_page, PropertySetter()).encode()
+        page_result = self.api.get_page_xaml(self.api.default_page, PropertySetter(), client).encode()
         hash_object = None
         match self.hash_method.upper():
             case 'MD5':
@@ -116,5 +117,6 @@ class VersionHashProvider(VersionProvider):
                     hash_object = hashlib.md5(page_result)
         return hash_object.hexdigest()
 
-    def get_page_version(self, _alias :str, _request):
-        return self.get_hash()
+    def get_page_version(self, _alias :str, request):
+        client = PCLClient.from_request(request)
+        return self.get_hash(client)

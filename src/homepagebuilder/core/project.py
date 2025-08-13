@@ -13,6 +13,7 @@ from .utils.paths import fmtpath
 from .utils.checking import Version
 from .utils.client import DEFAULT_PCLCLIENT
 from .utils.property import PropertySetter
+from .utils.swapped_replacer import replace_isswapped_typo
 from .page import PageBase, CardStackPage, RawXamlPage
 from .loader import Loader
 from .config import import_config_dire
@@ -180,8 +181,10 @@ class Project():
             context.setter = setter
         context.client = client
         context.used_resources = set()
-        return page.generate(context = context)
-
+        xaml = page.generate(context = context)
+        xaml = replace_isswapped_typo(xaml, client)
+        return xaml
+    
     def get_page_content_type(self, page_alias, no_not_found_err_logging = False,
                             setter:PropertySetter = PropertySetter.create_empty_setter(),
                             client:'PCLClient' = DEFAULT_PCLCLIENT):

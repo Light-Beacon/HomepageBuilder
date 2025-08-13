@@ -19,7 +19,7 @@ def genpath(list:list):
     return path
 
 EDITION_MAPPING = {
-    'offical': PCLEdition.OFFICAL,
+    'official': PCLEdition.OFFICIAL,
     'opensource': PCLEdition.OPEN_SOURCE,
     'community': PCLEdition.COMMUNITY_EDITION,
 }

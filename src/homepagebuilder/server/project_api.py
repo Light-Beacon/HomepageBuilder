@@ -119,5 +119,5 @@ class ProjectAPI:
         return {'response':self.project.get_page_xaml(alias, setter=setter, client=client),
                 'content-type' : self.project.get_page_content_type(alias, setter=setter, client=client) }
 
-    def get_page_xaml(self, alias, setter):
-        return self.project.get_page_xaml(alias, setter=setter)
+    def get_page_xaml(self, alias, setter, client):
+        return self.project.get_page_xaml(alias, setter=setter, client=client)

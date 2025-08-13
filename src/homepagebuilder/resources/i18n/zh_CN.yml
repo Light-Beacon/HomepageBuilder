@@ -125,4 +125,5 @@ server.request.response.json: '以 Json 返回对${page}的请求'
 server.request.response.page: '以 内容页面 返回对${page}的请求'
 server.request.response.not_found: '以 不存在该页面 返回对${page}的请求'
 server.request.response.error: '在返回对 ${page} 伴有参数 ${args} 的请求时发生了错误'
+server.request.version: 'PCL版本: ${version}'
 template.build: "使用 ${template} 模版构建卡片"
