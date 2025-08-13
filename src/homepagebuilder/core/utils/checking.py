@@ -24,9 +24,19 @@ class Version():
         self.detail = detail
 
     @classmethod
-    def from_string(cls, version_str):
-        major, minor, micro, *detail = version_str.split(".")
-        return cls(int(major), int(minor), int(micro), detail)
+    def from_string(cls, version_str:str):
+        version_seq = [0,0,0]
+        sub_version_list = version_str.split(".")
+        for i in range(min(3, len(sub_version_list))):
+            sub_version = sub_version_list[i]
+            if sub_version.isdecimal():
+                version_seq[i] = int(sub_version)
+            else:
+                break
+        else:
+            i += 1
+        detail = sub_version_list[i:]
+        return cls(version_seq[0], version_seq[1], version_seq[2], detail)
 
     def __str__(self):
         return f"{self.major}.{self.minor}.{self.micro}{'.' + '.'.join(map(str, self.detail)) if self.detail else ''}"
