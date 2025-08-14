@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Union, Tuple, List, Dict, Annotated
-from homepagebuilder.core.utils.checking import Version
+from .checking import Version
 
 class PCLEdition(Enum):
     """PCL2类型"""
@@ -102,6 +102,8 @@ class PCLClientLimiter():
         rules = self.ruleset.get(client.edition)
         if not rules:
             return False
+        if not client.edition.is_pcl():
+            return True
         for rule in rules:
             if rule[0] <= client.version <= rule[1]:
                 return True

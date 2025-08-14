@@ -46,7 +46,7 @@ class Version():
 
     def __gt__(self, other):
         if other is ...:
-            return False
+            return True
         return (self.major, self.minor, self.micro) > (other.major, other.minor, other.micro)
 
     def __lt__(self, other):
@@ -56,7 +56,7 @@ class Version():
 
     def __ge__(self, other):
         if other is ...:
-            return False
+            return True
         return (self.major, self.minor, self.micro) >= (other.major, other.minor, other.micro)
     
     def __le__(self, other):
