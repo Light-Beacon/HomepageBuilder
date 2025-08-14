@@ -106,13 +106,12 @@ class ProjectAPI:
     def get_page_response(self,alias, client:PCLClient, args = None):
         '''获取页面内容'''
         self.__check_project_update()
-        setter = PropertySetter(None, args, False)
-        if len(setter) > 0:
-            return self.get_response_dict(alias, setter, client)
+        setter = PropertySetter(None, {"args": args}, False)
         client_hash = hash(client)
-        if not (rsp := self.cache.get((alias, client_hash))):
+        args_hash = hash(args)
+        if not (rsp := self.cache.get((alias, client_hash, args_hash))):
             rsp = self.get_response_dict(alias,setter,client)
-            self.cache[(alias, client_hash)] = rsp
+            self.cache[(alias, client_hash, args_hash)] = rsp
         return rsp
 
     def get_response_dict(self,alias, setter, client):

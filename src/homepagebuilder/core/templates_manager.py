@@ -30,20 +30,19 @@ def add_special_rule(name, func):
 
 logger = Logger('Template')
 
-def __is_filter_value_match(rule,value):
+def __is_filter_value_match(rule, value):
     rule = str(rule)
     if rule.startswith('$'):
         rule = rule[1:]
         if rule_matcher := SPECAIL_RULES.get(rule):
             return rule_matcher(value)
         return False
-    else:
-        value = str(value)
-        if not value:
-            return False
-        rule = rule.lower()
-        value = value.lower()
-        return rule == value
+    if not value:
+        return False
+    value = str(value)
+    rule = rule.lower()
+    value = value.lower()
+    return rule == value
 
 def filter_match(template,card):
     '''检测卡片是否符合模版筛选规则'''
@@ -55,14 +54,20 @@ def filter_match(template,card):
         return False
     for keyword in template['filter']:
         rules = template['filter'][keyword]
+        value = card
+        keyword_path = keyword.split('.')
+        for path in keyword_path:
+            value = value.get(path)
+            if value is None:
+                break
         if isinstance(rules,(str,int,bool,float)):
-            if __is_filter_value_match(rule=rules,value = card.get(keyword)):
+            if __is_filter_value_match(rule=rules,value = value):
                 return True
             else:
                 return False
         if isinstance(rules,list):
             for rule in template['filter'][keyword]:
-                if __is_filter_value_match(rule=str(rule),value = card.get(keyword)):
+                if __is_filter_value_match(rule=str(rule),value = value):
                     break # 所有匹配可能性有一个匹配就行
             else:
                 return False
