@@ -67,6 +67,10 @@ class ProjectAPI:
         self.cache.clear()
         logger.info('Cache cleared.')
 
+    def auto_cache_clean(self):
+        if len(self.cache) > config('Server.MaxCache', 128):
+            self.clear_cache()
+    
     def trigger_project_update(self):
         ''' 触发 project 更新信号'''
         self.__run_time_version += 1
@@ -107,6 +111,7 @@ class ProjectAPI:
         '''获取页面内容'''
         self.__check_project_update()
         setter = PropertySetter(None, {"args": args}, False)
+        self.auto_cache_clean()
         client_hash = hash(client)
         args_hash = hash(args)
         if not (rsp := self.cache.get((alias, client_hash, args_hash))):
