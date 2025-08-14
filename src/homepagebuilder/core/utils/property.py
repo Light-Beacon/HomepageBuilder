@@ -7,7 +7,12 @@ class PropertySetter():
         self.default:Dict = dict(default) if default else {}
         self.override:Dict = dict(override) if override else {}
         self.__frozen = frozen
-    
+
+    @classmethod
+    def create_empty_setter(cls) -> 'PropertySetter':
+        """创建一个空的 PropertySetter"""
+        return cls({}, {})
+
     def attach(self,sticker_setter:Union['PropertySetter', None]):
         """向 Setter 上附上另一层 Setter"""
         if self.__frozen:
@@ -18,12 +23,11 @@ class PropertySetter():
         temp_default = sticker_setter.default.copy()
         temp_default.update(self.default)
         self.default = temp_default
-    
+
     def clone(self):
-        new_setter = PropertySetter(self.default, self.override)
-        new_setter.__frozen = False
+        new_setter = PropertySetter(self.default, self.override, False)
         return new_setter
-    
+
     def toProperties(self):
         default_copy = self.default.copy()
         default_copy.update(self.override)
@@ -34,7 +38,7 @@ class PropertySetter():
         new_property.update(property)
         new_property.update(self.override)
         return new_property
-    
+
     def froze(self):
         self.__frozen = True
 
@@ -44,7 +48,7 @@ class PropertySetter():
 
     def __len__(self):
         return len(self.default) + len(self.override)
-    
+
     @classmethod
     def fromargs(cls,args:List[str]):
         override = {}
@@ -53,8 +57,8 @@ class PropertySetter():
                 argname, argvalue = arg.split('=')
                 override[argname] = argvalue
             else:
-                override[argname] = False if argname.startswith('!') else True
+                override[arg] = False if arg.startswith('!') else True
         return PropertySetter(None,override)
-    
+
     def __str__(self) -> str:
         return f'<PS|default:{self.default}, override:{self.override}>'

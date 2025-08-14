@@ -12,15 +12,17 @@ from .utils.event import set_triggers
 from .utils.paths import fmtpath
 from .utils.checking import Version
 from .utils.client import DEFAULT_PCLCLIENT
-from .page import CardStackPage, RawXamlPage
+from .utils.property import PropertySetter
+from .utils.swapped_replacer import replace_isswapped_typo
+from .page import PageBase, CardStackPage, RawXamlPage
 from .loader import Loader
 from .config import import_config_dire
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from .utils.client import PCLClient
     from .builder import Builder
     from .types import Context
-    from .page import PageBase
 
 PATH_SEP = os.path.sep
 logger = Logger('Project')
@@ -48,7 +50,7 @@ class Project():
             logger.error(t('project.check_module_list.error', wait_list=wait_list))
 
     @set_triggers('project.import')
-    def import_pack(self, path):
+    def import_pack(self, path: 'Path'):
         """导入工程包"""
         logger.info(t('project.import.start', path=path))
         self.__init_load_projectfile(path)
@@ -62,8 +64,10 @@ class Project():
         logger.info(t('project.import.success'))
 
     @set_triggers('project.import.projectfile')
-    def __init_load_projectfile(self,path):
-        pack_info:Dict[str, Optional[str]] = File(path).read()
+    def __init_load_projectfile(self, path: 'Path'):
+        if not path.exists():
+            raise FileNotFoundError(t('project.import.projectfilenotfound', path=path))
+        pack_info: Dict[str, Optional[str]] = File(path).read()
         self.base_path = os.path.dirname(path)
         self.version = Version.from_string(pack_info['version'])
         self.default_page = pack_info.get('default_page')
@@ -97,9 +101,9 @@ class Project():
     def __init_import_structures(self):
         self.__context.components.update(Loader.load_compoents(
             fmtpath(self.base_path,'/structures/components')))
-        self.__context.templates.update(Loader.load_tempaltes(
+        self.__context.templates.update(Loader.load_templates(
             fmtpath(self.base_path,'/structures/templates')))
-        self.__context.page_templates.update(Loader.load_page_tempaltes(
+        self.__context.page_templates.update(Loader.load_page_templates(
             fmtpath(self.base_path,'/structures/pagetemplates')))
 
     def __init_import_data(self):
@@ -109,7 +113,7 @@ class Project():
     @set_triggers('project.import.modules')
     def __init_import_modules(self):
         logger.info(t('project.import.modules'))
-        load_module_dire(fmtpath(self.base_path,'/modules'), self)
+        load_module_dire(fmtpath(self.base_path,'/modules'), context = self.__context)
         self.__checkModuleWaitList()
 
     @set_triggers('project.import.cards')
@@ -143,7 +147,7 @@ class Project():
             logger.warning('Page file not supported: %s.%s', file_name, file_exten)
             return
         self.pages[file_name] = page
-        self.pagelist.append(file_name)
+        self.pagelist.append(page)
 
     def __import_card_stack_page(self,page:CardStackPage):
         if page.name:
@@ -152,7 +156,6 @@ class Project():
             for alias in page.alias:
                 self.pages[alias] = page
 
-    @set_triggers('project.genxaml')
     def find_page_by_alias(self, page_alias, no_not_found_err_logging = False):
         """从别名获取页面对象"""
         if page_alias not in self.pages:
@@ -160,24 +163,31 @@ class Project():
                 logger.error(t('project.gen_page.failed.notfound', page=page_alias))
             raise PageNotFoundError(page_alias)
         return self.pages[page_alias]
-
-    @set_triggers('project.genxaml')
-    def get_page_xaml(self, page_alias, no_not_found_err_logging = False, setter = None, client = DEFAULT_PCLCLIENT):
-        """使用页面别名获取其 xaml 代码"""
-        logger.info(t('project.gen_page.start', page=page_alias, args=setter))
-        page = self.find_page_by_alias(page_alias, no_not_found_err_logging)
+    
+    def get_page_xaml(self, page, no_not_found_err_logging = False, setter = None, client = DEFAULT_PCLCLIENT):
+        """使用页面(对象或别名)获取其 xaml 代码"""
+        if isinstance(page, str):
+            page = self.find_page_by_alias(page, no_not_found_err_logging)
+        elif not isinstance(page, PageBase):
+            raise TypeError()
+        logger.info(t('project.gen_page.start', page=page.id, args=setter))
         return self.generate_page_xaml(page, setter, client)
 
-    def generate_page_xaml(self, page, setter = None, client = DEFAULT_PCLCLIENT):
+    @set_triggers('project.genxaml')
+    def generate_page_xaml(self, page, setter = None, client = DEFAULT_PCLCLIENT) -> str:
         """使用页面对象生成 xaml 代码"""
         context = self.get_context_copy()
         if setter is not None:
             context.setter = setter
         context.client = client
         context.used_resources = set()
-        return page.generate(context = context)
-
-    def get_page_content_type(self, page_alias, no_not_found_err_logging = False, setter = None, client:'PCLClient' = DEFAULT_PCLCLIENT):
+        xaml = page.generate(context = context)
+        xaml = replace_isswapped_typo(xaml, client)
+        return xaml
+    
+    def get_page_content_type(self, page_alias, no_not_found_err_logging = False,
+                            setter:PropertySetter = PropertySetter.create_empty_setter(),
+                            client:'PCLClient' = DEFAULT_PCLCLIENT):
         if page_alias not in self.pages:
             if not no_not_found_err_logging:
                 logger.error(t('project.gen_page.failed.notfound', page=page_alias))
@@ -203,8 +213,12 @@ class Project():
             raise ValueError(t('project.no_library'))
         return self.base_library.get_all_cards()
 
-    def get_all_pagename(self) -> List:
+    def get_all_pagename(self) -> List[str]:
         """获取工程里的全部页面名"""
+        return self.pages.keys()
+    
+    def get_all_page(self) -> 'List[PageBase]':
+        """获取工程里的全部页面"""
         return self.pagelist
 
     def get_context_copy(self) -> 'Context':

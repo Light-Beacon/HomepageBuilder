@@ -328,6 +328,8 @@ class MarkdownListItem(BlockNode, BlockNodeContainer):
         super().parse_children()
         inline_children_buffer = []
         new_children = []
+        if not self.children:
+            return []
         for child in self.children:
             if child.node_type == NodeType.PLAINTEXT:
                 if isinstance(child,Text) and child.isblank():

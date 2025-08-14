@@ -22,11 +22,11 @@ class Loader():
         return cls.create_structure_mapping(direpath, XAML_PATTERN, Component)
 
     @classmethod
-    def load_tempaltes(cls,direpath) -> Dict[str, Dict]:
+    def load_templates(cls,direpath) -> Dict[str, Dict]:
         return cls.create_structure_mapping(direpath, YAML_PATTERN)
 
     @classmethod
-    def load_page_tempaltes(cls,direpath) -> Dict[str, str]:
+    def load_page_templates(cls,direpath) -> Dict[str, str]:
         return cls.create_structure_mapping(direpath, XAML_PATTERN)
 
     @classmethod
@@ -71,7 +71,7 @@ class Loader():
     @classmethod
     def mapping_file(cls,file_or_dire,
                      output:Dict[str,object],
-                     item_type:Union[type,None]=None,
+                     item_type:Optional[type]=None,
                      prefix = '',
                      patten = None,
                      is_toplevel:bool = True):
@@ -80,7 +80,9 @@ class Loader():
             name = prefix + file.name
             if item_type:
                 output[name] = item_type(file=file)
-                logger.debug(locale('loader.regist.structure.withtype',type_name=item_type.__name__,name=name))
+                logger.debug(locale('loader.regist.structure.withtype',
+                                    type_name=locale("type." + item_type.__name__.lower()),
+                                    name=name))
             else:
                 output[name] = file.data
                 logger.debug(locale('loader.regist.structure',name=name))
