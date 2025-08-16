@@ -87,11 +87,13 @@ class ProjectAPI:
     def get_version(self, alias, request):
         '''获取主页版本'''
         self.__check_project_update()
+        client = PCLClient.from_request(web_request=request)
         if self.version_provider.dynamic:
-            return self.version_provider.get_page_version(alias,request)
-        if ('__$version', alias) not in self.cache:
-            self.cache[('__$version', alias)] = self.version_provider.get_page_version(alias,request)
-        return self.cache[('__$version', alias)]
+            return self.version_provider.get_page_version(alias, client, request)
+        client_hash = hash(client)
+        if ('__$version', alias, client_hash) not in self.cache:
+            self.cache[('__$version', alias, client_hash)] = self.version_provider.get_page_version(alias, client, request)
+        return self.cache[('__$version', alias, client_hash)]
 
     @set_triggers('server.get.json')
     def get_page_json(self, alias):

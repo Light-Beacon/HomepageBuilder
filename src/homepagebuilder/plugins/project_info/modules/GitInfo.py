@@ -80,6 +80,6 @@ def get_card_last_update_time(_tm,card,context,*_args,**_kwargs):
 
 class GitVersionProvider(VersionProvider):
     name = 'githash'
-    def get_page_version(self, alias, request):
+    def get_page_version(self, alias, client, request):
         githash = subprocess.check_output('git rev-parse HEAD',cwd = self.api.project_dir, shell=True)
         return githash.decode("utf-8")

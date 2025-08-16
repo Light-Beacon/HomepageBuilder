@@ -70,6 +70,8 @@ def getpage(alias:str):
         if realip := request.headers.get('X-Real-IP'):
             logger.debug(f"x_real_ip: {realip}")
     if alias.endswith('/version') or alias == 'version':
+        #client = PCLClient.from_request(web_request=request)
+        #logger.debug(t("server.request.version", version=str(client.version)))
         return projapi.get_version(alias,request) # 获取版本号
     while alias.endswith('/'):
         alias = alias[:-1]
