@@ -51,7 +51,7 @@ class VersionProvider():
     def __init__(self,api):
         self.api = api
 
-    def get_page_version(self, alias:str, request):
+    def get_page_version(self, alias:str, client:PCLClient, request):
         """
         获取页面版本号
         ### 参数
@@ -69,19 +69,18 @@ class VersionProvider():
 
 class VersionTimeProvider(VersionProvider):
     name = 'time'
-
-    def get_page_version(self, _alias :str, _request):
+    def get_page_version(self, alias :str, client:PCLClient, request):
         return str(time())
 
 class VersionStaticProvider(VersionProvider):
     name = 'static'
 
-    def get_page_version(self, _alias :str, _request):
+    def get_page_version(self, alias :str, client:PCLClient, request):
         return str(config('Server.Version.Static.Value'))
 
 class VersionHashProvider(VersionProvider):
     name = 'hash'
-    hash_method:str = None
+    hash_method:str = ''
 
     def __init__(self, api):
         super().__init__(api)
@@ -117,6 +116,5 @@ class VersionHashProvider(VersionProvider):
                     hash_object = hashlib.md5(page_result)
         return hash_object.hexdigest()
 
-    def get_page_version(self, _alias :str, request):
-        client = PCLClient.from_request(request)
+    def get_page_version(self, alias :str, client:PCLClient, request):
         return self.get_hash(client)
