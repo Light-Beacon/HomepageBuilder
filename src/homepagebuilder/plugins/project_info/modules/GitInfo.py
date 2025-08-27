@@ -27,7 +27,6 @@ def check_git_installtion() -> bool:
         logger.warning(locale('projectinfo.git.disablehint', hide_config_key = 'NoProduceNotInstalledWarning'))
     return is_installed
 
-IS_GIT_INSTALLED = check_git_installtion()
 
 def is_git_repo(directory):
     try:
@@ -38,19 +37,22 @@ def is_git_repo(directory):
 
 def check_is_git_repo(proj):
     is_repo, err = is_git_repo(proj.base_path)
-    proj.set_context_data('git.isrepo', is_repo)
     if not is_repo and not gitinfo_config('NoProduceNotRepoWarning'):
         logger.warning(locale('projectinfo.git.isnotrepo', errdetail = err))
         logger.warning(locale('projectinfo.git.disablehint', hide_config_key = 'NoProduceNotRepoWarning'))
     return is_repo
 
 @on('project.load.return')
-@enable_by(IS_GIT_INSTALLED)
 @enable_by_config('ProjectInfo.GitInfo.Enable')
 def set_githash(proj,*_,**__):
-    check_is_git_repo(proj)
-    if not proj.get_context_data('git.isrepo'):
+    if not check_git_installtion():
+        proj.set_context_data('git.installed', False)
         return
+    proj.set_context_data('git.installed', True)
+    if not check_is_git_repo(proj):
+        proj.set_context_data('git.isrepo', False)
+        return
+    proj.set_context_data('git.isrepo', True)
     githash = get_githash(proj.base_path).removesuffix('\n')
     logger.info(locale('projectinfo.git.version',version=githash))
     proj.set_context_data('git.commit.hash',githash)
@@ -62,10 +64,9 @@ def get_githash(path):
 
 @on('tm.buildcard.start')
 @enable_by_config('ProjectInfo.GitInfo.Enable')
-@enable_by(IS_GIT_INSTALLED)
 def get_card_last_update_time(_tm,card,context,*_args,**_kwargs):
     data = context.data
-    if not data['git.isrepo']:
+    if not data.get('git.installed', False) or not data.get('git.isrepo', False):
         return
     if 'last_update' in card:
         return
