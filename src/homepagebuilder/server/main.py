@@ -35,6 +35,7 @@ class Server:
 
     def run(self,port,flask_debug):
         logger.info(t('server.start',port=port))
+        self.projapi.builder.set_data('server.port', port)
         app.run(port=port,debug=flask_debug)
 
     def get_flask_app(self):
