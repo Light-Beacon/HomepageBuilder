@@ -1,4 +1,4 @@
-from typing import Union,List,Dict
+from typing import Union, List, Dict, Optional
 from abc import abstractmethod
 from enum import Enum
 import re 
@@ -16,8 +16,8 @@ def handles(*args):
         return cls
     return wrapper
 
-def find_first_text(node:'Node',regex:Union[re.Pattern|None],
-                    remove:bool = False) -> Union[str|None]:
+def find_first_text(node:'Node',regex:Optional[re.Pattern],
+                    remove:bool = False) -> Optional[str]:
     '''寻找节点中符合要求的最开始的文本'''
     for child in node.children:
         if isinstance(child,Text):
@@ -138,7 +138,7 @@ class VoidNode(Node):
     def parse_children(self):
         pass
 
-    def add_child_node(self,_):
+    def add_child_node(self, child_node:'Node'):
         raise NotImplementedError()
 
     def convert_children(self):
@@ -152,11 +152,13 @@ class NodeBase(Node):
         super().__init__(tag, *args, **kwargs)
         self.escaping_special_chars: bool = False
         """是否转义 \\n \\r \\t"""
+        self.escaping_brace: bool = True
+        """是否转义 \\{ \\}"""
         if tag:
             self.name = tag.name
             self.attrs = tag.attrs
             self.parse_children()
-    
+
     def get_replacement(self) -> Dict:
         return {}
 
@@ -169,7 +171,10 @@ class NodeBase(Node):
         replace_str = str(component_obj)
         if len(replacement) > 0:
             for k,v in replacement.items():
-                replace_str = replace_str.replace(f'${{{k}}}',encode_escape(str(v),with_special=self.escaping_special_chars))
+                replace_str = replace_str.replace(f'${{{k}}}',
+                                                encode_escape(str(v),
+                                                    with_special=self.escaping_special_chars,
+                                                    with_brace=self.escaping_brace))
         return replace_str
 
     def parse_children(self):
@@ -240,7 +245,7 @@ class WPFUIContainer(NodeBase):
             logger.error(f'Unknown ancestor type: {self.actual_ancestor.contain_type}')
             raise TypeError
 
-@handles('em','strong','code','del','br')
+@handles('em','strong','del','br')
 class CommonInlineNode(InlineNode, InlineNodeContainer):
     """通用行内元素"""
 
@@ -252,9 +257,13 @@ class Text(VoidNode):
     def __init__(self,tag,*args,**kwargs):
         super().__init__(tag,*args,**kwargs)
         self.content = str(tag)
+        self.escaping_special_chars = False
+        self.escaping_brace = True
 
     def convert(self):
-        return encode_escape(self.content)
+        return encode_escape(self.content,
+                             with_special=self.escaping_special_chars,
+                             with_brace=self.escaping_brace)
 
     def isempty(self):
         return len(self.content) == 0
@@ -313,7 +322,7 @@ class ListItemParagraph(Paragraph):
     def __init__(self,children,context, parent_stack ):
         super().__init__(tag = None, context = context, parent_stack=parent_stack)
         self.children = children
-
+    
     def parse_children(self,*args,**kwargs):
         pass
 
@@ -363,22 +372,36 @@ QUOTE_TYPE_ISWARN_MAPPING = {
     'warn': True,
 }
 
+@handles('code')
+class InlineCode(InlineNode):
+    """行内代码块"""
+    def __init__(self, tag, *args, **kwargs):
+        super().__init__(tag, *args, **kwargs)
+        self.escaping_special_chars = True
+        self.escaping_brace = False
+
+    def parse_children(self):
+        super().parse_children()
+        for child in self.children:
+            if isinstance(child,Text):
+                child.escaping_brace = False
+
 @handles('blockcode')
 class BlockCode(BlockNode):
     """块状代码块"""
     def __init__(self, tag, *args, **kwargs):
         super().__init__(tag, *args, **kwargs)
         self.escaping_special_chars = True
-    
+        self.escaping_brace = False
+
     @property
     def component_name(self) -> str:
         return 'blockcode'
-    
-    def get_replacement(self) -> Union[List|None]:
+
+    def get_replacement(self) -> Union[Dict|None]:
         replacements = {'language': self.attrs['lang'],
                         'code': self.attrs['code']}
         return replacements
-    
 
 @handles('blockquote')
 class Quote(BlockNode, BlockNodeContainer):
@@ -398,7 +421,7 @@ class Quote(BlockNode, BlockNodeContainer):
             return 'blockquote-typed'
         return 'blockquote'
 
-    def get_replacement(self) -> Union[List]:
+    def get_replacement(self) -> Dict[str, Optional[str]]:
         if self.is_pcl_hint:
             return {'iswarn': self.is_warn}
         else:
@@ -419,7 +442,7 @@ class Heading(BlockNode):
     def component_name(self) -> str:
         return 'heading'
 
-    def get_replacement(self) -> Union[List|None]:
+    def get_replacement(self) -> Dict[str, str]:
         return {'level': self.name[1:]}
 
 class LinkType(Enum):
@@ -469,7 +492,7 @@ class Link(InlineNode, InlineNodeContainer):
         else:
             self.link = ''
 
-    def get_replacement(self) -> Union[List|None]:
+    def get_replacement(self) -> Dict[str, str]:
         reps = {'link': self.link, 'type': self.link_type.value}
         ancestor = self.ancestor
         if ancestor.name == 'li':
@@ -488,7 +511,7 @@ class MarkdownImage(WPFUIContainer):
     def component_name(self) -> str:
         return 'titled-img' if self.title else 'img'
 
-    def get_replacement(self) -> Union[List|None]:
+    def get_replacement(self) -> Dict[str, str]:
         replacements = {'source': self.attrs['src']}
         if self.title:
             replacements['title'] = self.title
