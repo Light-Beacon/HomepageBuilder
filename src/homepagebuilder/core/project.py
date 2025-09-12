@@ -17,12 +17,13 @@ from .utils.swapped_replacer import replace_isswapped_typo
 from .page import PageBase, CardStackPage, RawXamlPage
 from .loader import Loader
 from .config import import_config_dire
+from .types import Context
 
 if TYPE_CHECKING:
     from pathlib import Path
     from .utils.client import PCLClient
     from .builder import Builder
-    from .types import Context
+
 
 PATH_SEP = os.path.sep
 logger = Logger('Project')
@@ -35,6 +36,7 @@ class Project():
         logger.info(t('project.init'))
         self.builder:Builder = builder
         self.__context:Context = builder.get_context_copy()
+        Context.set_current_context(self.__context)
         self.__context.project = self
         self.base_library:Optional[Library] = None
         self.base_path:Optional[str] = None

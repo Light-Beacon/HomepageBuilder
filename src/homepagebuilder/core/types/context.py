@@ -9,6 +9,8 @@ if TYPE_CHECKING:
     from ..utils.client import PCLClient
     from ..resource import Resource
 
+
+
 class Context():
     """构建时环境"""
 
@@ -26,7 +28,7 @@ class Context():
     """构件"""
     templates: Dict[str, Dict]
     """卡片模版"""
-    data: Dict[str,object]
+    data: Dict[str,object] = {}
     """数据"""
     page_templates: Dict[str,str]
     """页面模版"""
@@ -36,3 +38,16 @@ class Context():
     """客户端信息"""
     used_resources: Set[str] = set()
     """使用过的资源"""
+
+    @classmethod
+    def get_current_context(cls) -> 'Context':
+        """获取当前上下文"""
+        return _CURRENT_CONTEXT
+
+    @classmethod
+    def set_current_context(cls, context: 'Context'):
+        """设置当前上下文"""
+        global _CURRENT_CONTEXT
+        _CURRENT_CONTEXT = context
+
+_CURRENT_CONTEXT = Context()

@@ -1,3 +1,4 @@
+from pathlib import Path
 from ..logger import Logger
 from typing import Iterable, TypeVar, Union, Callable, TYPE_CHECKING
 logger = Logger('IO')
@@ -21,10 +22,10 @@ class FileFormatUnsupportedError(Exception):
     def __str__(self):
         return self.msg
 
-def regist_file_function(func:Callable[[str], T], action:str,
+def regist_file_function(func:Callable[[Path], T], action:str,
                          file_extentions:Union[str, Iterable[str]]) -> None:
     '''注册后缀名为 `file_extens` 的文件的读写函数'''
-    def reg_filetype(func:Callable[[str], T], file_exten:str, action:str):
+    def reg_filetype(func:Callable[[Path], T], file_exten:str, action:str):
         if action == 'r':
             read_func_mapping[file_exten] = func
         elif action == 'w':

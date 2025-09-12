@@ -115,7 +115,7 @@ class TemplateManager():
         for cpn in target_template['components']:
             cpn = format_code(cpn,card,context,'')
             if cpnobj := context.components.get(cpn):
-                code += cpnobj.toxaml(card,context,children_code)
+                code += cpnobj.toxaml(card,children_code)
             elif cpn.startswith('$') or cpn.startswith('@'):
                 args = cpn[1:].split('|')
                 code += invoke_script(args[0],context=context,card=card,args=args[1:],children_code=children_code)

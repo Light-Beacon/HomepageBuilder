@@ -29,6 +29,7 @@ class Builder():
         self.resources: Resource
         self.template_manager: TemplateManager
         self.__context:Context = Context()
+        Context.set_current_context(self.__context)
         self.__context.builder = self
         self.envpath = os.path.dirname(os.path.dirname(__file__))
         self.__init_context()
