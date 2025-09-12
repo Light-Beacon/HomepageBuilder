@@ -169,5 +169,5 @@ def modifier_presenter(card,context:Context,**_):
     client:PCLClient = context.client
     for path, value in modifiers.items():
         xamlpath = getpath(path, client.edition, client.version)
-        output += comp.toxaml({'PATH': xamlpath, 'VALUE': value}, context=context)
+        output += comp.toxaml({'PATH': xamlpath, 'VALUE': value})
     return output

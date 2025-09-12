@@ -4,9 +4,11 @@
 
 from typing import Dict
 from ..core.i18n import locale as t
+from ..core.types import Context
 
-def get_style_code(context) -> str:
+def get_style_code() -> str:
     '''获取样式代码'''
+    context = Context.get_current_context()
     styles:Dict[str,object] = context.styles
     xaml = ''
     for item in styles.values():

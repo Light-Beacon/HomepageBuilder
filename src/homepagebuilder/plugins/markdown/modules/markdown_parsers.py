@@ -3,6 +3,7 @@ from abc import abstractmethod
 from enum import Enum
 import re 
 from homepagebuilder.interfaces import encode_escape,Logger
+from homepagebuilder.core.types.context import Context
 
 logger = Logger('Markdown')
 FIRSTLINE_SPACES = '    '
@@ -56,13 +57,13 @@ class NodeType(Enum):
     UIELEMENT = 4
 
 class Node():
-    def __init__(self,tag,context,parent_stack):
-        self.context = context
-        self.components = context.components
-        self.name:str = None
+    def __init__(self,tag,parent_stack):
+        self.context = Context.get_current_context()
+        self.components = self.context.components
+        self.name:str = ''
         self.attrs = None
         self.tag = tag
-        self.children:List['Node'] = None
+        self.children:List['Node'] = []
         self.parent_stack:List['Node'] = parent_stack
         self.expose_children:bool = False
         """隐藏本元素，将子元素设为与本元素同级"""
@@ -167,7 +168,7 @@ class NodeBase(Node):
         component_obj = self.components.get(self.component_name)
         if component_obj is None:
             raise ValueError(f'Componet not found: {self.component_name}')
-        component_obj.mark_used_resources(replacement,self.context)
+        component_obj.mark_used_resources(replacement)
         replace_str = str(component_obj)
         if len(replacement) > 0:
             for k,v in replacement.items():
@@ -181,7 +182,7 @@ class NodeBase(Node):
         if self.tag.contents:
             self.children = []
             for child in self.tag.contents:
-                self.add_child_node(create_node(child,self.context,self.parent_stack + [self]))
+                self.add_child_node(create_node(tag=child, parent_stack=self.parent_stack + [self]))
 
     def add_child_node(self,child_node:Node):
         self.children.append(child_node)
@@ -287,8 +288,8 @@ class Text(VoidNode):
 @handles('p')
 class Paragraph(BlockNode, InlineNodeContainer):
     @classmethod
-    def from_inline_list(cls,inline_list,context,parent_stack):
-        p = Paragraph(tag = None,context=context,parent_stack=parent_stack)
+    def from_inline_list(cls,inline_list,parent_stack):
+        p = Paragraph(tag = None, parent_stack=parent_stack)
         p.children = inline_list
         p.name = 'p'
         p.tag = '<virtual p>'
@@ -306,7 +307,7 @@ class Paragraph(BlockNode, InlineNodeContainer):
                 replace_children_flag = True
                 if len(children_buffer_inline) > 0:
                     new_children.append(Paragraph.from_inline_list(
-                        children_buffer_inline, context=self.context,
+                        children_buffer_inline,
                         parent_stack=self.parent_stack))
                 new_children.append(child)
                 children_buffer_inline = []
@@ -314,13 +315,13 @@ class Paragraph(BlockNode, InlineNodeContainer):
                 children_buffer_inline.append(child)
         if replace_children_flag and len(children_buffer_inline) > 0:
             new_children.append(Paragraph.from_inline_list(
-                children_buffer_inline, context=self.context,
+                children_buffer_inline,
                 parent_stack=self.parent_stack))
             self.children = new_children
 
 class ListItemParagraph(Paragraph):
-    def __init__(self,children,context, parent_stack ):
-        super().__init__(tag = None, context = context, parent_stack=parent_stack)
+    def __init__(self,children, parent_stack ):
+        super().__init__(tag = None, parent_stack=parent_stack)
         self.children = children
     
     def parse_children(self,*args,**kwargs):
@@ -349,13 +350,13 @@ class MarkdownListItem(BlockNode, BlockNodeContainer):
             else:
                 if len(inline_children_buffer) > 0:
                     new_children.append(self.children_paragraph_class(
-                        inline_children_buffer,context = self.context,
+                        inline_children_buffer,
                         parent_stack = self.parent_stack + [self]))
                     inline_children_buffer = []
                 new_children.append(child)
         if len(inline_children_buffer) > 0:
             new_children.append(self.children_paragraph_class(
-                inline_children_buffer,context = self.context,
+                inline_children_buffer,
                 parent_stack = self.parent_stack + [self]))
         self.children = new_children
 
@@ -365,11 +366,13 @@ QUOTE_TYPE_NAMES = {
     'tip': '提示',
     'important': '重要',
     'warning': '警告',
-    'caution': '注意'
+    'caution': '注意',
+    None: None
 }
 QUOTE_TYPE_ISWARN_MAPPING = {
     'info': False,
     'warn': True,
+    None: None
 }
 
 @handles('code')
@@ -398,7 +401,7 @@ class BlockCode(BlockNode):
     def component_name(self) -> str:
         return 'blockcode'
 
-    def get_replacement(self) -> Union[Dict|None]:
+    def get_replacement(self) -> Optional[Dict]:
         replacements = {'language': self.attrs['lang'],
                         'code': self.attrs['code']}
         return replacements
@@ -407,11 +410,11 @@ class BlockCode(BlockNode):
 class Quote(BlockNode, BlockNodeContainer):
     def __init__(self, tag, *args, **kwargs):
         super().__init__(tag, *args, **kwargs)
-        quote_type = find_first_text(self,regex = QUOTE_TYPE_PATTERN,remove=True)
+        quote_type = find_first_text(self, regex=QUOTE_TYPE_PATTERN, remove=True)
         self.quote_type = quote_type.lower() if quote_type else None
-        self.quote_type_name = QUOTE_TYPE_NAMES.get(self.quote_type,quote_type)
+        self.quote_type_name = QUOTE_TYPE_NAMES.get(self.quote_type, quote_type)
         self.is_pcl_hint = self.quote_type in QUOTE_TYPE_ISWARN_MAPPING
-        self.is_warn = QUOTE_TYPE_ISWARN_MAPPING.get(self.quote_type,None)
+        self.is_warn = QUOTE_TYPE_ISWARN_MAPPING.get(self.quote_type, None)
 
     @property
     def component_name(self) -> str:
@@ -517,8 +520,8 @@ class MarkdownImage(WPFUIContainer):
             replacements['title'] = self.title
         return replacements
 
-def create_node(tag,context,parent_stack):
+def create_node(tag,parent_stack):
     if isinstance(tag,str):
-        return Text(tag,context=context,parent_stack=parent_stack)
+        return Text(tag,parent_stack=parent_stack)
     else:
-        return TAG_PARSER_MAPPING[tag.name](tag=tag,context=context,parent_stack=parent_stack)
+        return TAG_PARSER_MAPPING[tag.name](tag=tag,parent_stack=parent_stack)
