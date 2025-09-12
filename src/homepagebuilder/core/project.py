@@ -115,7 +115,7 @@ class Project():
     @set_triggers('project.import.modules')
     def __init_import_modules(self):
         logger.info(t('project.import.modules'))
-        load_module_dire(fmtpath(self.base_path,'/modules'), context = self.__context)
+        load_module_dire(fmtpath(self.base_path,'/modules'))
         self.__checkModuleWaitList()
 
     @set_triggers('project.import.cards')
@@ -178,15 +178,15 @@ class Project():
     @set_triggers('project.genxaml')
     def generate_page_xaml(self, page, setter = None, client = DEFAULT_PCLCLIENT) -> str:
         """使用页面对象生成 xaml 代码"""
-        context = self.get_context_copy()
+        context = Context.get_current_context()
         if setter is not None:
             context.setter = setter
         context.client = client
         context.used_resources = set()
-        xaml = page.generate(context = context)
+        xaml = page.generate()
         xaml = replace_isswapped_typo(xaml, client)
         return xaml
-    
+
     def get_page_content_type(self, page_alias, no_not_found_err_logging = False,
                             setter:PropertySetter = PropertySetter.create_empty_setter(),
                             client:'PCLClient' = DEFAULT_PCLCLIENT):

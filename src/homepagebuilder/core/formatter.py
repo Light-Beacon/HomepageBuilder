@@ -1,7 +1,7 @@
 """
 该模块用于格式化代码
 """
-from typing import Dict, TYPE_CHECKING, Optional
+from typing import Dict, Optional, List
 from .logger import Logger
 from .module_manager import invoke_script
 from .types import Context
@@ -12,7 +12,7 @@ def format_code(code: str,
                 data: Dict[str,object],
                 context: Optional['Context'] = None,
                 children_code: str = '',
-                stack:list = None,
+                stack:Optional[List] = None,
                 err_output = None):
     '''格式化代码'''
     if not isinstance(code,str):
@@ -37,7 +37,7 @@ def format_code(code: str,
         if attr_name.startswith('$') or attr_name.startswith('@'):
             script_name=qurey_tuple[0][1:]
             replacement = invoke_script(script_name=script_name,
-                                    project=project,context=context,card=data,args=qurey_tuple[1:],
+                                    project=project,card=data,args=qurey_tuple[1:],
                                     children_code=children_code)
         else:
             try:

@@ -32,6 +32,8 @@ class Context():
     """数据"""
     page_templates: Dict[str,str]
     """页面模版"""
+    styles: Dict[str,object] = {}
+    """样式"""
     setter: 'PropertySetter'
     """设置器"""
     client: 'PCLClient'

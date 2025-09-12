@@ -73,7 +73,7 @@ class Builder():
 
     def load_modules(self,dire_path):
         """加载构建器模块"""
-        load_module_dire(dire_path, context = self.__context)
+        load_module_dire(dire_path)
 
     @enable_by_config('System.EnablePlugins')
     def load_plugins(self, plugin_path):
@@ -91,7 +91,7 @@ class Builder():
             plugin_logger.debug(t('plugin.load.resources'))
             self.load_resources(dire / 'resources')
             plugin_logger.debug(t('plugin.load.modules'))
-            load_module_dire(dire / 'modules', context=self.__context)
+            load_module_dire(dire / 'modules')
             append_locale(dire / 'i18n')
         self.__check_module_wait_list()
 

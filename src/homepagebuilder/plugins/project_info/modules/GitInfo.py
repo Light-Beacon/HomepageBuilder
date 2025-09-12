@@ -4,6 +4,7 @@ from homepagebuilder.core.logger import Logger
 from homepagebuilder.core.i18n import locale
 from homepagebuilder.interfaces.Events import on
 from homepagebuilder.interfaces import enable_by_config, config as sys_config, enable_by
+from homepagebuilder.core.types import Context
 from homepagebuilder.server.utils.version_providers import VersionProvider
 
 def gitinfo_config(key):
@@ -64,7 +65,8 @@ def get_githash(path):
 
 @on('tm.buildcard.start')
 @enable_by_config('ProjectInfo.GitInfo.Enable')
-def get_card_last_update_time(_tm,card,context,*_args,**_kwargs):
+def get_card_last_update_time(_tm,card,*_args,**_kwargs):
+    context = Context.get_current_context()
     data = context.data
     if not data.get('git.installed', False) or not data.get('git.isrepo', False):
         return
