@@ -27,6 +27,7 @@ class Version():
     def from_string(cls, version_str:str):
         version_seq = [0,0,0]
         sub_version_list = version_str.split(".")
+        i = 0
         for i in range(min(3, len(sub_version_list))):
             sub_version = sub_version_list[i]
             if sub_version.isdecimal():

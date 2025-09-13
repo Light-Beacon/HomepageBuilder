@@ -71,7 +71,10 @@ class Project():
             raise FileNotFoundError(t('project.import.projectfilenotfound', path=path))
         pack_info: Dict[str, Optional[str]] = File(path).read()
         self.base_path = os.path.dirname(path)
-        self.version = Version.from_string(pack_info['version'])
+        if pack_version := pack_info.get('version'):
+            self.version = Version.from_string(pack_version)
+        else:
+            raise ValueError(t('project.import.pack.noversion'))
         self.default_page = pack_info.get('default_page')
         self.__check_version()
 
@@ -217,8 +220,8 @@ class Project():
 
     def get_all_pagename(self) -> List[str]:
         """获取工程里的全部页面名"""
-        return self.pages.keys()
-    
+        return list(self.pages.keys())
+
     def get_all_page(self) -> 'List[PageBase]':
         """获取工程里的全部页面"""
         return self.pagelist

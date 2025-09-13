@@ -70,7 +70,7 @@ class ProjectAPI:
     def auto_cache_clean(self):
         if len(self.cache) > config('Server.MaxCache', 128):
             self.clear_cache()
-    
+
     def trigger_project_update(self):
         ''' 触发 project 更新信号'''
         self.__run_time_version += 1
@@ -80,7 +80,7 @@ class ProjectAPI:
     def __check_project_update(self):
         if CROSS_PROCESS_CACHE:
             version = CROSS_PROCESS_CACHE.get('project.version')
-            if version > self.__run_time_version:
+            if version and version > self.__run_time_version:
                 self.reload_project()
 
     @set_triggers('server.get.version')

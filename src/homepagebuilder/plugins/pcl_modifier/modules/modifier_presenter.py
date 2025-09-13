@@ -65,16 +65,17 @@ class PCLStructure:
 
         def get_children(self, name):
             return self.children.get(name)
-        
-        def log_tree(self, deepth):
-            logger.noisy('%s %s','  │' * deepth, self.name)
+
+        def log_tree(self, depth):
+            logger.noisy('%s %s','  │' * depth, self.name)
             if self.is_endpoint:
                 return
             if self.is_collection_container:
                 for child in self.children.values():
-                    child[0].log_tree(deepth + 1)
+                    child[0].log_tree(depth + 1)
             else:
-                self.child.log_tree(deepth + 1)
+                if self.child:
+                    self.child.log_tree(depth + 1)
 
     def __init__(self, yaml_data):
         self.yaml_data = yaml_data
@@ -83,18 +84,18 @@ class PCLStructure:
         self.root_node = self.PCLElementNode(self.yaml_data["content"])
 
     def __init_limiter(self):
-        versions = self.yaml_data["versions"]
+        versions:dict[str, list[str]] = self.yaml_data["versions"]
         for edition_str, version_range_str in versions.items():
             if edition := EDITION_MAPPING.get(edition_str):
                 self.limiter.add_rule(edition, PCLStructure.__version_range_to_limiter_rule(version_range_str))
             else:
                 raise ValueError('Unknown client edition %s', edition)
 
-    def check(self, pcledition, version):
-        return self.limiter.check_accept(pcledition, version)
-            
+    def check(self, pclclient:PCLClient):
+        return self.limiter.check_accept(pclclient)
+
     @classmethod
-    def __version_range_to_limiter_rule(cls,range_list):
+    def __version_range_to_limiter_rule(cls,range_list:list[str]):
         min_ver = ... if range_list[0] == "..." else range_list[0]
         max_ver = ... if range_list[1] == "..." else range_list[1]
         return (min_ver, max_ver)
@@ -149,7 +150,7 @@ def getpath(path, pcledition, version):
             return pcl.get_path(path)
     raise ValueError(f"No Strcture can be used for PCL: {pcledition} v{version}")
 
-@file_reader(['pclmodifier'])
+@file_reader('pclmodifier')
 def read_yaml(filepath:str) -> dict:
     ''' 读取 Yaml 文件 '''
     with open(filepath,encoding='utf-8') as f:

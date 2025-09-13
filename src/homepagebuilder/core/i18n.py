@@ -1,13 +1,23 @@
 from argparse import HelpFormatter
-from locale import getdefaultlocale
+import locale as pylocale
 from string import Template
+from typing import Annotated
 from .config import config
 from .logger import Logger
 from .io import Dire
 from .utils.paths import getbuilderpath
+
 CONFIG_LANG = config('System.Language')
-DEFAULTLANG,_  = getdefaultlocale() if str(CONFIG_LANG).lower() == 'auto' else (CONFIG_LANG,None)
-locales = {}
+
+DEFAULTLANG, _ = pylocale.getlocale() if str(CONFIG_LANG).lower() == 'auto' else (CONFIG_LANG, None)
+if not isinstance(DEFAULTLANG,str) or len(DEFAULTLANG) == 0:
+    DEFAULTLANG = 'en_US'
+
+Language = Annotated[str, '语言代码']
+TranslationKey = Annotated[str, '翻译键']
+
+locales:dict[Language, dict[TranslationKey, str]] = {}
+
 logger = Logger('i18n')
 
 def init(locales_tree):
@@ -35,10 +45,11 @@ def append_locale(path):
         else:
             locales_tree[lang] = file.data
 
-def locale(key:str,*args,lang:str=DEFAULTLANG,**kwargs):
+def locale(key:TranslationKey, *args, lang:Language=DEFAULTLANG, **kwargs):
     '''从键值获取字符串'''
-    if lang in locales:
-        string = locales.get(lang).get(key)
+    language_dict = locales.get(lang)
+    if language_dict:
+        string = language_dict.get(key)
         if not string:
             if lang != 'en_US':
                 string = locale(key,lang='en_US',*args,**kwargs)

@@ -50,17 +50,22 @@ COLORED_TIME_PART_FMT = CONSOLE_WHITE + TIME_PART_FMT + CONSOLE_CLEAR
 LOC_PART_FMT = "[%(name)s|%(filename)s:%(lineno)d]"
 IS_CONSOLE_SUPPORTS_COLOR = supports_color()
 
-class ColorConsoleFormater(logging.Formatter):
-    super_formatter = None
-    def init_supper_formatter(self):
-        if IS_CONSOLE_SUPPORTS_COLOR:
-            self.super_formatter = logging.Formatter(
+COLOR_FORMATTER = logging.Formatter(
                 fmt=f'{COLORED_TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
                 datefmt='%m/%d|%H:%M:%S')
-        else:
-            self.super_formatter = logging.Formatter(
+GENERIC_FORMATTER = logging.Formatter(
                 fmt=f'{TIME_PART_FMT}{LOC_PART_FMT} %(message)s',
                 datefmt='%m/%d|%H:%M:%S')
+
+class ColorConsoleFormater(logging.Formatter):
+    super_formatter = GENERIC_FORMATTER
+
+    def init_super_formatter(self):
+        """初始化父格式化器"""
+        if IS_CONSOLE_SUPPORTS_COLOR:
+            self.super_formatter = COLOR_FORMATTER
+        else:
+            self.super_formatter = GENERIC_FORMATTER
 
     def format(self, record):
         level_color_console_str = ''
@@ -136,7 +141,7 @@ def set_logging_format():
         TIME_PART_FMT = "[%(asctime)s]"
         LOC_PART_FMT = "[%(name)s]"
     COLORED_TIME_PART_FMT = CONSOLE_WHITE + TIME_PART_FMT + CONSOLE_CLEAR
-    CONSOLE_FORMATTER.init_supper_formatter()
+    CONSOLE_FORMATTER.init_super_formatter()
 
 logging.basicConfig(level=logging.INFO)
 set_level_name()

@@ -39,7 +39,7 @@ class VersionProvider():
     ## 用法
     继承该类，指定 `name`，并实现 `get_page_version` 方法'''
 
-    name:str = None
+    name:str
     '''名称'''
 
     dynamic: bool = False

@@ -1,5 +1,6 @@
 from enum import Enum
-from typing import Union, Tuple, List, Dict, Annotated
+from typing import Union, Tuple, List, Dict, Annotated, Optional
+from types import EllipsisType
 from .checking import Version
 
 class PCLEdition(Enum):
@@ -20,8 +21,8 @@ class PCLEdition(Enum):
 class PCLClient():
     def __init__(self):
         self.edition: PCLEdition
-        self.version: Version
-        self.version_id: int
+        self.version: Optional[Version]
+        self.version_id: Optional[int]
 
     def is_pcl(self) -> bool:
         """是否为PCL2"""
@@ -34,31 +35,26 @@ class PCLClient():
             'version': str(self.version),
             'versionid': self.version_id
         }
-        
+
     def __hash__(self):
         return hash(str(self.edition)+str(self.version)+str(self.version_id))
 
     def above(self, other: 'PCLClient') -> bool:
         """判断当前版本是否大于其他版本"""
+        if not self.version:
+            raise ValueError("Current client version is None")
         if not self.is_pcl() or not other.is_pcl():
             return False
         return self.version > other.version
 
     def below(self, other: 'PCLClient') -> bool:
         """判断当前版本是否小于其他版本"""
+        if not self.version:
+            raise ValueError("Current client version is None")
         if not self.is_pcl() or not other.is_pcl():
             return False
         return self.version < other.version
 
-    @classmethod
-    def from_request(cls, web_request) -> 'PCLClient':
-        """从请求中获取PCL版本"""
-        client = PCLClient()
-        client.edition = client.__getpcledition(web_request=web_request)
-        client.version = client.__getpclver(web_request=web_request)
-        client.version_id = client.__getpclverid(web_request=web_request)
-        return client
-    
     def __getpcledition(self, web_request) -> PCLEdition:
         refer = web_request.headers.get('Referer','')
         if refer.endswith('ce.open.pcl2.server/'):
@@ -84,11 +80,23 @@ class PCLClient():
                     return Version.from_string(pclver[1])
         return None
 
+    @classmethod
+    def from_request(cls, web_request) -> 'PCLClient':
+        """从请求中获取PCL版本"""
+        client = PCLClient()
+        client.edition = client.__getpcledition(web_request=web_request)
+        client.version = client.__getpclver(web_request=web_request)
+        client.version_id = client.__getpclverid(web_request=web_request)
+        return client
+
+MinVersionType = Annotated[Union[Version, EllipsisType],"min version"]
+MaxVersionType = Annotated[Union[Version, EllipsisType],"max version"]
+
 class PCLClientLimiter():
     def __init__(self):
-        self.ruleset:Dict[PCLEdition, List[Tuple[Annotated[Version,"min version"], Annotated[Version,"max version"]]]] = {}
+        self.ruleset:Dict[PCLEdition, List[Tuple[MinVersionType, MaxVersionType]]] = {}
 
-    def add_rule(self, pcledition, versionrange:Tuple[Union[Version|str], Union[Version|str]] = (...,...)):
+    def add_rule(self, pcledition, versionrange:Tuple[Union[Version, str, EllipsisType], Union[Version, str, EllipsisType]] = (...,...)):
         minversion, maxversion = versionrange
         if isinstance(minversion, str):
             minversion = Version.from_string(minversion)
@@ -104,6 +112,8 @@ class PCLClientLimiter():
             return False
         if not client.edition.is_pcl():
             return True
+        if not client.version:
+            return False
         for rule in rules:
             if rule[0] <= client.version <= rule[1]:
                 return True

@@ -69,7 +69,7 @@ class Node():
         """隐藏本元素，将子元素设为与本元素同级"""
 
     @property
-    def ancestor(self) -> 'Node':
+    def ancestor(self) -> Optional['Node']:
         """逻辑祖先"""
         if len(self.parent_stack) > 0:
             return self.parent_stack[-1]
@@ -77,7 +77,7 @@ class Node():
             return None
 
     @property
-    def actual_ancestor(self) -> 'Node':
+    def actual_ancestor(self) -> Optional['Node']:
         """**实际在xaml中体现的祖先**
         
         若逻辑祖先的 `expose_children` 为 true，则返回逻辑祖先的实际祖先
@@ -96,7 +96,7 @@ class Node():
         return self.name
 
     @abstractmethod
-    def get_replacement(self) -> Union[Dict|None]:
+    def get_replacement(self) -> Optional[Dict]:
         '''获取替换框架占位符的字符串字典'''
 
     @abstractmethod
@@ -127,7 +127,7 @@ class Node():
     @property
     def node_type(self) -> NodeType:
         '''本节点的类型'''
-        raise NodeType.UNDEFINED
+        return NodeType.UNDEFINED
 
 class VoidNode(Node):
     def get_replacement(self):
@@ -339,7 +339,7 @@ class MarkdownListItem(BlockNode, BlockNodeContainer):
         inline_children_buffer = []
         new_children = []
         if not self.children:
-            return []
+            return
         for child in self.children:
             if child.node_type == NodeType.PLAINTEXT:
                 if isinstance(child,Text) and child.isblank():
@@ -401,7 +401,7 @@ class BlockCode(BlockNode):
     def component_name(self) -> str:
         return 'blockcode'
 
-    def get_replacement(self) -> Optional[Dict]:
+    def get_replacement(self) -> dict:
         replacements = {'language': self.attrs['lang'],
                         'code': self.attrs['code']}
         return replacements
@@ -498,7 +498,7 @@ class Link(InlineNode, InlineNodeContainer):
     def get_replacement(self) -> Dict[str, str]:
         reps = {'link': self.link, 'type': self.link_type.value}
         ancestor = self.ancestor
-        if ancestor.name == 'li':
+        if ancestor and ancestor.name == 'li':
             reps['pos_down'] = 3
         else:
             reps['pos_down'] = 2
