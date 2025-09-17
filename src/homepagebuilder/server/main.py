@@ -18,8 +18,8 @@ class Server:
         logger.info(t('server.init'))
         self.projapi = ProjectAPI(project_path)
         self.limiter = None
-        self.init_server_config()
         self.app = Flask(__name__)
+        self.init_server_config()
         self.setup_routes()
 
     def init_server_config(self):
