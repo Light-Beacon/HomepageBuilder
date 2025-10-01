@@ -17,7 +17,7 @@ SPECIAL_ESCAPE_CHARS = {
 	'\n':'&#x000A;',
 }
 
-UNESCAPED_BRACE_PATTEN = re.compile(r'(?<!\{\})\{(?!\})')
+UNESCAPED_BRACE_PATTEN = re.compile(r'^\s*\{(?!\}\s*\{)')
 ESCAPED_BRACE_PATTEN = re.compile(r'\{\}')
 
 def decode_escape(string:str):

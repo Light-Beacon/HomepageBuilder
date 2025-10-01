@@ -381,7 +381,7 @@ class InlineCode(InlineNode):
     def __init__(self, tag, *args, **kwargs):
         super().__init__(tag, *args, **kwargs)
         self.escaping_special_chars = True
-        self.escaping_brace = False
+        self.escaping_brace = True
 
     def parse_children(self):
         super().parse_children()
@@ -395,7 +395,7 @@ class BlockCode(BlockNode):
     def __init__(self, tag, *args, **kwargs):
         super().__init__(tag, *args, **kwargs)
         self.escaping_special_chars = True
-        self.escaping_brace = False
+        self.escaping_brace = True
 
     @property
     def component_name(self) -> str:
