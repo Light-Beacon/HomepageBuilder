@@ -3,7 +3,7 @@ from typing import Dict
 from homepagebuilder.interfaces import script
 from homepagebuilder.interfaces import file_reader
 from homepagebuilder.core.types.context import Context
-from homepagebuilder.core.utils.client import PCLClientLimiter, PCLEdition, PCLClient
+from homepagebuilder.core.utils.client import PCLClientLimiter, PCLBranch, PCLClient
 from homepagebuilder.core.logger import Logger, is_debugging
 
 logger = Logger('PCLMOD')
@@ -19,9 +19,9 @@ def genpath(list:list):
     return path
 
 EDITION_MAPPING = {
-    'official': PCLEdition.OFFICIAL,
-    'opensource': PCLEdition.OPEN_SOURCE,
-    'community': PCLEdition.COMMUNITY_EDITION,
+    'official': PCLBranch.OFFICIAL,
+    'opensource': PCLBranch.OPEN_SOURCE,
+    'community': PCLBranch.COMMUNITY_EDITION,
 }
 
 class PCLStructure:
@@ -169,6 +169,6 @@ def modifier_presenter(card,context:Context,**_):
     comp = context.components['ModifierTextbox']
     client:PCLClient = context.client
     for path, value in modifiers.items():
-        xamlpath = getpath(path, client.edition, client.version)
+        xamlpath = getpath(path, client.branch, client.version)
         output += comp.toxaml({'PATH': xamlpath, 'VALUE': value})
     return output
