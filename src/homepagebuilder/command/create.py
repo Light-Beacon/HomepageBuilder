@@ -3,7 +3,7 @@ import shutil
 import os
 from .proc import CommandProcesser
 from ..core.i18n import locale as t
-from ..core.utils.checking import Version
+from ..core.utils.version import Version
 
 class FolderNotEmptyError(Exception):
     """文件夹不为空异常"""

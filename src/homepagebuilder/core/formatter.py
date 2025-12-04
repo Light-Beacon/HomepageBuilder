@@ -48,7 +48,7 @@ def format_code(code: str,
                 if len(qurey_tuple) >= 1:
                     replacement = qurey_tuple[-1]
                 else:
-                    logger.warning(f'访问了不存在的属性，并且没有设定默认值: {attr_name}')
+                    logger.warning('访问了不存在的属性，并且没有设定默认值: %s', attr_name)
                     continue
         stack.append(code)
         try:
@@ -64,9 +64,9 @@ def get_card_prop(card,attr_name):
 def dfs_get_prop(current_tree,prop_path:str):
     if '.' not in prop_path:
         return current_tree[prop_path]
-    this_name,next_path = prop_path.split('.',maxsplit=2)
+    this_name, next_path = prop_path.split('.', maxsplit=1)
     if next_tree := current_tree.get(this_name):
-        return dfs_get_prop(next_tree,next_path)
+        return dfs_get_prop(next_tree, next_path)
     else:
         raise PropNotFoundError(prop_path)
 

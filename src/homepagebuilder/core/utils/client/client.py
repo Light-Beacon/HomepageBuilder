@@ -11,7 +11,6 @@ class PCLClient():
     def __init__(self):
         self.branch: PCLBranch
         self.version: Optional[Version]
-        self.version_id: Optional[int]
 
     def is_pcl(self) -> bool:
         """是否为PCL2"""
@@ -25,7 +24,7 @@ class PCLClient():
         }
 
     def __hash__(self):
-        return hash(str(self.branch)+str(self.version)+str(self.version_id))
+        return hash(str(self.branch)+str(self.version))
 
     def above(self, other: 'PCLClient') -> bool:
         """判断当前版本是否大于其他版本"""

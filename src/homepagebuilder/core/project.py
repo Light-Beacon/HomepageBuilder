@@ -10,7 +10,7 @@ from .i18n import locale as t
 from .module_manager import load_module_dire,get_check_list
 from .utils.event import set_triggers
 from .utils.paths import fmtpath
-from .utils.checking import Version
+from .utils.version import Version
 from .utils.client import DEFAULT_PCLCLIENT
 from .utils.property import PropertySetter
 from .utils.swapped_replacer import replace_isswapped_typo
