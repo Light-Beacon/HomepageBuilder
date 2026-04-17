@@ -96,7 +96,7 @@ class DependencyManager():
 
     def get_check_list(self):
         with self._dependency_system_lock:
-            load_checks = list(self.load_checks.keys())
+            load_checks = list(self.load_checks.items())
             if len(load_checks) > 0 and load_checks[0]:
                 return load_checks
             else:

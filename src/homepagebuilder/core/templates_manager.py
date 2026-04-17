@@ -153,7 +153,7 @@ class TemplateManager():
         return current_code
 
     @set_triggers('tm.buildcard')
-    def build(self,card):
+    def build(self, card):
         '''构建卡片'''
         def try_build(self,card,template):
             try:
