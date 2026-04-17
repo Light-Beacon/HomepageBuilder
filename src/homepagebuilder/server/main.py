@@ -10,6 +10,7 @@ from .project_updater import request_update
 from .project_api import ProjectAPI
 from ..core.i18n import locale as t
 from ..core.config import config, is_debugging
+from ..core.utils.event import set_triggers
 
 logger = Logger('Server')
 
@@ -31,14 +32,15 @@ class Server:
             self.limiter = Limiter(get_remote_address, app = self.app,
                             default_limits=config('Server.RateLimit.Rate.Default', ["10 per minute"]))
 
-    def run(self,port,flask_debug):
+    def run(self,host,port,flask_debug):
         logger.info(t('server.start',port=port))
         self.projapi.builder.set_data('server.port', port)
-        self.app.run(port=port,debug=flask_debug)
+        self.app.run(host=host, port=port, debug=flask_debug)
 
     def get_flask_app(self):
         return self.app
 
+    @set_triggers('server.setup_routes')
     def setup_routes(self):
         """设置所有路由"""
         self.app.add_url_rule("/pull", "git_update", self.git_update, methods=['POST'])
