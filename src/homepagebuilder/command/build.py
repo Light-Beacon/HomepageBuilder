@@ -3,7 +3,7 @@ from os import makedirs
 from os.path import sep, exists
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
-from .proc import CommandProcesser
+from .proc import CommandProcessor
 from ..core.logger import Logger
 from ..core.i18n import locale as t
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 logger = Logger('Command|Build')
 
-class BuildCommand(CommandProcesser):
+class BuildCommand(CommandProcessor):
     """构建命令处理类"""
     name = 'build'
     help = t('command.build.help')
