@@ -9,14 +9,14 @@ from .utils.paths import getbuilderpath
 
 CONFIG_LANG = config('System.Language')
 
-DEFAULTLANG, _ = pylocale.getlocale() if str(CONFIG_LANG).lower() == 'auto' else (CONFIG_LANG, None)
-if not isinstance(DEFAULTLANG,str) or len(DEFAULTLANG) == 0:
-    DEFAULTLANG = 'en_US'
+DEFAULT_LANGUAGE, _ = pylocale.getlocale() if str(CONFIG_LANG).lower() == 'auto' else (CONFIG_LANG, None)
+if not isinstance(DEFAULT_LANGUAGE, str) or len(DEFAULT_LANGUAGE) == 0:
+    DEFAULT_LANGUAGE = 'en_US'
 
 Language = Annotated[str, '语言代码']
 TranslationKey = Annotated[str, '翻译键']
 
-locales:dict[Language, dict[TranslationKey, str]] = {}
+locales: dict[Language, dict[TranslationKey, str]] = {}
 
 logger = Logger('i18n')
 
@@ -26,6 +26,10 @@ def init(locales_tree):
     files = i18n_dire.scan()
     for file in files:
         locales_tree[file.name] = file.data
+
+def set_default_language(lang_key:str):
+    global DEFAULT_LANGUAGE
+    DEFAULT_LANGUAGE = lang_key
 
 def append_locale(path):
     '''加载更多本地化包'''
@@ -45,8 +49,10 @@ def append_locale(path):
         else:
             locales_tree[lang] = file.data
 
-def locale(key:TranslationKey, *args, lang:Language=DEFAULTLANG, **kwargs):
-    '''从键值获取字符串'''
+def locale(key:TranslationKey, *args, lang:Language=None, **kwargs):
+    """从键值获取字符串"""
+    if not lang:
+        lang = DEFAULT_LANGUAGE
     language_dict = locales.get(lang)
     if language_dict:
         string = language_dict.get(key)
