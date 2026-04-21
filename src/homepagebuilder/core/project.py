@@ -230,5 +230,9 @@ class Project():
         """获取环境拷贝"""
         return self.__context.copy()
 
+    def unload(self):
+        from .module_manager.loader import DEPENDENCY_MANAGER
+        DEPENDENCY_MANAGER.unload_all_modules()
+
 class PageNotFoundError(Exception):
     """页面未找到错误"""

@@ -7,6 +7,7 @@ from types import ModuleType
 from typing import List, Union
 import asyncio
 import threading
+import gc
 from concurrent.futures import ThreadPoolExecutor
 from ..logger import Logger
 from ..i18n import locale as t
@@ -28,6 +29,18 @@ class DependencyManager():
         self.load_checks: dict[str, list[Path]] = {}
         self.wait_checks: dict[Path, int] = {}
         self._dependency_system_lock = threading.Lock()
+
+    def unload_all_modules(self):
+        """卸载全部模块"""
+        with self._dependency_system_lock:
+            for name, module in modules.items():
+                logger.debug(t('module.unload',name=name))
+                if hasattr(module,'del'):
+                    getattr(module,'del')()
+            modules.clear()
+            self.load_checks.clear()
+            self.wait_checks.clear()
+            gc.collect()
 
     def load_module(self, module_path:Path, queue_load:bool=False):
         '''导入模块'''

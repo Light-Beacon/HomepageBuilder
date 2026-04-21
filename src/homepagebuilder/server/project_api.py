@@ -55,6 +55,7 @@ class ProjectAPI:
     @set_triggers('server.project.reload')
     def reload_project(self):
         '''重载工程'''
+        self.project.unload()
         del self.project
         gc.collect()
         self.project = Project(self.builder,self.project_file)
