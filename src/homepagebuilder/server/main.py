@@ -11,15 +11,18 @@ from .project_api import ProjectAPI
 from ..core.i18n import locale as t
 from ..core.config import config, is_debugging
 from ..core.utils.event import set_triggers
+from ..core.types.context import Context
 
 logger = Logger('Server')
 
 class Server:
     def __init__(self,project_path=None):
         logger.info(t('server.init'))
-        self.projapi = ProjectAPI(project_path)
-        self.limiter = None
+        self.context = Context()
         self.app = Flask(__name__)
+        self.context.flask_app = self.app
+        self.projapi = ProjectAPI(project_path, self.context)
+        self.limiter = None
         self.init_server_config()
         self.setup_routes()
 

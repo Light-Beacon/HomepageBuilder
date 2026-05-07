@@ -21,14 +21,14 @@ logger = Logger('Server')
 
 class ProjectAPI:
     '''api类'''
-    def __init__(self,project_path = None):
+    def __init__(self,project_path = None, context = None):
         self.cache = {}
         if project_path:
             project_path = Path(project_path)
             self.__set_project_path(project_path)
         else:
             raise NotImplementedError()
-        self.context = Context()
+        self.context = context if context else Context()
         self.context.server_api = self
         try:
             self.builder = Builder(self.context)

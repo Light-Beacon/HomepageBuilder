@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from ..utils.client import PCLClient
     from ..resource import Resource
     from ...server.project_api import ProjectAPI
+    from flask import Flask
 
 
 
@@ -39,6 +40,8 @@ class Context():
     """设置器"""
     server_api: 'ProjectAPI'
     """服务器 API"""
+    flask_app: 'Flask'
+    """Flask App"""
     client: 'PCLClient'
     """客户端信息"""
     used_resources: Set[str] = set()

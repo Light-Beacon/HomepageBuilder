@@ -1,7 +1,7 @@
 import os
+import sys
 from pathlib import Path
 import importlib
-import sys
 import re
 from types import ModuleType
 from typing import List, Union
@@ -14,6 +14,8 @@ from ..i18n import locale as t
 from ..io import file_reader, Dire
 from ..types import Context
 from .manager import modules
+from ..utils.event import events
+from .page import scripted_page_classes
 
 PY_PATTERN = re.compile(r'.*\.py$')
 
@@ -33,13 +35,23 @@ class DependencyManager():
     def unload_all_modules(self):
         """卸载全部模块"""
         with self._dependency_system_lock:
-            for name, module in modules.items():
+            unloaded_module_names = {module.__name__.split('.')[-1] for module in modules.values()}
+            for name, module in list(modules.items()):
                 logger.debug(t('module.unload',name=name))
                 if hasattr(module,'del'):
                     getattr(module,'del')()
+                sys.modules.pop(module.__name__, None)
             modules.clear()
             self.load_checks.clear()
             self.wait_checks.clear()
+            for event_name, listeners in list(events.items()):
+                events[event_name] = [
+                    listener for listener in listeners
+                    if listener.__module__.split('.')[-1] not in unloaded_module_names
+                ]
+                if not events[event_name]:
+                    events.pop(event_name, None)
+            scripted_page_classes.clear()
             gc.collect()
 
     def load_module(self, module_path:Path, queue_load:bool=False):
