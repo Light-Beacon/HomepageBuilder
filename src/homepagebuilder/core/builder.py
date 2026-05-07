@@ -23,12 +23,12 @@ logger = Logger('Builder')
 class Builder():
     """构建器核心"""
 
-    def __init__(self):
+    def __init__(self, context: Context | None = None):
         logger.info(t('builder.init'))
         self.envpath: str
         self.resources: Resource
         self.template_manager: TemplateManager
-        self.__context:Context = Context()
+        self.__context:Context = context if context else Context()
         Context.set_current_context(self.__context)
         self.__context.builder = self
         self.envpath = os.path.dirname(os.path.dirname(__file__))

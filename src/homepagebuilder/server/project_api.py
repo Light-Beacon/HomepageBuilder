@@ -8,6 +8,7 @@ from ..core.config import config, is_debugging
 from ..core.utils.property import PropertySetter
 from ..core.utils.client import PCLClient
 from ..core.utils.event import set_triggers
+from ..core.types.context import Context
 from ..core.logger import Logger
 from .utils.version_providers import VersionProvider, get_provider_class
 
@@ -27,8 +28,10 @@ class ProjectAPI:
             self.__set_project_path(project_path)
         else:
             raise NotImplementedError()
+        self.context = Context()
+        self.context.server_api = self
         try:
-            self.builder = Builder()
+            self.builder = Builder(self.context)
             self.builder.load_project(self.project_file)
             if not self.builder.current_project:
                 raise ValueError("Project not loaded correctly.")

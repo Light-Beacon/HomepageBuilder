@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from ..utils.property import PropertySetter
     from ..utils.client import PCLClient
     from ..resource import Resource
+    from ...server.project_api import ProjectAPI
 
 
 
@@ -36,6 +37,8 @@ class Context():
     """样式"""
     setter: 'PropertySetter'
     """设置器"""
+    server_api: 'ProjectAPI'
+    """服务器 API"""
     client: 'PCLClient'
     """客户端信息"""
     used_resources: Set[str] = set()
