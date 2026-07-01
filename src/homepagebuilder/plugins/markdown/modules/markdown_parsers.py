@@ -401,7 +401,7 @@ QUOTE_TYPE_NAMES = {
 QUOTE_TYPE_ISWARN_MAPPING = {
     'info': False,
     'warn': True,
-    None: None
+    None: False
 }
 
 
