@@ -448,7 +448,7 @@ class Quote(BlockNode, BlockNodeContainer):
         self.quote_type = quote_type.lower() if quote_type else None
         self.quote_type_name = QUOTE_TYPE_NAMES.get(self.quote_type, quote_type)
         self.is_pcl_hint = self.quote_type in QUOTE_TYPE_ISWARN_MAPPING
-        self.is_warn = QUOTE_TYPE_ISWARN_MAPPING.get(self.quote_type, None)
+        self.is_warn = QUOTE_TYPE_ISWARN_MAPPING.get(self.quote_type, False)
 
     @property
     def component_name(self) -> str:
