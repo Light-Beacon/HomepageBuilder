@@ -1,14 +1,14 @@
 import importlib.resources as pkg_resources
 import shutil
 import os
-from .proc import CommandProcesser
+from .proc import CommandProcessor
 from ..core.i18n import locale as t
-from ..core.utils.checking import Version
+from ..core.utils.version import Version
 
 class FolderNotEmptyError(Exception):
     """文件夹不为空异常"""
 
-class CreateProjectCommand(CommandProcesser):
+class CreateProjectCommand(CommandProcessor):
     """创建项目命令处理类"""
     name = 'create'
     help = t('command.create.help')

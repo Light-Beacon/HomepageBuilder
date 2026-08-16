@@ -2,8 +2,10 @@
 该模块内存放了卡片库类
 '''
 import os
+import asyncio
 from typing import List
 from enum import IntEnum
+from concurrent.futures import ThreadPoolExecutor
 from .io import Dire,File
 from .logger import Logger
 from .i18n import locale as t
@@ -51,8 +53,10 @@ class Library:
         self.sub_libraries = {} # 子库
         self.cards = {}
         self.dire = Dire(os.path.dirname(data['file_path']))
-        for file in self.dire.scan(patten=r'^(?!^__LIBRARY__.yml$).*$'):  # 库所拥有的卡片
-            self.add_card_from_file(file)
+        files = self.dire.scan(patten=r'^(?!^__LIBRARY__.yml$).*$')
+        #for file in files:
+        #    self.add_card_from_file(file)
+        asyncio.run(self._load_cards_async(files))
         self.add_sub_libraries(self.dire.scan_subdir('__LIBRARY__.yml'))  # 遍历添加子库
 
     def __get_decoless_card(self,card_ref:str,is_original:bool):
@@ -95,6 +99,20 @@ class Library:
                 logger.exception(exp)
                 raise exp
             return targetlib.get_card(card_ref,is_original)
+
+    async def _load_cards_async(self, files):
+        """异步加载所有卡片"""
+        # 使用 ThreadPoolExecutor 来并发处理文件 I/O
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            # 创建协程任务列表
+            tasks = [
+                asyncio.get_event_loop().run_in_executor(
+                    executor, self.add_card_from_file, file
+                )
+                for file in files
+            ]
+            # 并发执行所有任务
+            await asyncio.gather(*tasks)
 
     @set_triggers('library.creatcard.fromfile')
     def add_card_from_file(self,file:File):

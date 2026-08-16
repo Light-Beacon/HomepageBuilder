@@ -23,12 +23,13 @@ logger = Logger('Builder')
 class Builder():
     """构建器核心"""
 
-    def __init__(self):
+    def __init__(self, context: Context | None = None):
         logger.info(t('builder.init'))
         self.envpath: str
         self.resources: Resource
         self.template_manager: TemplateManager
-        self.__context:Context = Context()
+        self.__context:Context = context if context else Context()
+        Context.set_current_context(self.__context)
         self.__context.builder = self
         self.envpath = os.path.dirname(os.path.dirname(__file__))
         self.__init_context()
@@ -72,7 +73,7 @@ class Builder():
 
     def load_modules(self,dire_path):
         """加载构建器模块"""
-        load_module_dire(dire_path, context = self.__context)
+        load_module_dire(dire_path)
 
     @enable_by_config('System.EnablePlugins')
     def load_plugins(self, plugin_path):
@@ -90,7 +91,7 @@ class Builder():
             plugin_logger.debug(t('plugin.load.resources'))
             self.load_resources(dire / 'resources')
             plugin_logger.debug(t('plugin.load.modules'))
-            load_module_dire(dire / 'modules', context=self.__context)
+            load_module_dire(dire / 'modules')
             append_locale(dire / 'i18n')
         self.__check_module_wait_list()
 

@@ -1,9 +1,9 @@
 import functools
-from typing import Dict, List
+from typing import Dict, List, Callable
 from ..logger import Logger
 from ..i18n import locale
 
-events:Dict[str,List[callable]] = {}
+events:Dict[str,List[Callable]] = {}
 logger = Logger('Event')
 
 def set_triggers(event_name:str):

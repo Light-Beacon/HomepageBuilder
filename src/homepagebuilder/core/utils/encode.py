@@ -17,8 +17,8 @@ SPECIAL_ESCAPE_CHARS = {
 	'\n':'&#x000A;',
 }
 
-UNESCAPED_URACE_PATTEN = re.compile(r'(?<!\{\})\{(?!\})')
-ESCAPED_URACE_PATTEN = re.compile(r'\{\}')
+UNESCAPED_BRACE_PATTEN = re.compile(r'^\s*\{(?!\}\s*\{)')
+ESCAPED_BRACE_PATTEN = re.compile(r'\{\}')
 
 def decode_escape(string:str):
     '''反编码转义字符'''
@@ -26,15 +26,16 @@ def decode_escape(string:str):
         string = string.replace(value,key)
     for key,value in SPECIAL_ESCAPE_CHARS.items():
         string = string.replace(value,key)
-    string = re.sub(ESCAPED_URACE_PATTEN, '', string=string)
+    string = re.sub(ESCAPED_BRACE_PATTEN, '', string=string)
     return string
 
-def encode_escape(string:str, with_special:bool = False):
+def encode_escape(string:str, with_special:bool = False, with_brace:bool = True):
     '''编码转义字符'''
     for key,value in ESCAPE_CHARS.items():
         string = string.replace(key,value)
     if with_special:
         for key,value in SPECIAL_ESCAPE_CHARS.items():
             string = string.replace(key,value)
-    string = re.sub(UNESCAPED_URACE_PATTEN, r'{}{', string=string)
+    if with_brace:
+        string = re.sub(UNESCAPED_BRACE_PATTEN, r'{}{', string=string)
     return string

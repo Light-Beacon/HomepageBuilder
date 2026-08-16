@@ -4,12 +4,14 @@ from typing import Dict
 from .core.config import is_debugging, init_full, force_debug, set_config
 from .command import *
 
-COMMAND_BINDING:Dict[str, CommandProcesser] = {}
+COMMAND_BINDING: Dict[str, CommandProcessor] = {}
+
 
 def __bind_all_command(subparsers):
-    for processer_class in CommandProcesser.__subclasses__():
-        processer = processer_class(subparsers)
-        COMMAND_BINDING[processer.name] = processer
+    for processor_class in CommandProcessor.__subclasses__():
+        processor = processor_class(subparsers)
+        COMMAND_BINDING[processor.name] = processor
+
 
 def __applicate_auto_complete(parser):
     try:
@@ -18,11 +20,12 @@ def __applicate_auto_complete(parser):
     except ImportError:
         pass
 
+
 def main():
     """构建器主入口"""
     init_full()
     try:
-        from .core.i18n import locale, LocalizedHelpFormatter
+        from .core.i18n import locale, LocalizedHelpFormatter, set_default_language
     except ImportError:
         print("[FATAL] Load i18n module failed.")
         return 1
@@ -32,6 +35,7 @@ def main():
             formatter_class=LocalizedHelpFormatter
         )
         parser.add_argument('-h', '--help', action='help', help=locale('command.help'))
+        parser.add_argument('--lang', help=locale('command.language'))
         subparsers = parser.add_subparsers(help=locale('command'), dest='command')
         __bind_all_command(subparsers)
         __applicate_auto_complete(parser)
@@ -40,6 +44,8 @@ def main():
             set_config('Logging.Level', args.logging_level)
         if args.debug:
             force_debug()
+        if args.lang:
+            set_default_language(args.lang)
         COMMAND_BINDING[args.command].process(args)
     except KeyboardInterrupt:
         print(locale('command.interrupted'))
@@ -51,6 +57,7 @@ def main():
             raise e
         return 1
     return 0
+
 
 if __name__ == '__main__':
     main()

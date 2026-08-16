@@ -19,7 +19,7 @@ logger = Logger('Page')
 class PageBase():
     """页面基类"""
     @abstractmethod
-    def generate(self, context:'Context') -> str:
+    def generate(self) -> str:
         """获取页面 XAML 代码"""
     
     id: str
@@ -61,8 +61,8 @@ class RawXamlPage(FileBasedPage):
             self._name = self.get_name()
         return self._name
 
-    def generate(self, context):
-        return format_code(self.file.data, {}, context)
+    def generate(self):
+        return format_code(self.file.data, {})
 
 class CardStackPage(FileBasedPage):
     """卡片堆叠页面"""
@@ -84,33 +84,35 @@ class CardStackPage(FileBasedPage):
         return self.display_name_str
 
     @set_triggers('page.generate')
-    def generate(self, context):
-        xaml = self.getframe(context)
+    def generate(self):
+        xaml = self.getframe()
         #xaml = xaml.replace('${animations}', '')  # TODO
-        xaml = xaml.replace('${content}', self.generate_content(context))
-        xaml = xaml.replace('${styles}', get_resources_code(context))
+        xaml = xaml.replace('${content}', self.generate_content())
+        xaml = xaml.replace('${styles}', get_resources_code())
         logger.info(t('page.generate.done', page=self.name))
         return xaml
 
-    def generate_content(self, context:'Context'):
+    def generate_content(self,):
         """生成页面主要内容"""
+        context = Context.get_current_context()
         runtime_setter = self.setter.clone()
         runtime_setter.attach(context.setter)
         content = ''
         for card_ref in self.cardrefs:
-            content += self.__getcardscontent(card_ref, context, setter = runtime_setter)
+            content += self.__getcardscontent(card_ref, setter = runtime_setter)
         return content
 
-    def __getcardscontent(self, ref:str, context:'Context', setter:PropertySetter):
+    def __getcardscontent(self, ref:str, setter:PropertySetter):
         """一行可能有多个卡片，本方法处理整行"""
-        ref = format_code(code=ref, data=setter.toProperties(), context=context)
+        ref = format_code(code=ref, data=setter.toProperties())
         code = ''
         for each_card_ref in ref.split(';'):
-            code += self.__getonecardcontent(each_card_ref, context, setter.clone())
+            code += self.__getonecardcontent(each_card_ref, setter.clone()) or ''
         return code
 
-    def __getonecardcontent(self, ref, context:Context, setter:PropertySetter):
+    def __getonecardcontent(self, ref, setter:PropertySetter):
         """一行可能有多个卡片，本方法处理单个卡片"""
+        context = Context.get_current_context()
         ref = ref.replace(' ', '').split('|')
         real_ref = ref[0]
         args = ref[1:] if len(ref) > 1 else []
@@ -119,21 +121,22 @@ class CardStackPage(FileBasedPage):
             return ''
         setter.attach(PropertySetter.fromargs(args))
         logger.info(t('page.get_card', card_ref=real_ref))
-        card = self.__getcard(real_ref,context,setter)
+        card = self.__getcard(real_ref,setter)
         if not card:
             return ''
-        return context.builder.template_manager.build(card,context)
+        return context.builder.template_manager.build(card)
 
-    def __getcard(self,ref,context:Context,setter):
+    def __getcard(self,ref, setter:PropertySetter):
         if is_debugging():
-            return self.__getcardunsafe(ref, context, setter)
+            return self.__getcardunsafe(ref, setter)
         try:
-            return self.__getcardunsafe(ref, context, setter)
+            return self.__getcardunsafe(ref, setter)
         except Exception as ex:
             logger.warning(t('page.get_card.failed', ex=ex))
             return None 
 
-    def __getcardunsafe(self,ref:str,context:Context,setter):
+    def __getcardunsafe(self,ref:str, setter:PropertySetter):
+        context = Context.get_current_context()
         if not context.project:
             raise ValueError(t('page.error.no_project'))
         if not context.project.base_library:
@@ -142,5 +145,6 @@ class CardStackPage(FileBasedPage):
         card = setter.decorate(card)
         return card
 
-    def getframe(self,context:Context):
+    def getframe(self,):
+        context = Context.get_current_context()
         return context.page_templates['Default']

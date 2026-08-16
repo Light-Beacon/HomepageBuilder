@@ -8,6 +8,7 @@ from ..core.config import config, is_debugging
 from ..core.utils.property import PropertySetter
 from ..core.utils.client import PCLClient
 from ..core.utils.event import set_triggers
+from ..core.types.context import Context
 from ..core.logger import Logger
 from .utils.version_providers import VersionProvider, get_provider_class
 
@@ -20,15 +21,17 @@ logger = Logger('Server')
 
 class ProjectAPI:
     '''api类'''
-    def __init__(self,project_path = None):
+    def __init__(self,project_path = None, context = None):
         self.cache = {}
         if project_path:
             project_path = Path(project_path)
             self.__set_project_path(project_path)
         else:
             raise NotImplementedError()
+        self.context = context if context else Context()
+        self.context.server_api = self
         try:
-            self.builder = Builder()
+            self.builder = Builder(self.context)
             self.builder.load_project(self.project_file)
             if not self.builder.current_project:
                 raise ValueError("Project not loaded correctly.")
@@ -55,6 +58,7 @@ class ProjectAPI:
     @set_triggers('server.project.reload')
     def reload_project(self):
         '''重载工程'''
+        self.project.unload()
         del self.project
         gc.collect()
         self.project = Project(self.builder,self.project_file)
@@ -67,6 +71,10 @@ class ProjectAPI:
         self.cache.clear()
         logger.info('Cache cleared.')
 
+    def auto_cache_clean(self):
+        if len(self.cache) > config('Server.MaxCache', 128):
+            self.clear_cache()
+
     def trigger_project_update(self):
         ''' 触发 project 更新信号'''
         self.__run_time_version += 1
@@ -76,18 +84,20 @@ class ProjectAPI:
     def __check_project_update(self):
         if CROSS_PROCESS_CACHE:
             version = CROSS_PROCESS_CACHE.get('project.version')
-            if version > self.__run_time_version:
+            if version and version > self.__run_time_version:
                 self.reload_project()
 
     @set_triggers('server.get.version')
     def get_version(self, alias, request):
         '''获取主页版本'''
         self.__check_project_update()
+        client = PCLClient.from_request(web_request=request)
         if self.version_provider.dynamic:
-            return self.version_provider.get_page_version(alias,request)
-        if ('__$version', alias) not in self.cache:
-            self.cache[('__$version', alias)] = self.version_provider.get_page_version(alias,request)
-        return self.cache[('__$version', alias)]
+            return self.version_provider.get_page_version(alias, client, request)
+        client_hash = hash(client)
+        if ('__$version', alias, client_hash) not in self.cache:
+            self.cache[('__$version', alias, client_hash)] = self.version_provider.get_page_version(alias, client, request)
+        return self.cache[('__$version', alias, client_hash)]
 
     @set_triggers('server.get.json')
     def get_page_json(self, alias):
@@ -106,13 +116,13 @@ class ProjectAPI:
     def get_page_response(self,alias, client:PCLClient, args = None):
         '''获取页面内容'''
         self.__check_project_update()
-        setter = PropertySetter(None, args, False)
-        if len(setter) > 0:
-            return self.get_response_dict(alias, setter, client)
+        setter = PropertySetter(None, {"args": args}, False)
+        self.auto_cache_clean()
         client_hash = hash(client)
-        if not (rsp := self.cache.get((alias, client_hash))):
+        args_hash = hash(args)
+        if not (rsp := self.cache.get((alias, client_hash, args_hash))):
             rsp = self.get_response_dict(alias,setter,client)
-            self.cache[(alias, client_hash)] = rsp
+            self.cache[(alias, client_hash, args_hash)] = rsp
         return rsp
 
     def get_response_dict(self,alias, setter, client):

@@ -10,9 +10,9 @@ from .logger import Logger
 from .utils.checking import is_xaml, is_yaml
 from .i18n import locale
 from .utils.funcs import transform
+from .types import Context
 
-if TYPE_CHECKING:
-    from .types import Context
+
 
 logger = Logger('Resource')
 YML_PATTERN = re.compile(r'.*\.yml$')
@@ -180,21 +180,23 @@ class XamlResource(Resource):
     def getxaml(self):
         return self.xaml
 
-def append_resource(resource_name:str, reslist:List[Resource], context:'Context'):
+def append_resource(resource_name:str, reslist:List[Resource]):
+    context = Context.get_current_context()
     resource = context.resources[resource_name]
     #logger.info(resource_name)
     reslist.append(resource)
     if baseon := resource.basedon:
-        append_resource(baseon, reslist, context)
+        append_resource(baseon, reslist)
 
-def get_resources_code(context:'Context'):
+def get_resources_code():
+    context = Context.get_current_context()
     try:
         reslist:List[Resource] = []
         for res in context.used_resources:
-            append_resource(res,reslist,context)
+            append_resource(res,reslist)
         for _k,res in context.resources.items():
             if res.is_default:
-                append_resource(res.key, reslist, context)
+                append_resource(res.key, reslist)
         reslist.reverse()
         result = ''
         flags:Set[str] = set()

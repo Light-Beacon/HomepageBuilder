@@ -2,8 +2,8 @@ import os
 from os import makedirs
 from os.path import sep, exists
 from pathlib import Path
-from typing import TYPE_CHECKING
-from .proc import CommandProcesser
+from typing import TYPE_CHECKING, Optional, Union
+from .proc import CommandProcessor
 from ..core.logger import Logger
 from ..core.i18n import locale as t
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 logger = Logger('Command|Build')
 
-class BuildCommand(CommandProcesser):
+class BuildCommand(CommandProcessor):
     """构建命令处理类"""
     name = 'build'
     help = t('command.build.help')
@@ -50,13 +50,17 @@ class BuildCommand(CommandProcesser):
         if args.all_page:
             self.__gen_allpage(args,builder,args.output_path)
         else:
-            page = args.page
+            page:str = args.page
             self.__gen_single_page(args, page, builder, args.output_path)
 
-    def __gen_single_page(self, args, page, builder, page_output_path):
+    def __gen_single_page(self, args, page:Union['PageBase', str], builder: 'Builder', page_output_path: Optional[str]):
+        if not builder.current_project:
+            raise ValueError(t('command.build.no_project'))
         if not page_output_path:
             page_output_path = os.getcwd() + os.path.sep + 'output.xaml'
         if not page:
+            if not builder.current_project.default_page:
+                raise ValueError(t('command.build.no_page_specified'))
             page = builder.current_project.default_page
         if args.dry_run:
             page_output_path = None
@@ -64,6 +68,8 @@ class BuildCommand(CommandProcesser):
         logger.info(t('command.build.done', path=page_output_path))
 
     def __gen_allpage(self, args, builder: 'Builder', path):
+        if not builder.current_project:
+            raise ValueError(t('command.build.no_project'))
         if not path:
             path = os.getcwd() + os.path.sep + 'output' + os.path.sep
         if not path.endswith(sep):
@@ -75,7 +81,7 @@ class BuildCommand(CommandProcesser):
             self.__gen_single_page(args,page,builder,page_output_path)
 
     @classmethod
-    def __build_and_output(cls, project:'Project', page:'PageBase', output_path, args):
+    def __build_and_output(cls, project:'Project', page:Union['PageBase', str], output_path: Optional[str], args):
         xaml = project.get_page_xaml(page=page)
         if output_path:
             with open(output_path, 'w', encoding='utf-8') as f:

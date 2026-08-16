@@ -44,3 +44,10 @@ Styles:
       FontSize: 14
       Margin: 0,8,0,1
       Foreground: *Color4
+
+ - Key: H6
+   Target: Paragraph
+   Setters:
+      FontSize: 14
+      Margin: 0,6,0,1
+      Foreground: *Color4

@@ -1,26 +1,25 @@
 """
 该模块用于格式化代码
 """
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, Optional, List
 from .logger import Logger
 from .module_manager import invoke_script
-
-if TYPE_CHECKING:
-    from .types import Context
+from .types import Context
 
 
 logger = Logger('Formatter')
 def format_code(code: str,
                 data: Dict[str,object],
-                context: 'Context',
+                context: Optional['Context'] = None,
                 children_code: str = '',
-                stack:list = None,
+                stack:Optional[List] = None,
                 err_output = None):
     '''格式化代码'''
     if not isinstance(code,str):
         return code
     if not stack:
         stack = []
+    context = context or Context.get_current_context()
     project = context.project
     code = str(code)
     matches = findall_placeholders(code)
@@ -38,7 +37,7 @@ def format_code(code: str,
         if attr_name.startswith('$') or attr_name.startswith('@'):
             script_name=qurey_tuple[0][1:]
             replacement = invoke_script(script_name=script_name,
-                                    project=project,context=context,card=data,args=qurey_tuple[1:],
+                                    project=project,card=data,args=qurey_tuple[1:],
                                     children_code=children_code)
         else:
             try:
@@ -49,7 +48,7 @@ def format_code(code: str,
                 if len(qurey_tuple) >= 1:
                     replacement = qurey_tuple[-1]
                 else:
-                    logger.warning(f'访问了不存在的属性，并且没有设定默认值: {attr_name}')
+                    logger.warning('访问了不存在的属性，并且没有设定默认值: %s', attr_name)
                     continue
         stack.append(code)
         try:
@@ -65,9 +64,9 @@ def get_card_prop(card,attr_name):
 def dfs_get_prop(current_tree,prop_path:str):
     if '.' not in prop_path:
         return current_tree[prop_path]
-    this_name,next_path = prop_path.split('.',maxsplit=2)
+    this_name, next_path = prop_path.split('.', maxsplit=1)
     if next_tree := current_tree.get(this_name):
-        return dfs_get_prop(next_tree,next_path)
+        return dfs_get_prop(next_tree, next_path)
     else:
         raise PropNotFoundError(prop_path)
 

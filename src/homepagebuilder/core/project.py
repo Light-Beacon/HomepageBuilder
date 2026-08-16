@@ -10,19 +10,20 @@ from .i18n import locale as t
 from .module_manager import load_module_dire,get_check_list
 from .utils.event import set_triggers
 from .utils.paths import fmtpath
-from .utils.checking import Version
+from .utils.version import Version
 from .utils.client import DEFAULT_PCLCLIENT
 from .utils.property import PropertySetter
 from .utils.swapped_replacer import replace_isswapped_typo
 from .page import PageBase, CardStackPage, RawXamlPage
 from .loader import Loader
 from .config import import_config_dire
+from .types import Context
 
 if TYPE_CHECKING:
     from pathlib import Path
     from .utils.client import PCLClient
     from .builder import Builder
-    from .types import Context
+
 
 PATH_SEP = os.path.sep
 logger = Logger('Project')
@@ -35,6 +36,7 @@ class Project():
         logger.info(t('project.init'))
         self.builder:Builder = builder
         self.__context:Context = builder.get_context_copy()
+        Context.set_current_context(self.__context)
         self.__context.project = self
         self.base_library:Optional[Library] = None
         self.base_path:Optional[str] = None
@@ -69,7 +71,10 @@ class Project():
             raise FileNotFoundError(t('project.import.projectfilenotfound', path=path))
         pack_info: Dict[str, Optional[str]] = File(path).read()
         self.base_path = os.path.dirname(path)
-        self.version = Version.from_string(pack_info['version'])
+        if pack_version := pack_info.get('version'):
+            self.version = Version.from_string(pack_version)
+        else:
+            raise ValueError(t('project.import.pack.noversion'))
         self.default_page = pack_info.get('default_page')
         self.__check_version()
 
@@ -113,7 +118,7 @@ class Project():
     @set_triggers('project.import.modules')
     def __init_import_modules(self):
         logger.info(t('project.import.modules'))
-        load_module_dire(fmtpath(self.base_path,'/modules'), context = self.__context)
+        load_module_dire(fmtpath(self.base_path,'/modules'))
         self.__checkModuleWaitList()
 
     @set_triggers('project.import.cards')
@@ -176,15 +181,15 @@ class Project():
     @set_triggers('project.genxaml')
     def generate_page_xaml(self, page, setter = None, client = DEFAULT_PCLCLIENT) -> str:
         """使用页面对象生成 xaml 代码"""
-        context = self.get_context_copy()
+        context = Context.get_current_context()
         if setter is not None:
             context.setter = setter
         context.client = client
         context.used_resources = set()
-        xaml = page.generate(context = context)
+        xaml = page.generate()
         xaml = replace_isswapped_typo(xaml, client)
         return xaml
-    
+
     def get_page_content_type(self, page_alias, no_not_found_err_logging = False,
                             setter:PropertySetter = PropertySetter.create_empty_setter(),
                             client:'PCLClient' = DEFAULT_PCLCLIENT):
@@ -215,8 +220,8 @@ class Project():
 
     def get_all_pagename(self) -> List[str]:
         """获取工程里的全部页面名"""
-        return self.pages.keys()
-    
+        return list(self.pages.keys())
+
     def get_all_page(self) -> 'List[PageBase]':
         """获取工程里的全部页面"""
         return self.pagelist
@@ -224,6 +229,10 @@ class Project():
     def get_context_copy(self) -> 'Context':
         """获取环境拷贝"""
         return self.__context.copy()
+
+    def unload(self):
+        from .module_manager.loader import DEPENDENCY_MANAGER
+        DEPENDENCY_MANAGER.unload_all_modules()
 
 class PageNotFoundError(Exception):
     """页面未找到错误"""

@@ -26,26 +26,26 @@ class MarkdownPresenter:
             markdown = processor.process(markdown)
         return markdown
     
-    def html2xaml(self, html, context):
+    def html2xaml(self, html):
         '''html转为xaml代码'''
         soup = BeautifulSoup(html,'html.parser')
         xaml = ''
         for tag in soup.find_all(recursive=False):
-            xaml += create_node(tag,context,[]).convert()
+            xaml += create_node(tag,[]).convert()
         return xaml
 
-    def convert(self, md,context):
+    def convert(self, md):
         '''生成xaml代码'''
         md = self.pre_process(md)
         html = markdown.markdown(md)
         logger.noisy(f'Converted markdown to html: {html}')
-        xaml = self.html2xaml(html,context)
+        xaml = self.html2xaml(html)
         return xaml
 
 mdp_singleton = MarkdownPresenter()
 
 @script('MarkdownPresenter')
-def markdown_presenter(card,context,**_):
+def markdown_presenter(card, **_):
     '''从markdown生成xaml代码脚本'''
     md = card['markdown']   
-    return mdp_singleton.convert(md,context)
+    return mdp_singleton.convert(md)
